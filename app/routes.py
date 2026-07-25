@@ -263,7 +263,6 @@ def reset_password(token):
             return redirect(url_for('auth.login'))
 
     return render_template('reset_password.html', token=token)
-
 @main.route('/job/quote/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def send_quote(job_id):
@@ -285,10 +284,11 @@ def send_quote(job_id):
         decline_url = url_for('main.quote_response', job_id=job.id, response='declined', _external=True)
 
         if job.client_email:
-            msg = Message(
-                subject=f'Quote from {current_user.username}',
-                recipients=[job.client_email],
-                body=f"""
+            try:
+                msg = Message(
+                    subject=f'Quote from {current_user.username}',
+                    recipients=[job.client_email],
+                    body=f"""
 Dear {job.client_name},
 
 You have received a quote for the following work:
@@ -305,12 +305,15 @@ To decline this quote, click here:
 
 Thank you,
 {current_user.username}
-                """
-            )
-            mail.send(msg)
-            flash('Quote trimis cu succes!')
+                    """
+                )
+                mail.send(msg)
+                flash('Quote sent successfully!')
+            except Exception as e:
+                print(f">>> Quote email error: {e}")
+                flash(f'Quote saved but email failed: {e}')
         else:
-            flash('Clientul nu are email — quote salvat dar nu trimis.')
+            flash('No client email — quote saved but not sent.')
 
         return redirect(url_for('main.dashboard'))
 
