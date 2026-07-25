@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheduler App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    {% if current_user.is_authenticated %}
+    <nav class="bg-blue-600 text-white p-4 flex justify-between">
+        <span class="font-bold text-lg">Scheduler</span>
+        <div class="space-x-4">
+            <a href="{{ url_for('main.dashboard') }}" class="hover:underline">Dashboard</a>
+            <a href="{{ url_for('main.add_job') }}" class="hover:underline">+ Job nou</a>
+            <a href="{{ url_for('auth.logout') }}" class="hover:underline">Logout</a>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="container mx-auto mt-8 px-4">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>
