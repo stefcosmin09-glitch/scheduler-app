@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
@@ -154,3 +154,25 @@ def delete_job(job_id):
     db.session.commit()
     flash('Job șters.')
     return redirect(url_for('main.dashboard'))
+
+@main.route('/job/invoice/<int:job_id>')
+@login_required
+def download_invoice(job_id):
+    job = Job.query.get_or_404(job_id)
+    if job.user_id != current_user.id:
+        flash('Nu ai permisiunea.')
+        return redirect(url_for('main.dashboard'))
+
+    from app.invoice import generate_invoice
+    from flask import Response
+    buffer = generate_invoice(job, current_user)
+
+    return Response(
+        buffer.getvalue(),
+        mimetype='application/pdf',
+        headers={
+            'Content-Disposition': f'attachment; filename=invoice_{job.id}.pdf',
+            'Content-Type': 'application/pdf'
+        }
+    )
+    
