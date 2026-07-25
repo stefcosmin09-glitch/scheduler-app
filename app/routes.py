@@ -266,6 +266,7 @@ def reset_password(token):
 @main.route('/job/quote/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def send_quote(job_id):
+    from threading import Thread
     job = Job.query.get_or_404(job_id)
     if job.user_id != current_user.id:
         flash('Nu ai permisiunea.')
@@ -284,34 +285,32 @@ def send_quote(job_id):
         decline_url = url_for('main.quote_response', job_id=job.id, response='declined', _external=True)
 
         if job.client_email:
-            try:
-                msg = Message(
-                    subject=f'Quote from {current_user.username}',
-                    recipients=[job.client_email],
-                    body=f"""
-Dear {job.client_name},
+            msg = Message(
+                subject=f'Quote from {current_user.username}',
+                recipients=[job.client_email],
+                body=f"""Dear {job.client_name},
 
 You have received a quote for the following work:
 
-📍 Address: {job.address}
-🔧 Description: {quote_description}
-💰 Price: £{quote_price:.2f}
+Address: {job.address}
+Description: {quote_description}
+Price: £{quote_price:.2f}
 
-To accept this quote, click here:
-{accept_url}
-
-To decline this quote, click here:
-{decline_url}
+To accept: {accept_url}
+To decline: {decline_url}
 
 Thank you,
-{current_user.username}
-                    """
-                )
-                mail.send(msg)
-                flash('Quote sent successfully!')
-            except Exception as e:
-                print(f">>> Quote email error: {e}")
-                flash(f'Quote saved but email failed: {e}')
+{current_user.username}"""
+            )
+            app = current_app._get_current_object()
+            def send_async(app, msg):
+                with app.app_context():
+                    try:
+                        mail.send(msg)
+                    except Exception as e:
+                        print(f">>> Email error: {e}")
+            Thread(target=send_async, args=(app, msg)).start()
+            flash('Quote sent successfully!')
         else:
             flash('No client email — quote saved but not sent.')
 
