@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow p-12 text-center">
+    {% if response == 'accepted' %}
+        <div class="text-6xl mb-4">✅</div>
+        <h2 class="text-2xl font-bold text-green-600 mb-2">Quote Accepted!</h2>
+        <p class="text-gray-600">Thank you {{ job.client_name }}. The tradesperson will be in touch shortly.</p>
+    {% else %}
+        <div class="text-6xl mb-4">❌</div>
+        <h2 class="text-2xl font-bold text-red-600 mb-2">Quote Declined</h2>
+        <p class="text-gray-600">Thank you for letting us know {{ job.client_name }}.</p>
+    {% endif %}
+
+    <div class="mt-6 bg-gray-50 rounded p-4 text-left">
+        <p class="text-gray-600"><strong>Work:</strong> {{ job.quote_description }}</p>
+        <p class="text-gray-600"><strong>Price:</strong> £{{ "%.2f"|format(job.quote_price) }}</p>
+        <p class="text-gray-600"><strong>Address:</strong> {{ job.address }}</p>
+    </div>
+</div>
+{% endblock %}

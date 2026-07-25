@@ -263,3 +263,65 @@ def reset_password(token):
             return redirect(url_for('auth.login'))
 
     return render_template('reset_password.html', token=token)
+
+@main.route('/job/quote/<int:job_id>', methods=['GET', 'POST'])
+@login_required
+def send_quote(job_id):
+    job = Job.query.get_or_404(job_id)
+    if job.user_id != current_user.id:
+        flash('Nu ai permisiunea.')
+        return redirect(url_for('main.dashboard'))
+
+    if request.method == 'POST':
+        quote_price = float(request.form.get('quote_price') or 0)
+        quote_description = request.form.get('quote_description')
+
+        job.quote_price = quote_price
+        job.quote_description = quote_description
+        job.quote_status = 'sent'
+        db.session.commit()
+
+        accept_url = url_for('main.quote_response', job_id=job.id, response='accepted', _external=True)
+        decline_url = url_for('main.quote_response', job_id=job.id, response='declined', _external=True)
+
+        if job.client_email:
+            msg = Message(
+                subject=f'Quote from {current_user.username}',
+                recipients=[job.client_email],
+                body=f"""
+Dear {job.client_name},
+
+You have received a quote for the following work:
+
+📍 Address: {job.address}
+🔧 Description: {quote_description}
+💰 Price: £{quote_price:.2f}
+
+To accept this quote, click here:
+{accept_url}
+
+To decline this quote, click here:
+{decline_url}
+
+Thank you,
+{current_user.username}
+                """
+            )
+            mail.send(msg)
+            flash('Quote trimis cu succes!')
+        else:
+            flash('Clientul nu are email — quote salvat dar nu trimis.')
+
+        return redirect(url_for('main.dashboard'))
+
+    return render_template('send_quote.html', job=job)
+
+@main.route('/job/quote/<int:job_id>/response/<response>')
+def quote_response(job_id, response):
+    job = Job.query.get_or_404(job_id)
+
+    if response in ['accepted', 'declined']:
+        job.quote_status = response
+        db.session.commit()
+
+    return render_template('quote_response.html', job=job, response=response)

@@ -33,5 +33,8 @@ class Job(db.Model):
     activity_type = db.Column(db.String(50), default='altele')
     price = db.Column(db.Float, default=0.0)
     status = db.Column(db.String(20), default='pending')
+    quote_status = db.Column(db.String(20), default='none')
+    quote_price = db.Column(db.Float, default=0.0)
+    quote_description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

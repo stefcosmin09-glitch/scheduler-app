@@ -81,8 +81,27 @@
 
         <div class="flex flex-col gap-2 ml-4">
             {% if job.status == 'pending' %}
+            {% if job.status == 'pending' %}
+            <a href="{{ url_for('main.send_quote', job_id=job.id) }}"
+        class="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 text-center">
+                📤 Quote
+            </a>
+            {% endif %}
+            {% if job.quote_status == 'accepted' %}
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded text-sm text-center">
+                ✅ Quote Accepted
+            </span>
+            {% elif job.quote_status == 'declined' %}
+            <span class="bg-red-100 text-red-700 px-3 py-1 rounded text-sm text-center">
+                ❌ Quote Declined
+            </span>
+            {% elif job.quote_status == 'sent' %}
+            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded text-sm text-center">
+                ⏳ Quote Sent
+            </span>
+            {% endif %}
             <a href="{{ url_for('main.mark_done', job_id=job.id) }}"
-                class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 text-center">
+                 class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 text-center">
                 ✅ Done
             </a>
             {% else %}
