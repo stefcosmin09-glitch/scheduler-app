@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+from app import db, mail
 from app.models import User, Job, ACTIVITY_TYPES
 from app.notifications import schedule_reminder
 from datetime import datetime
@@ -165,8 +165,39 @@ def download_invoice(job_id):
 
     from app.invoice import generate_invoice
     from flask import Response
+    from flask_mail import Message as MailMessage
     buffer = generate_invoice(job, current_user)
 
+    # Trimite pe email daca clientul are email
+    if job.client_email:
+        try:
+            msg = MailMessage(
+                subject=f'Invoice - {job.description or job.activity_type}',
+                recipients=[job.client_email],
+                body=f"""
+Dear {job.client_name},
+
+Please find attached your invoice for the work completed on {job.date.strftime('%d/%m/%Y')}.
+
+Address: {job.address}
+Amount: £{job.price:.2f}
+
+Thank you for your business!
+
+{current_user.username}
+                """
+            )
+            msg.attach(
+                f'invoice_{job.id}.pdf',
+                'application/pdf',
+                buffer.getvalue()
+            )
+            mail.send(msg)
+            flash('Invoice descărcat și trimis pe email clientului!')
+        except Exception as e:
+            print(f">>> Eroare email: {e}")
+            flash('Invoice descărcat — emailul nu a putut fi trimis.')
+    buffer.seek(0)
     return Response(
         buffer.getvalue(),
         mimetype='application/pdf',
@@ -174,5 +205,4 @@ def download_invoice(job_id):
             'Content-Disposition': f'attachment; filename=invoice_{job.id}.pdf',
             'Content-Type': 'application/pdf'
         }
-    )
-    
+    ) 
