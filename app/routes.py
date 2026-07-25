@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db, mail
+from flask_mail import Message
+from itsdangerous import URLSafeTimedSerializer
 from app.models import User, Job, ACTIVITY_TYPES
 from app.notifications import schedule_reminder
 from datetime import datetime
@@ -206,3 +208,58 @@ Thank you for your business!
             'Content-Type': 'application/pdf'
         }
     ) 
+
+def get_serializer():
+    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+
+@auth.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        print(f">>> User gasit: {user}")
+        if user:
+            s = get_serializer()
+            token = s.dumps(email, salt='password-reset')
+            reset_url = url_for('auth.reset_password', token=token, _external=True)
+
+            msg = Message(
+                subject='Reset your password - Scheduler App',
+                recipients=[email],
+                body=f"""
+Hi {user.username},
+
+Click the link below to reset your password. The link expires in 1 hour.
+
+{reset_url}
+
+If you didn't request this, ignore this email.
+                """
+            )
+            mail.send(msg)
+        print(f">>> Email reset trimis la {email}")
+        flash('If that email exists, you will receive a reset link shortly.')
+        return redirect(url_for('auth.login'))
+
+    return render_template('forgot_password.html')
+
+@auth.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        s = get_serializer()
+        email = s.loads(token, salt='password-reset', max_age=3600)
+    except Exception:
+        flash('Link invalid sau expirat.')
+        return redirect(url_for('auth.forgot_password'))
+
+    if request.method == 'POST':
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            from werkzeug.security import generate_password_hash
+            user.password = generate_password_hash(password)
+            db.session.commit()
+            flash('Parola schimbată cu succes!')
+            return redirect(url_for('auth.login'))
+
+    return render_template('reset_password.html', token=token)

@@ -24,8 +24,11 @@
     </form>
 
     <p class="text-center mt-4 text-gray-600">
-        Nu ai cont? 
-        <a href="{{ url_for('auth.register') }}" class="text-blue-600 hover:underline">Înregistrează-te</a>
+        <a href="{{ url_for('auth.forgot_password') }}" class="text-blue-600 hover:underline">Forgot password?</a>
+    </p>
+    <p class="text-center mt-2 text-gray-600">
+    Don't have an account? 
+    <a href="{{ url_for('auth.register') }}" class="text-blue-600 hover:underline">Sign up</a>
     </p>
 </div>
 {% endblock %}
