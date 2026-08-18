@@ -1,13 +1,13 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, Response
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db, mail
-from flask_mail import Message
+from app import db
 from itsdangerous import URLSafeTimedSerializer
 from app.models import User, Job, ACTIVITY_TYPES
 from app.notifications import schedule_reminder
 from datetime import datetime
 from flask import current_app
+from threading import Thread
 
 auth = Blueprint('auth', __name__)
 main = Blueprint('main', __name__)
@@ -37,6 +37,7 @@ def register():
 
     return render_template('register.html')
 
+
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -53,11 +54,66 @@ def login():
 
     return render_template('login.html')
 
+
 @auth.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+
+def get_serializer():
+    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+
+
+@auth.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            s = get_serializer()
+            token = s.dumps(email, salt='password-reset')
+            reset_url = url_for('auth.reset_password', token=token, _external=True)
+            body = f"""Hi {user.username},
+
+Click the link below to reset your password. The link expires in 1 hour.
+
+{reset_url}
+
+If you didn't request this, ignore this email."""
+            app = current_app._get_current_object()
+            def send_reset(app, to, body):
+                with app.app_context():
+                    from app.email_service import send_email
+                    send_email(to, 'Reset your password - Scheduler App', body)
+            Thread(target=send_reset, args=(app, email, body)).start()
+        flash('If that email exists, you will receive a reset link shortly.')
+        return redirect(url_for('auth.login'))
+
+    return render_template('forgot_password.html')
+
+
+@auth.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        s = get_serializer()
+        email = s.loads(token, salt='password-reset', max_age=3600)
+    except Exception:
+        flash('Link invalid sau expirat.')
+        return redirect(url_for('auth.forgot_password'))
+
+    if request.method == 'POST':
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            user.password = generate_password_hash(password)
+            db.session.commit()
+            flash('Parola schimbată cu succes!')
+            return redirect(url_for('auth.login'))
+
+    return render_template('reset_password.html', token=token)
+
 
 # ─── MAIN ───────────────────────────────────────────
 
@@ -80,25 +136,14 @@ def dashboard():
 
     jobs = query.order_by(Job.date).all()
 
-    # Total câștigat
     now = datetime.utcnow()
-
-    # Săptămâna curentă (luni - duminică)
+    from datetime import timedelta
     start_of_week = now - timedelta(days=now.weekday())
     start_of_week = start_of_week.replace(hour=0, minute=0, second=0)
-
-    # Luna curentă
     start_of_month = now.replace(day=1, hour=0, minute=0, second=0)
 
-    weekly_jobs = Job.query.filter_by(
-        user_id=current_user.id,
-        status='done'
-    ).filter(Job.date >= start_of_week).all()
-
-    monthly_jobs = Job.query.filter_by(
-        user_id=current_user.id,
-        status='done'
-    ).filter(Job.date >= start_of_month).all()
+    weekly_jobs = Job.query.filter_by(user_id=current_user.id, status='done').filter(Job.date >= start_of_week).all()
+    monthly_jobs = Job.query.filter_by(user_id=current_user.id, status='done').filter(Job.date >= start_of_month).all()
 
     weekly_total = sum(j.price for j in weekly_jobs if j.price)
     monthly_total = sum(j.price for j in monthly_jobs if j.price)
@@ -110,6 +155,7 @@ def dashboard():
                            filter_status=filter_status,
                            weekly_total=weekly_total,
                            monthly_total=monthly_total)
+
 
 @main.route('/job/add', methods=['GET', 'POST'])
 @login_required
@@ -133,6 +179,7 @@ def add_job():
 
     return render_template('add_job.html', activity_types=ACTIVITY_TYPES)
 
+
 @main.route('/job/done/<int:job_id>')
 @login_required
 def mark_done(job_id):
@@ -144,6 +191,7 @@ def mark_done(job_id):
     db.session.commit()
     flash('Job marcat ca finalizat!')
     return redirect(url_for('main.dashboard'))
+
 
 @main.route('/job/delete/<int:job_id>')
 @login_required
@@ -157,6 +205,7 @@ def delete_job(job_id):
     flash('Job șters.')
     return redirect(url_for('main.dashboard'))
 
+
 @main.route('/job/invoice/<int:job_id>')
 @login_required
 def download_invoice(job_id):
@@ -166,39 +215,30 @@ def download_invoice(job_id):
         return redirect(url_for('main.dashboard'))
 
     from app.invoice import generate_invoice
-    from flask import Response
-    from flask_mail import Message as MailMessage
     buffer = generate_invoice(job, current_user)
 
-    # Trimite pe email daca clientul are email
     if job.client_email:
         try:
-            msg = MailMessage(
-                subject=f'Invoice - {job.description or job.activity_type}',
-                recipients=[job.client_email],
-                body=f"""
-Dear {job.client_name},
+            from app.email_service import send_email
+            body = f"""Dear {job.client_name},
 
-Please find attached your invoice for the work completed on {job.date.strftime('%d/%m/%Y')}.
+Please find your invoice for the work completed on {job.date.strftime('%d/%m/%Y')}.
 
 Address: {job.address}
 Amount: £{job.price:.2f}
 
 Thank you for your business!
-
-{current_user.username}
-                """
-            )
-            msg.attach(
-                f'invoice_{job.id}.pdf',
-                'application/pdf',
-                buffer.getvalue()
-            )
-            mail.send(msg)
-            flash('Invoice descărcat și trimis pe email clientului!')
+{current_user.username}"""
+            app = current_app._get_current_object()
+            def send_inv(app, to, body):
+                with app.app_context():
+                    send_email(to, f'Invoice - {job.description or job.activity_type}', body)
+            Thread(target=send_inv, args=(app, job.client_email, body)).start()
+            flash('Invoice descărcat și trimis pe email!')
         except Exception as e:
-            print(f">>> Eroare email: {e}")
-            flash('Invoice descărcat — emailul nu a putut fi trimis.')
+            print(f">>> Invoice email error: {e}")
+            flash('Invoice descărcat.')
+
     buffer.seek(0)
     return Response(
         buffer.getvalue(),
@@ -207,66 +247,12 @@ Thank you for your business!
             'Content-Disposition': f'attachment; filename=invoice_{job.id}.pdf',
             'Content-Type': 'application/pdf'
         }
-    ) 
+    )
 
-def get_serializer():
-    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
 
-@auth.route('/forgot-password', methods=['GET', 'POST'])
-def forgot_password():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        user = User.query.filter_by(email=email).first()
-        print(f">>> User gasit: {user}")
-        if user:
-            s = get_serializer()
-            token = s.dumps(email, salt='password-reset')
-            reset_url = url_for('auth.reset_password', token=token, _external=True)
-
-            msg = Message(
-                subject='Reset your password - Scheduler App',
-                recipients=[email],
-                body=f"""
-Hi {user.username},
-
-Click the link below to reset your password. The link expires in 1 hour.
-
-{reset_url}
-
-If you didn't request this, ignore this email.
-                """
-            )
-            mail.send(msg)
-        print(f">>> Email reset trimis la {email}")
-        flash('If that email exists, you will receive a reset link shortly.')
-        return redirect(url_for('auth.login'))
-
-    return render_template('forgot_password.html')
-
-@auth.route('/reset-password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
-    try:
-        s = get_serializer()
-        email = s.loads(token, salt='password-reset', max_age=3600)
-    except Exception:
-        flash('Link invalid sau expirat.')
-        return redirect(url_for('auth.forgot_password'))
-
-    if request.method == 'POST':
-        password = request.form.get('password')
-        user = User.query.filter_by(email=email).first()
-        if user:
-            from werkzeug.security import generate_password_hash
-            user.password = generate_password_hash(password)
-            db.session.commit()
-            flash('Parola schimbată cu succes!')
-            return redirect(url_for('auth.login'))
-
-    return render_template('reset_password.html', token=token)
 @main.route('/job/quote/<int:job_id>', methods=['GET', 'POST'])
 @login_required
 def send_quote(job_id):
-    from threading import Thread
     job = Job.query.get_or_404(job_id)
     if job.user_id != current_user.id:
         flash('Nu ai permisiunea.')
@@ -285,10 +271,7 @@ def send_quote(job_id):
         decline_url = url_for('main.quote_response', job_id=job.id, response='declined', _external=True)
 
         if job.client_email:
-            msg = Message(
-                subject=f'Quote from {current_user.username}',
-                recipients=[job.client_email],
-                body=f"""Dear {job.client_name},
+            body = f"""Dear {job.client_name},
 
 You have received a quote for the following work:
 
@@ -301,15 +284,13 @@ To decline: {decline_url}
 
 Thank you,
 {current_user.username}"""
-            )
             app = current_app._get_current_object()
-            def send_async(app, msg):
+            username = current_user.username
+            def send_async(app, to, subject, body):
                 with app.app_context():
-                    try:
-                        mail.send(msg)
-                    except Exception as e:
-                        print(f">>> Email error: {e}")
-            Thread(target=send_async, args=(app, msg)).start()
+                    from app.email_service import send_email
+                    send_email(to, subject, body)
+            Thread(target=send_async, args=(app, job.client_email, f'Quote from {username}', body)).start()
             flash('Quote sent successfully!')
         else:
             flash('No client email — quote saved but not sent.')
@@ -318,12 +299,11 @@ Thank you,
 
     return render_template('send_quote.html', job=job)
 
+
 @main.route('/job/quote/<int:job_id>/response/<response>')
 def quote_response(job_id, response):
     job = Job.query.get_or_404(job_id)
-
     if response in ['accepted', 'declined']:
         job.quote_status = response
         db.session.commit()
-
     return render_template('quote_response.html', job=job, response=response)
