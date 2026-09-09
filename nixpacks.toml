@@ -1,7 +1,0 @@
-[phases.install]
-cmds = [
-  "pip install flask flask-sqlalchemy flask-login flask-mail flask-migrate werkzeug gunicorn psycopg2-binary apscheduler python-dotenv reportlab itsdangerous resend"
-]
-
-[start]
-cmd = "gunicorn run:app"
