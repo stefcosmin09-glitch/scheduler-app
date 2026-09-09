@@ -1,8 +1,7 @@
-[phases.setup]
-nixPkgs = ["python311", "gcc"]
-
 [phases.install]
-cmds = ["python3.11 -m pip install -r requirements.txt"]
+cmds = [
+  "pip install flask flask-sqlalchemy flask-login flask-mail flask-migrate werkzeug gunicorn psycopg2-binary apscheduler python-dotenv reportlab itsdangerous resend"
+]
 
 [start]
-cmd = "python3.11 -m gunicorn run:app"
+cmd = "gunicorn run:app"
