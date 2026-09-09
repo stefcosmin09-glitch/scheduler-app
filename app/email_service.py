@@ -1,18 +1,18 @@
+import resend
 import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+
+resend.api_key = os.environ.get('RESEND_API_KEY')
 
 def send_email(to_email, subject, body):
     try:
-        message = Mail(
-            from_email=os.environ.get('MAIL_DEFAULT_SENDER'),
-            to_emails=to_email,
-            subject=subject,
-            plain_text_content=body
-        )
-        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
-        sg.send(message)
-        print(f">>> Email trimis la {to_email}")
+        params = {
+            "from": "Scheduler App <onboarding@resend.dev>",
+            "to": [to_email],
+            "subject": subject,
+            "text": body,
+        }
+        email = resend.Emails.send(params)
+        print(f">>> Email trimis: {email}")
         return True
     except Exception as e:
         print(f">>> Email error: {e}")
