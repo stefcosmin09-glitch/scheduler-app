@@ -1,5 +1,8 @@
+[phases.setup]
+nixPkgs = ["python311", "gcc"]
+
 [phases.install]
-cmds = ["pip install -r requirements.txt"]
+cmds = ["python3.11 -m pip install -r requirements.txt"]
 
 [start]
-cmd = "gunicorn run:app"
+cmd = "python3.11 -m gunicorn run:app"
