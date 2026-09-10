@@ -216,13 +216,14 @@ def download_invoice(job_id):
 
     from app.invoice import generate_invoice
     buffer = generate_invoice(job, current_user)
+    pdf_bytes = buffer.getvalue()
 
     if job.client_email:
         try:
-            from app.email_service import send_email
+            from app.email_service import send_email_with_attachment
             body = f"""Dear {job.client_name},
 
-Please find your invoice for the work completed on {job.date.strftime('%d/%m/%Y')}.
+Please find attached your invoice for the work completed on {job.date.strftime('%d/%m/%Y')}.
 
 Address: {job.address}
 Amount: £{job.price:.2f}
@@ -230,25 +231,25 @@ Amount: £{job.price:.2f}
 Thank you for your business!
 {current_user.username}"""
             app = current_app._get_current_object()
-            def send_inv(app, to, body):
+            import base64
+            pdf_b64 = base64.b64encode(pdf_bytes).decode()
+            def send_inv(app, to, body, pdf_b64, job_id):
                 with app.app_context():
-                    send_email(to, f'Invoice - {job.description or job.activity_type}', body)
-            Thread(target=send_inv, args=(app, job.client_email, body)).start()
+                    send_email_with_attachment(to, f'Invoice', body, pdf_b64, f'invoice_{job_id}.pdf')
+            Thread(target=send_inv, args=(app, job.client_email, body, pdf_b64, job.id)).start()
             flash('Invoice descărcat și trimis pe email!')
         except Exception as e:
             print(f">>> Invoice email error: {e}")
             flash('Invoice descărcat.')
 
-    buffer.seek(0)
     return Response(
-        buffer.getvalue(),
+        pdf_bytes,
         mimetype='application/pdf',
         headers={
             'Content-Disposition': f'attachment; filename=invoice_{job.id}.pdf',
             'Content-Type': 'application/pdf'
         }
     )
-
 
 @main.route('/job/quote/<int:job_id>', methods=['GET', 'POST'])
 @login_required
