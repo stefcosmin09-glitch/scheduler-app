@@ -340,3 +340,5 @@ def business_settings():
         db.session.commit()
         flash('Business settings saved!')
         return redirect(url_for('main.business_settings'))
+
+    return render_template('business_settings.html', business=business)
