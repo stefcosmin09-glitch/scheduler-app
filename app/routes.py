@@ -209,10 +209,56 @@ def delete_job(job_id):
 @main.route('/job/invoice/<int:job_id>')
 @login_required
 def download_invoice(job_id):
+    from app.models import Invoice, BusinessProfile
+    from datetime import timedelta
+    import base64
+
     job = Job.query.get_or_404(job_id)
     if job.user_id != current_user.id:
         flash('Nu ai permisiunea.')
         return redirect(url_for('main.dashboard'))
+
+    business = BusinessProfile.query.filter_by(user_id=current_user.id).first()
+
+    # Verificam daca exista deja un invoice pentru acest job
+    existing_invoice = Invoice.query.filter_by(job_id=job.id).first()
+
+    if not existing_invoice:
+        # Generam numar invoice
+        if business:
+            invoice_number = f"{business.invoice_prefix}-{str(business.next_invoice_number).zfill(6)}"
+            business.next_invoice_number += 1
+        else:
+            invoice_number = f"INV-{str(job.id).zfill(6)}"
+
+        # Calculam due date
+        issue_date = datetime.utcnow()
+        days = int(business.payment_terms) if business and business.payment_terms else 30
+        due_date = issue_date + timedelta(days=days)
+
+        # Calculam VAT
+        subtotal = float(job.price or 0)
+        vat_amount = 0
+        if business and business.vat_registered and business.vat_rate:
+            vat_amount = subtotal * float(business.vat_rate) / 100
+        total = subtotal + vat_amount
+
+        # Cream invoice record
+        invoice = Invoice(
+            invoice_number=invoice_number,
+            user_id=current_user.id,
+            job_id=job.id,
+            issue_date=issue_date,
+            due_date=due_date,
+            subtotal=subtotal,
+            vat_amount=vat_amount,
+            total_amount=total,
+            status='sent'
+        )
+        db.session.add(invoice)
+        db.session.commit()
+    else:
+        invoice = existing_invoice
 
     from app.invoice import generate_invoice
     buffer = generate_invoice(job, current_user)
@@ -225,28 +271,28 @@ def download_invoice(job_id):
 
 Please find attached your invoice for the work completed on {job.date.strftime('%d/%m/%Y')}.
 
-Address: {job.address}
-Amount: £{job.price:.2f}
+Invoice Number: {invoice.invoice_number}
+Amount Due: £{invoice.total_amount:.2f}
+Due Date: {invoice.due_date.strftime('%d/%m/%Y')}
 
 Thank you for your business!
-{current_user.username}"""
+{business.trading_name or business.legal_name if business else current_user.username}"""
             app = current_app._get_current_object()
-            import base64
             pdf_b64 = base64.b64encode(pdf_bytes).decode()
-            def send_inv(app, to, body, pdf_b64, job_id):
+            def send_inv(app, to, body, pdf_b64, inv_number):
                 with app.app_context():
-                    send_email_with_attachment(to, f'Invoice', body, pdf_b64, f'invoice_{job_id}.pdf')
-            Thread(target=send_inv, args=(app, job.client_email, body, pdf_b64, job.id)).start()
-            flash('Invoice descărcat și trimis pe email!')
+                    send_email_with_attachment(to, f'Invoice {inv_number}', body, pdf_b64, f'{inv_number}.pdf')
+            Thread(target=send_inv, args=(app, job.client_email, body, pdf_b64, invoice.invoice_number)).start()
+            flash('Invoice downloaded and sent to client!')
         except Exception as e:
             print(f">>> Invoice email error: {e}")
-            flash('Invoice descărcat.')
+            flash('Invoice downloaded.')
 
     return Response(
         pdf_bytes,
         mimetype='application/pdf',
         headers={
-            'Content-Disposition': f'attachment; filename=invoice_{job.id}.pdf',
+            'Content-Disposition': f'attachment; filename={invoice.invoice_number}.pdf',
             'Content-Type': 'application/pdf'
         }
     )
@@ -343,3 +389,55 @@ def business_settings():
         return redirect(url_for('main.business_settings'))
 
     return render_template('business_settings.html', business=business)
+
+@main.route('/invoices')
+@login_required
+def invoices():
+    from app.models import Invoice
+    from datetime import date
+    
+    all_invoices = Invoice.query.filter_by(user_id=current_user.id).order_by(Invoice.issue_date.desc()).all()
+    
+    # Mark overdue
+    today = datetime.utcnow()
+    for inv in all_invoices:
+        if inv.status not in ['paid', 'cancelled'] and inv.due_date and inv.due_date < today:
+            inv.status = 'overdue'
+    db.session.commit()
+    
+    return render_template('invoices.html', invoices=all_invoices)
+
+
+@main.route('/invoice/<int:invoice_id>/mark-paid', methods=['POST'])
+@login_required
+def mark_invoice_paid(invoice_id):
+    from app.models import Invoice, Payment
+    invoice = Invoice.query.get_or_404(invoice_id)
+    if invoice.user_id != current_user.id:
+        flash('Nu ai permisiunea.')
+        return redirect(url_for('main.invoices'))
+    
+    amount = float(request.form.get('amount') or invoice.total_amount)
+    method = request.form.get('payment_method', 'bank_transfer')
+    reference = request.form.get('reference', '')
+    
+    payment = Payment(
+        invoice_id=invoice.id,
+        amount=amount,
+        payment_method=method,
+        reference=reference,
+        payment_date=datetime.utcnow()
+    )
+    db.session.add(payment)
+    
+    # Calculam total platit
+    total_paid = sum(float(p.amount) for p in invoice.payments) + amount
+    if total_paid >= float(invoice.total_amount):
+        invoice.status = 'paid'
+        invoice.paid_at = datetime.utcnow()
+    else:
+        invoice.status = 'partially_paid'
+    
+    db.session.commit()
+    flash('Payment recorded!')
+    return redirect(url_for('main.invoices'))
