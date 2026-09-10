@@ -307,3 +307,36 @@ def quote_response(job_id, response):
         job.quote_status = response
         db.session.commit()
     return render_template('quote_response.html', job=job, response=response)
+
+@main.route('/business-settings', methods=['GET', 'POST'])
+@login_required
+def business_settings():
+    from app.models import BusinessProfile
+    business = BusinessProfile.query.filter_by(user_id=current_user.id).first()
+
+    if request.method == 'POST':
+        if not business:
+            business = BusinessProfile(user_id=current_user.id)
+            db.session.add(business)
+
+        business.business_type = request.form.get('business_type', 'sole_trader')
+        business.legal_name = request.form.get('legal_name')
+        business.trading_name = request.form.get('trading_name')
+        business.address = request.form.get('address')
+        business.phone = request.form.get('phone')
+        business.business_email = request.form.get('business_email')
+        business.company_number = request.form.get('company_number')
+        business.vat_registered = 'vat_registered' in request.form
+        business.vat_number = request.form.get('vat_number')
+        business.vat_rate = request.form.get('vat_rate') or 20.00
+        business.invoice_prefix = request.form.get('invoice_prefix', 'INV')
+        business.next_invoice_number = int(request.form.get('next_invoice_number') or 1)
+        business.payment_terms = request.form.get('payment_terms', '30')
+        business.show_bank_details = 'show_bank_details' in request.form
+        business.account_name = request.form.get('account_name')
+        business.sort_code = request.form.get('sort_code')
+        business.account_number = request.form.get('account_number')
+
+        db.session.commit()
+        flash('Business settings saved!')
+        return redirect(url_for('main.business_settings'))

@@ -1,20 +1,21 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scheduler App</title>
+    <title>TradeScheduler</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen">
 
     {% if current_user.is_authenticated %}
-    <nav class="bg-blue-600 text-white p-4 flex justify-between">
-        <span class="font-bold text-lg">Scheduler</span>
+    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center">
+        <span class="font-bold text-lg">TradeScheduler</span>
         <div class="space-x-4">
             <a href="{{ url_for('main.dashboard') }}" class="hover:underline">Dashboard</a>
-            <a href="{{ url_for('main.add_job') }}" class="hover:underline">+ Job nou</a>
-            <a href="{{ url_for('auth.logout') }}" class="hover:underline">Logout</a>
+            <a href="{{ url_for('main.add_job') }}" class="hover:underline">+ New Job</a>
+            <a href="{{ url_for('main.business_settings') }}" class="hover:underline">⚙️ Settings</a>
+            <a href="{{ url_for('auth.logout') }}" class="hover:underline">Log Out</a>
         </div>
     </nav>
     {% endif %}
