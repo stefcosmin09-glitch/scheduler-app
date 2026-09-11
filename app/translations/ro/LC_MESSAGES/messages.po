@@ -1,0 +1,156 @@
+# Romanian translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-09-11 18:21+0300\n"
+"PO-Revision-Date: 2026-09-11 18:22+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ro\n"
+"Language-Team: ro <LL@li.org>\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100"
+" < 20)) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#: app/templates/base.html:15
+msgid "Dashboard"
+msgstr "Panou de control"
+
+#: app/templates/base.html:16
+msgid "New Job"
+msgstr "Job nou"
+
+#: app/templates/base.html:17
+msgid "Invoices"
+msgstr "Facturi"
+
+#: app/templates/base.html:18
+msgid "Accounting"
+msgstr "Contabilitate"
+
+#: app/templates/base.html:36
+msgid "Settings"
+msgstr "Setări"
+
+#: app/templates/base.html:37
+msgid "Logout"
+msgstr "Deconectare"
+
+msgid "My Jobs"
+msgstr "Lucrările mele"
+
+msgid "This Week"
+msgstr "Această săptămână"
+
+msgid "This Month"
+msgstr "Această lună"
+
+msgid "completed jobs"
+msgstr "joburi finalizate"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Type"
+msgstr "Tip"
+
+msgid "Active"
+msgstr "Active"
+
+msgid "Completed"
+msgstr "Finalizat"
+
+msgid "All"
+msgstr "Toate"
+
+msgid "Quote"
+msgstr "Ofertă"
+
+msgid "Quote Accepted"
+msgstr "Ofertă acceptată"
+
+msgid "Quote Declined"
+msgstr "Ofertă refuzată"
+
+msgid "Quote Sent"
+msgstr "Ofertă trimisă"
+
+msgid "Done"
+msgstr "Finalizează"
+
+msgid "Invoice"
+msgstr "Factură"
+
+msgid "Delete"
+msgstr "Șterge"
+
+msgid "No jobs in this category."
+msgstr "Niciun job în această categorie."
+
+msgid "Add your first job"
+msgstr "Adaugă primul tău job"
+
+msgid "Issued"
+msgstr "Emisă"
+
+msgid "Due"
+msgstr "Scadență"
+
+msgid "N/A"
+msgstr "N/A"
+
+msgid "Outstanding"
+msgstr "Rest de plată"
+
+msgid "Partially Paid"
+msgstr "Plătită parțial"
+
+msgid "Sent"
+msgstr "Trimisă"
+
+msgid "Draft"
+msgstr "Ciornă"
+
+msgid "Record Payment"
+msgstr "Înregistrează plata"
+
+msgid "Amount"
+msgstr "Sumă"
+
+msgid "Method"
+msgstr "Metodă"
+
+msgid "Bank Transfer"
+msgstr "Transfer bancar"
+
+msgid "Cash"
+msgstr "Numerar"
+
+msgid "Card"
+msgstr "Card"
+
+msgid "Other"
+msgstr "Altă metodă"
+
+msgid "Reference"
+msgstr "Referință"
+
+msgid "Optional"
+msgstr "Opțional"
+
+msgid "Save Payment"
+msgstr "Salvează plata"
+
+msgid "No invoices yet."
+msgstr "Nicio factură încă."
+
+msgid "Download an invoice from the dashboard to get started."
+msgstr "Descarcă o factură din dashboard pentru a începe."
+

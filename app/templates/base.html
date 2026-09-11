@@ -12,12 +12,29 @@
     <nav class="bg-blue-600 text-white p-4 flex justify-between items-center">
         <span class="font-bold text-lg">TradeScheduler</span>
         <div class="space-x-4">
-            <a href="{{ url_for('main.dashboard') }}" class="hover:underline">Dashboard</a>
-            <a href="{{ url_for('main.add_job') }}" class="hover:underline">+ New Job</a>
-            <a href="{{ url_for('main.invoices') }}" class="hover:underline">📄 Invoices</a>
-            <a href="{{ url_for('main.accounting') }}" class="hover:underline">📊 Accounting</a>
-            <a href="{{ url_for('main.business_settings') }}" class="hover:underline">⚙️ Settings</a>
-            <a href="{{ url_for('auth.logout') }}" class="hover:underline">Log Out</a>
+            <a href="{{ url_for('main.dashboard') }}" class="hover:underline">{{ _('Dashboard') }}</a>
+            <a href="{{ url_for('main.add_job') }}" class="hover:underline">+ {{ _('New Job') }}</a>
+            <a href="{{ url_for('main.invoices') }}" class="hover:underline">📄 {{ _('Invoices') }}</a>
+            <a href="{{ url_for('main.accounting') }}" class="hover:underline">📊 {{ _('Accounting') }}</a>
+
+            <a href="{{ url_for('main.set_language', lang='en', next=request.full_path) }}"
+               class="hover:underline {{ 'font-bold text-yellow-300' if current_user.language == 'en' else '' }}"
+               title="English">🇬🇧</a>
+            <a href="{{ url_for('main.set_language', lang='ro', next=request.full_path) }}"
+               class="hover:underline {{ 'font-bold text-yellow-300' if current_user.language == 'ro' else '' }}"
+               title="Română">🇷🇴</a>
+            <form method="POST" action="{{ url_for('main.set_currency', next=request.full_path) }}" class="inline">
+                <select name="currency" onchange="this.form.submit()"
+                    class="bg-blue-700 text-white text-sm rounded px-2 py-1">
+                    <option value="GBP" {{ 'selected' if current_user.currency == 'GBP' else '' }}>£ GBP</option>
+                    <option value="RON" {{ 'selected' if current_user.currency == 'RON' else '' }}>lei RON</option>
+                    <option value="EUR" {{ 'selected' if current_user.currency == 'EUR' else '' }}>€ EUR</option>
+                    <option value="USD" {{ 'selected' if current_user.currency == 'USD' else '' }}>$ USD</option>
+                </select>
+            </form>
+
+            <a href="{{ url_for('main.business_settings') }}" class="hover:underline">⚙️ {{ _('Settings') }}</a>
+            <a href="{{ url_for('auth.logout') }}" class="hover:underline">{{ _('Logout') }}</a>
         </div>
     </nav>
     {% endif %}

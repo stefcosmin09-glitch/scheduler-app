@@ -2,50 +2,50 @@
 
 {% block content %}
 <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">My Jobs</h2>
+    <h2 class="text-2xl font-bold text-gray-800">{{ _('My Jobs') }}</h2>
     <a href="{{ url_for('main.add_job') }}"
         class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        + New Job
+        + {{ _('New Job') }}
     </a>
 </div>
 
 <!-- Total earned -->
 <div class="grid grid-cols-2 gap-4 mb-6">
     <div class="bg-white rounded-lg shadow p-6 text-center">
-        <p class="text-gray-500 text-sm mb-1">This Week</p>
-        <p class="text-3xl font-bold text-green-600">£{{ "%.2f"|format(weekly_total) }}</p>
-        <p class="text-gray-400 text-xs mt-1">completed jobs</p>
+        <p class="text-gray-500 text-sm mb-1">{{ _('This Week') }}</p>
+        <p class="text-3xl font-bold text-green-600">{{ weekly_total|money }}</p>
+        <p class="text-gray-400 text-xs mt-1">{{ _('completed jobs') }}</p>
     </div>
     <div class="bg-white rounded-lg shadow p-6 text-center">
-        <p class="text-gray-500 text-sm mb-1">This Month</p>
-        <p class="text-3xl font-bold text-blue-600">£{{ "%.2f"|format(monthly_total) }}</p>
-        <p class="text-gray-400 text-xs mt-1">completed jobs</p>
+        <p class="text-gray-500 text-sm mb-1">{{ _('This Month') }}</p>
+        <p class="text-3xl font-bold text-blue-600">{{ monthly_total|money }}</p>
+        <p class="text-gray-400 text-xs mt-1">{{ _('completed jobs') }}</p>
     </div>
 </div>
 
 <!-- Filters -->
 <div class="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap gap-3">
     <div>
-        <span class="text-gray-600 text-sm mr-2">Status:</span>
+        <span class="text-gray-600 text-sm mr-2">{{ _('Status') }}:</span>
         <a href="?status=active&type={{ filter_type }}"
             class="px-3 py-1 rounded text-sm {{ 'bg-blue-600 text-white' if filter_status == 'active' else 'bg-gray-100 text-gray-700' }}">
-            Active
+            {{ _('Active') }}
         </a>
         <a href="?status=done&type={{ filter_type }}"
             class="px-3 py-1 rounded text-sm {{ 'bg-green-600 text-white' if filter_status == 'done' else 'bg-gray-100 text-gray-700' }}">
-            Completed
+            {{ _('Completed') }}
         </a>
         <a href="?status=all&type={{ filter_type }}"
             class="px-3 py-1 rounded text-sm {{ 'bg-gray-600 text-white' if filter_status == 'all' else 'bg-gray-100 text-gray-700' }}">
-            All
+            {{ _('All') }}
         </a>
     </div>
 
     <div>
-        <span class="text-gray-600 text-sm mr-2">Type:</span>
+        <span class="text-gray-600 text-sm mr-2">{{ _('Type') }}:</span>
         <a href="?status={{ filter_status }}&type=all"
             class="px-3 py-1 rounded text-sm {{ 'bg-blue-600 text-white' if filter_type == 'all' else 'bg-gray-100 text-gray-700' }}">
-            All
+            {{ _('All') }}
         </a>
         {% for value, label in activity_types %}
         <a href="?status={{ filter_status }}&type={{ value }}"
@@ -72,7 +72,7 @@
             <p class="text-gray-600">📍 {{ job.address }}</p>
             <p class="text-gray-600">📅 {{ job.date.strftime('%d/%m/%Y %H:%M') }}</p>
             {% if job.price %}
-            <p class="text-green-700 font-semibold mt-1">💰 £{{ "%.2f"|format(job.price) }}</p>
+            <p class="text-green-700 font-semibold mt-1">💰 {{ job.price|money }}</p>
             {% endif %}
             {% if job.description %}
             <p class="text-gray-500 mt-2 text-sm">{{ job.description }}</p>
@@ -84,38 +84,38 @@
             {% if job.status == 'pending' %}
             <a href="{{ url_for('main.send_quote', job_id=job.id) }}"
         class="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 text-center">
-                📤 Quote
+                📤 {{ _('Quote') }}
             </a>
             {% endif %}
             {% if job.quote_status == 'accepted' %}
             <span class="bg-green-100 text-green-700 px-3 py-1 rounded text-sm text-center">
-                ✅ Quote Accepted
+                ✅ {{ _('Quote Accepted') }}
             </span>
             {% elif job.quote_status == 'declined' %}
             <span class="bg-red-100 text-red-700 px-3 py-1 rounded text-sm text-center">
-                ❌ Quote Declined
+                ❌ {{ _('Quote Declined') }}
             </span>
             {% elif job.quote_status == 'sent' %}
             <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded text-sm text-center">
-                ⏳ Quote Sent
+                ⏳ {{ _('Quote Sent') }}
             </span>
             {% endif %}
             <a href="{{ url_for('main.mark_done', job_id=job.id) }}"
                  class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 text-center">
-                ✅ Done
+                ✅ {{ _('Done') }}
             </a>
             {% else %}
             <span class="bg-green-100 text-green-700 px-3 py-1 rounded text-sm text-center">
-                ✅ Completed
+                ✅ {{ _('Completed') }}
             </span>
             <a href="{{ url_for('main.download_invoice', job_id=job.id) }}"
                 class="bg-blue-100 text-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-200 text-center">
-                📄 Invoice
+                📄 {{ _('Invoice') }}
             </a>
             {% endif %}
             <a href="{{ url_for('main.delete_job', job_id=job.id) }}"
                 class="bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200 text-center">
-                🗑️ Delete
+                🗑️ {{ _('Delete') }}
             </a>
         </div>
     </div>
@@ -124,10 +124,10 @@
 
 {% else %}
 <div class="bg-white rounded-lg shadow p-12 text-center">
-    <p class="text-gray-500 text-lg">No jobs in this category.</p>
+    <p class="text-gray-500 text-lg">{{ _('No jobs in this category.') }}</p>
     <a href="{{ url_for('main.add_job') }}"
         class="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-        Add your first job
+        {{ _('Add your first job') }}
     </a>
 </div>
 {% endif %}

@@ -554,3 +554,26 @@ def accounting_export():
         mimetype='text/csv',
         headers={'Content-Disposition': f'attachment; filename=accounting_{month_name}.csv'}
     )
+
+@main.route('/set-language/<lang>')
+@login_required
+def set_language(lang):
+    if lang in ('en', 'ro'):
+        current_user.language = lang
+        db.session.commit()
+    next_url = request.args.get('next') or url_for('main.dashboard')
+    if next_url.startswith('/'):
+        return redirect(next_url)
+    return redirect(url_for('main.dashboard'))
+
+@main.route('/set-currency', methods=['POST'])
+@login_required
+def set_currency():
+    currency = request.form.get('currency')
+    if currency in ('GBP', 'RON', 'EUR', 'USD'):
+        current_user.currency = currency
+        db.session.commit()
+    next_url = request.args.get('next') or url_for('main.dashboard')
+    if next_url.startswith('/'):
+        return redirect(next_url)
+    return redirect(url_for('main.dashboard'))
