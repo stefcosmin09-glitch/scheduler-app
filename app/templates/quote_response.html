@@ -14,7 +14,7 @@
 
     <div class="mt-6 bg-gray-50 rounded p-4 text-left">
         <p class="text-gray-600"><strong>Work:</strong> {{ job.quote_description }}</p>
-        <p class="text-gray-600"><strong>Price:</strong> £{{ "%.2f"|format(job.quote_price) }}</p>
+        <p class="text-gray-600"><strong>{{ _('Price') }}:</strong> {{ job.quote_price|money }}</p>
         <p class="text-gray-600"><strong>Address:</strong> {{ job.address }}</p>
     </div>
 </div>

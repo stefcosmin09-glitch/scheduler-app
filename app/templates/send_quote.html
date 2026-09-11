@@ -14,7 +14,7 @@
         </div>
 
         <div class="mb-6">
-            <label class="block text-gray-700 mb-2">Price (£)</label>
+            <label class="block text-gray-700 mb-2">{{ _('Price (GBP)') }}</label>
             <input type="number" name="quote_price" min="0" step="0.01" required
                 value="{{ job.price or '' }}"
                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">

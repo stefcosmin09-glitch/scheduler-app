@@ -2,36 +2,36 @@
 
 {% block content %}
 <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">Accounting</h2>
+    <h2 class="text-2xl font-bold text-gray-800">{{ _('Accounting') }}</h2>
     <a href="{{ url_for('main.accounting_export', year=year, month=month) }}"
         class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-        Export CSV
+        {{ _('Export CSV') }}
     </a>
 </div>
 
 <div class="bg-white rounded-lg shadow p-4 mb-6 flex justify-between items-center">
     <a href="{{ url_for('main.accounting', year=prev_year, month=prev_month) }}"
-        class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">Previous</a>
+        class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">{{ _('Previous') }}</a>
     <h3 class="text-xl font-bold text-gray-800">{{ month_name }}</h3>
     <a href="{{ url_for('main.accounting', year=next_year, month=next_month) }}"
-        class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">Next</a>
+        class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">{{ _('Next') }}</a>
 </div>
 
 <div class="grid grid-cols-3 gap-4 mb-6">
     <div class="bg-white rounded-lg shadow p-6 text-center">
-        <p class="text-gray-500 text-sm mb-1">Total Invoiced</p>
-        <p class="text-3xl font-bold text-blue-600">£{{ "%.2f"|format(total_invoiced) }}</p>
-        <p class="text-gray-400 text-xs mt-1">{{ invoice_count }} invoices</p>
+        <p class="text-gray-500 text-sm mb-1">{{ _('Total Invoiced') }}</p>
+        <p class="text-3xl font-bold text-blue-600">{{ total_invoiced|money }}</p>
+        <p class="text-gray-400 text-xs mt-1">{{ invoice_count }} {{ _('invoices') }}</p>
     </div>
     <div class="bg-white rounded-lg shadow p-6 text-center">
-        <p class="text-gray-500 text-sm mb-1">Total Paid</p>
-        <p class="text-3xl font-bold text-green-600">£{{ "%.2f"|format(total_paid) }}</p>
-        <p class="text-gray-400 text-xs mt-1">{{ paid_count }} paid</p>
+        <p class="text-gray-500 text-sm mb-1">{{ _('Total Paid') }}</p>
+        <p class="text-3xl font-bold text-green-600">{{ total_paid|money }}</p>
+        <p class="text-gray-400 text-xs mt-1">{{ paid_count }} {{ _('paid') }}</p>
     </div>
     <div class="bg-white rounded-lg shadow p-6 text-center">
-        <p class="text-gray-500 text-sm mb-1">Outstanding</p>
-        <p class="text-3xl font-bold text-red-600">£{{ "%.2f"|format(total_outstanding) }}</p>
-        <p class="text-gray-400 text-xs mt-1">{{ outstanding_count }} unpaid</p>
+        <p class="text-gray-500 text-sm mb-1">{{ _('Outstanding') }}</p>
+        <p class="text-3xl font-bold text-red-600">{{ total_outstanding|money }}</p>
+        <p class="text-gray-400 text-xs mt-1">{{ outstanding_count }} {{ _('unpaid') }}</p>
     </div>
 </div>
 
@@ -40,12 +40,12 @@
     <table class="w-full">
         <thead class="bg-gray-50">
             <tr>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">Invoice</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">Client</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">Issued</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">Due</th>
-                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600">Amount</th>
-                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600">Status</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">{{ _('Invoice') }}</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">{{ _('Client') }}</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">{{ _('Issued') }}</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">{{ _('Due') }}</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600">{{ _('Amount') }}</th>
+                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600">{{ _('Status') }}</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
@@ -54,15 +54,16 @@
                 <td class="px-4 py-3 font-semibold text-gray-800">{{ inv.invoice_number }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ inv.job.client_name }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ inv.issue_date.strftime('%d/%m/%Y') }}</td>
-                <td class="px-4 py-3 text-gray-600">{{ inv.due_date.strftime('%d/%m/%Y') if inv.due_date else 'N/A' }}</td>
-                <td class="px-4 py-3 text-right font-semibold">£{{ "%.2f"|format(inv.total_amount|float) }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ inv.due_date.strftime('%d/%m/%Y') if inv.due_date else _('N/A') }}</td>
+                <td class="px-4 py-3 text-right font-semibold">{{ inv.total_amount|money }}</td>
                 <td class="px-4 py-3 text-center">
+                    {% set status_labels = {'paid': _('Paid'), 'overdue': _('Overdue'), 'partially_paid': _('Partially Paid'), 'sent': _('Sent'), 'draft': _('Draft')} %}
                     <span class="px-2 py-1 rounded text-xs font-semibold
                         {% if inv.status == 'paid' %}bg-green-100 text-green-700
                         {% elif inv.status == 'overdue' %}bg-red-100 text-red-700
                         {% elif inv.status == 'partially_paid' %}bg-yellow-100 text-yellow-700
                         {% else %}bg-blue-100 text-blue-700{% endif %}">
-                        {{ inv.status | upper }}
+                        {{ status_labels.get(inv.status, inv.status)|upper }}
                     </span>
                 </td>
             </tr>
@@ -72,7 +73,7 @@
 </div>
 {% else %}
 <div class="bg-white rounded-lg shadow p-12 text-center">
-    <p class="text-gray-500 text-lg">No invoices for {{ month_name }}.</p>
+    <p class="text-gray-500 text-lg">{{ _('No invoices for') }} {{ month_name }}.</p>
 </div>
 {% endif %}
 {% endblock %}

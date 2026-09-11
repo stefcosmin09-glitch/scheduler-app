@@ -154,3 +154,96 @@ msgstr "Nicio factură încă."
 msgid "Download an invoice from the dashboard to get started."
 msgstr "Descarcă o factură din dashboard pentru a începe."
 
+msgid "Export CSV"
+msgstr "Exportă CSV"
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Next"
+msgstr "Următorul"
+
+msgid "Total Invoiced"
+msgstr "Total facturat"
+
+msgid "Total Paid"
+msgstr "Total plătit"
+
+msgid "Invoices"
+msgstr "Facturi"
+
+msgid "invoices"
+msgstr "facturi"
+
+msgid "paid"
+msgstr "plătite"
+
+msgid "unpaid"
+msgstr "neplătite"
+
+msgid "Invoice"
+msgstr "Factură"
+
+msgid "Client"
+msgstr "Client"
+
+msgid "No invoices for"
+msgstr "Nicio factură pentru"
+
+msgid "Price (GBP)"
+msgstr "Preț (GBP)"
+
+msgid "Price"
+msgstr "Preț"
+
+msgid "Email already used."
+msgstr "Email deja folosit."
+
+msgid "Account created successfully!"
+msgstr "Cont creat cu succes!"
+
+msgid "Wrong email or password."
+msgstr "Email sau parolă greșită."
+
+msgid "If that email exists, you will receive a reset link shortly."
+msgstr "Dacă acest email există, vei primi un link de resetare în curând."
+
+msgid "Invalid or expired link."
+msgstr "Link invalid sau expirat."
+
+msgid "Password changed successfully!"
+msgstr "Parola schimbată cu succes!"
+
+msgid "Job added!"
+msgstr "Job adăugat!"
+
+msgid "You do not have permission."
+msgstr "Nu ai permisiunea."
+
+msgid "Job marked as completed!"
+msgstr "Job marcat ca finalizat!"
+
+msgid "You do not have permission to delete this job."
+msgstr "Nu ai permisiunea să ștergi acest job."
+
+msgid "Job deleted."
+msgstr "Job șters."
+
+msgid "Invoice downloaded and sent to client!"
+msgstr "Factură descărcată și trimisă clientului!"
+
+msgid "Invoice downloaded."
+msgstr "Factură descărcată."
+
+msgid "Quote sent successfully!"
+msgstr "Ofertă trimisă cu succes!"
+
+msgid "No client email — quote saved but not sent."
+msgstr "Fără email client — oferta e salvată, dar n-a fost trimisă."
+
+msgid "Business settings saved!"
+msgstr "Setările business au fost salvate!"
+
+msgid "Payment recorded!"
+msgstr "Plată înregistrată!"
+

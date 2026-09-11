@@ -7,6 +7,7 @@ from app.models import User, Job, ACTIVITY_TYPES
 from app.notifications import schedule_reminder
 from datetime import datetime
 from flask import current_app
+from flask_babel import _ 
 from threading import Thread
 from app import db, format_money
 
@@ -23,7 +24,7 @@ def register():
         password = request.form.get('password')
 
         if User.query.filter_by(email=email).first():
-            flash('Email deja folosit.')
+            flash(_('Email already used.'))
             return redirect(url_for('auth.register'))
 
         user = User(
@@ -33,7 +34,7 @@ def register():
         )
         db.session.add(user)
         db.session.commit()
-        flash('Cont creat cu succes!')
+        flash(_('Account created successfully!'))
         return redirect(url_for('auth.login'))
 
     return render_template('register.html')
@@ -47,7 +48,7 @@ def login():
         user = User.query.filter_by(email=email).first()
 
         if not user or not check_password_hash(user.password, password):
-            flash('Email sau parolă greșită.')
+            flash(_('Wrong email or password.'))
             return redirect(url_for('auth.login'))
 
         login_user(user)
@@ -101,7 +102,7 @@ def reset_password(token):
         s = get_serializer()
         email = s.loads(token, salt='password-reset', max_age=3600)
     except Exception:
-        flash('Link invalid sau expirat.')
+        flash(_('Invalid or expired link.'))
         return redirect(url_for('auth.forgot_password'))
 
     if request.method == 'POST':
@@ -110,7 +111,7 @@ def reset_password(token):
         if user:
             user.password = generate_password_hash(password)
             db.session.commit()
-            flash('Parola schimbată cu succes!')
+            flash(_('Password changed successfully!'))
             return redirect(url_for('auth.login'))
 
     return render_template('reset_password.html', token=token)
@@ -175,7 +176,7 @@ def add_job():
         db.session.add(job)
         db.session.commit()
         schedule_reminder(current_app._get_current_object(), job)
-        flash('Job adăugat!')
+        flash(_('Job added!'))
         return redirect(url_for('main.dashboard'))
 
     return render_template('add_job.html', activity_types=ACTIVITY_TYPES)
@@ -186,11 +187,11 @@ def add_job():
 def mark_done(job_id):
     job = Job.query.get_or_404(job_id)
     if job.user_id != current_user.id:
-        flash('Nu ai permisiunea.')
+        flash(_('You do not have permission.'))
         return redirect(url_for('main.dashboard'))
     job.status = 'done'
     db.session.commit()
-    flash('Job marcat ca finalizat!')
+    flash(_('Job marked as completed!'))
     return redirect(url_for('main.dashboard'))
 
 
@@ -199,11 +200,11 @@ def mark_done(job_id):
 def delete_job(job_id):
     job = Job.query.get_or_404(job_id)
     if job.user_id != current_user.id:
-        flash('Nu ai permisiunea să ștergi acest job.')
+        flash(_('You do not have permission to delete this job.'))
         return redirect(url_for('main.dashboard'))
     db.session.delete(job)
     db.session.commit()
-    flash('Job șters.')
+    flash(_('Job deleted.'))
     return redirect(url_for('main.dashboard'))
 
 
@@ -216,7 +217,7 @@ def download_invoice(job_id):
 
     job = Job.query.get_or_404(job_id)
     if job.user_id != current_user.id:
-        flash('Nu ai permisiunea.')
+        flash(_('You do not have permission.'))
         return redirect(url_for('main.dashboard'))
 
     business = BusinessProfile.query.filter_by(user_id=current_user.id).first()
@@ -284,10 +285,10 @@ Thank you for your business!
                 with app.app_context():
                     send_email_with_attachment(to, f'Invoice {inv_number}', body, pdf_b64, f'{inv_number}.pdf')
             Thread(target=send_inv, args=(app, job.client_email, body, pdf_b64, invoice.invoice_number)).start()
-            flash('Invoice downloaded and sent to client!')
+            flash(_('Invoice downloaded and sent to client!'))
         except Exception as e:
             print(f">>> Invoice email error: {e}")
-            flash('Invoice downloaded.')
+            flash(_('Invoice downloaded.'))
 
     return Response(
         pdf_bytes,
@@ -303,7 +304,7 @@ Thank you for your business!
 def send_quote(job_id):
     job = Job.query.get_or_404(job_id)
     if job.user_id != current_user.id:
-        flash('Nu ai permisiunea.')
+        flash(_('You do not have permission.'))
         return redirect(url_for('main.dashboard'))
 
     if request.method == 'POST':
@@ -339,9 +340,9 @@ Thank you,
                     from app.email_service import send_email
                     send_email(to, subject, body)
             Thread(target=send_async, args=(app, job.client_email, f'Quote from {username}', body)).start()
-            flash('Quote sent successfully!')
+            flash(_('Quote sent successfully!'))
         else:
-            flash('No client email — quote saved but not sent.')
+            flash(_('No client email — quote saved but not sent.'))
 
         return redirect(url_for('main.dashboard'))
 
@@ -386,7 +387,7 @@ def business_settings():
         business.account_number = request.form.get('account_number')
 
         db.session.commit()
-        flash('Business settings saved!')
+        flash(_('Business settings saved!'))
         return redirect(url_for('main.business_settings'))
 
     return render_template('business_settings.html', business=business)
@@ -415,7 +416,7 @@ def mark_invoice_paid(invoice_id):
     from app.models import Invoice, Payment
     invoice = Invoice.query.get_or_404(invoice_id)
     if invoice.user_id != current_user.id:
-        flash('Nu ai permisiunea.')
+        flash(_('You do not have permission.'))
         return redirect(url_for('main.invoices'))
     
     amount = float(request.form.get('amount') or invoice.total_amount)
@@ -440,7 +441,7 @@ def mark_invoice_paid(invoice_id):
         invoice.status = 'partially_paid'
     
     db.session.commit()
-    flash('Payment recorded!')
+    flash(_('Payment recorded!'))
     return redirect(url_for('main.invoices'))
 
 @main.route('/accounting')
