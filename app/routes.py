@@ -8,6 +8,7 @@ from app.notifications import schedule_reminder
 from datetime import datetime
 from flask import current_app
 from threading import Thread
+from app import db, format_money
 
 auth = Blueprint('auth', __name__)
 main = Blueprint('main', __name__)
@@ -272,7 +273,7 @@ def download_invoice(job_id):
 Please find attached your invoice for the work completed on {job.date.strftime('%d/%m/%Y')}.
 
 Invoice Number: {invoice.invoice_number}
-Amount Due: £{invoice.total_amount:.2f}
+Amount Due: {format_money(invoice.total_amount, current_user.currency)}
 Due Date: {invoice.due_date.strftime('%d/%m/%Y')}
 
 Thank you for your business!
@@ -324,7 +325,7 @@ You have received a quote for the following work:
 
 Address: {job.address}
 Description: {quote_description}
-Price: £{quote_price:.2f}
+Price: {format_money(quote_price, current_user.currency)}
 
 To accept: {accept_url}
 To decline: {decline_url}
@@ -555,9 +556,10 @@ def accounting_export():
         headers={'Content-Disposition': f'attachment; filename=accounting_{month_name}.csv'}
     )
 
-@main.route('/set-language/<lang>')
+@main.route('/set-language', methods=['POST'])
 @login_required
-def set_language(lang):
+def set_language():
+    lang = request.form.get('language')
     if lang in ('en', 'ro'):
         current_user.language = lang
         db.session.commit()

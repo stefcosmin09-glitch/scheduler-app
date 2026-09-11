@@ -5,6 +5,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.units import cm
 import io
 from datetime import datetime, timedelta
+from app import format_money
 
 def generate_invoice(job, user):
     buffer = io.BytesIO()
@@ -93,15 +94,15 @@ def generate_invoice(job, user):
 
     job_data = [
         ['Description', 'Amount'],
-        [job.description or job.activity_type, f'£{subtotal:.2f}'],
+        [job.description or job.activity_type, format_money(subtotal, user.currency)],
     ]
 
     if vat_amount > 0:
-        job_data.append(['Subtotal', f'£{subtotal:.2f}'])
-        job_data.append([f'VAT ({business.vat_rate}%)', f'£{vat_amount:.2f}'])
+        job_data.append(['Subtotal', format_money(subtotal, user.currency)])
+        job_data.append([f'VAT ({business.vat_rate}%)', format_money(vat_amount, user.currency)])
 
     job_data.append(['', ''])
-    job_data.append(['TOTAL DUE', f'£{total:.2f}'])
+    job_data.append(['TOTAL DUE', format_money(total, user.currency)])
 
     job_table = Table(job_data, colWidths=[12*cm, 4*cm])
     job_table.setStyle(TableStyle([
