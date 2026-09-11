@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, Response
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, Response, abort
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
@@ -315,10 +315,12 @@ def send_quote(job_id):
         job.quote_price = quote_price
         job.quote_description = quote_description
         job.quote_status = 'sent'
+        import secrets
+        job.quote_token = secrets.token_urlsafe(16)
         db.session.commit()
 
-        accept_url = url_for('main.quote_response', job_id=job.id, response='accepted', _external=True)
-        decline_url = url_for('main.quote_response', job_id=job.id, response='declined', _external=True)
+        accept_url = url_for('main.quote_response', job_id=job.id, response='accepted', token=job.quote_token, _external=True)
+        decline_url = url_for('main.quote_response', job_id=job.id, response='declined', token=job.quote_token, _external=True)
 
         if job.client_email:
             body = f"""Dear {job.client_name},
@@ -353,6 +355,9 @@ Thank you,
 @main.route('/job/quote/<int:job_id>/response/<response>')
 def quote_response(job_id, response):
     job = Job.query.get_or_404(job_id)
+    token = request.args.get('token')
+    if not job.quote_token or token != job.quote_token:
+        abort(404)
     if response in ['accepted', 'declined']:
         job.quote_status = response
         db.session.commit()

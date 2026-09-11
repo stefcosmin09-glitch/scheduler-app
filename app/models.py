@@ -86,6 +86,7 @@ class Job(db.Model):
     price = db.Column(db.Numeric(10, 2), default=0.0)
     status = db.Column(db.String(20), default='pending')
     quote_status = db.Column(db.String(20), default='none')
+    quote_token = db.Column(db.String(64))
     quote_price = db.Column(db.Numeric(10, 2), default=0.0)
     quote_description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
