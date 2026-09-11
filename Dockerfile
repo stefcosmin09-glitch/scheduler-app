@@ -7,6 +7,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+ENV FLASK_APP=run.py
+
 EXPOSE 8080
 
-CMD ["gunicorn", "run:app", "--bind", "0.0.0.0:8080"]
+CMD ["sh", "-c", "flask db upgrade && gunicorn run:app --bind 0.0.0.0:8080"]

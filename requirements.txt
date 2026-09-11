@@ -12,3 +12,4 @@ python-dotenv
 reportlab
 itsdangerous
 resend
+flask-babel 

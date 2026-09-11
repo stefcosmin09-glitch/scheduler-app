@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     jobs = db.relationship('Job', backref='owner', lazy=True)
     business = db.relationship('BusinessProfile', backref='user', uselist=False)
     invoices = db.relationship('Invoice', backref='user', lazy=True)
+    currency = db.Column(db.String(10), nullable=False, server_default='GBP', default='GBP')
 
 class BusinessProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
