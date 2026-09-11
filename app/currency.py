@@ -41,3 +41,13 @@ def convert(amount, to_currency):
         print(f">>>No rate for {to_currency}, using 1.0")
         return amount
     return Decimal(str(amount)) * Decimal(str(rate))
+
+def convert_to_base(amount, from_currency):
+    if from_currency == BASE_CURRENCY:
+        return amount
+    rates = get_rates()
+    rate = rates.get(from_currency)
+    if rate is None:
+        print(f">>>No rate for {from_currency}, using 1.0")
+        return amount
+    return Decimal(str(amount)) / Decimal(str(rate))

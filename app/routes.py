@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
+from app.currency import convert_to_base
 from itsdangerous import URLSafeTimedSerializer
 from app.models import User, Job, ACTIVITY_TYPES
 from app.notifications import schedule_reminder
@@ -170,7 +171,7 @@ def add_job():
             date=datetime.strptime(request.form.get('date'), '%Y-%m-%dT%H:%M'),
             description=request.form.get('description'),
             activity_type=request.form.get('activity_type', 'altele'),
-            price=float(request.form.get('price') or 0),
+            price=float(convert_to_base(request.form.get('price') or 0, request.form.get('price_currency', 'GBP'))),
             user_id=current_user.id
         )
         db.session.add(job)
@@ -308,7 +309,7 @@ def send_quote(job_id):
         return redirect(url_for('main.dashboard'))
 
     if request.method == 'POST':
-        quote_price = float(request.form.get('quote_price') or 0)
+        quote_price = float(convert_to_base(request.form.get('quote_price') or 0, request.form.get('price_currency', 'GBP')))
         quote_description = request.form.get('quote_description')
 
         job.quote_price = quote_price

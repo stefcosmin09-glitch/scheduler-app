@@ -33,10 +33,19 @@
             </select>
         </div>
 
-        <div class="mb-4">
-            <label class="block text-gray-700 mb-2">{{ _('Price (GBP)') }}</label>
-            <input type="number" name="price" min="0" step="0.01" placeholder="0.00"
-                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+               <div class="mb-4">
+            <label class="block text-gray-700 mb-2">{{ _('Price') }}</label>
+            <div class="flex gap-2">
+                <input type="number" name="price" min="0" step="0.01" placeholder="0.00"
+                    class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+                <select name="price_currency"
+                    class="border border-gray-300 rounded px-3 py-2 bg-white">
+                    <option value="GBP" selected>£ GBP</option>
+                    <option value="RON">lei RON</option>
+                    <option value="EUR">€ EUR</option>
+                    <option value="USD">$ USD</option>
+                </select>
+            </div>
         </div>
 
         <div class="mb-4">

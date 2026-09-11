@@ -190,8 +190,8 @@ msgstr "Client"
 msgid "No invoices for"
 msgstr "Nicio factură pentru"
 
-msgid "Price (GBP)"
-msgstr "Preț (GBP)"
+msgid "Price"
+msgstr "Preț"
 
 msgid "Price"
 msgstr "Preț"
