@@ -441,3 +441,116 @@ def mark_invoice_paid(invoice_id):
     db.session.commit()
     flash('Payment recorded!')
     return redirect(url_for('main.invoices'))
+
+@main.route('/accounting')
+@login_required
+def accounting():
+    from app.models import Invoice
+    from datetime import date
+    import calendar
+
+    # Luna curenta
+    now = datetime.utcnow()
+    year = int(request.args.get('year', now.year))
+    month = int(request.args.get('month', now.month))
+
+    # Prima si ultima zi din luna
+    first_day = datetime(year, month, 1)
+    last_day = datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59)
+
+    # Invoicele lunii
+    monthly_invoices = Invoice.query.filter_by(user_id=current_user.id).filter(
+        Invoice.issue_date >= first_day,
+        Invoice.issue_date <= last_day
+    ).all()
+
+    # Calcule
+    total_invoiced = sum(float(inv.total_amount) for inv in monthly_invoices)
+    total_paid = sum(
+        sum(float(p.amount) for p in inv.payments)
+        for inv in monthly_invoices
+    )
+    total_outstanding = total_invoiced - total_paid
+    invoice_count = len(monthly_invoices)
+    paid_count = sum(1 for inv in monthly_invoices if inv.status == 'paid')
+    outstanding_count = sum(1 for inv in monthly_invoices if inv.status in ['sent', 'overdue', 'partially_paid'])
+
+    # Luna anterioara si urmatoare
+    if month == 1:
+        prev_month, prev_year = 12, year - 1
+    else:
+        prev_month, prev_year = month - 1, year
+
+    if month == 12:
+        next_month, next_year = 1, year + 1
+    else:
+        next_month, next_year = month + 1, year
+
+    month_name = first_day.strftime('%B %Y')
+
+    return render_template('accounting.html',
+        invoices=monthly_invoices,
+        total_invoiced=total_invoiced,
+        total_paid=total_paid,
+        total_outstanding=total_outstanding,
+        invoice_count=invoice_count,
+        paid_count=paid_count,
+        outstanding_count=outstanding_count,
+        month_name=month_name,
+        prev_month=prev_month, prev_year=prev_year,
+        next_month=next_month, next_year=next_year,
+        year=year, month=month
+    )
+
+@main.route('/accounting/export')
+@login_required
+def accounting_export():
+    from app.models import Invoice
+    import csv
+    import io
+    import calendar
+
+    year = int(request.args.get('year', datetime.utcnow().year))
+    month = int(request.args.get('month', datetime.utcnow().month))
+
+    first_day = datetime(year, month, 1)
+    last_day = datetime(year, month, calendar.monthrange(year, month)[1], 23, 59, 59)
+
+    invoices = Invoice.query.filter_by(user_id=current_user.id).filter(
+        Invoice.issue_date >= first_day,
+        Invoice.issue_date <= last_day
+    ).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Invoice Number', 'Invoice Date', 'Due Date', 'Client',
+                     'Description', 'Subtotal', 'VAT', 'Total', 'Amount Paid',
+                     'Outstanding', 'Status', 'Payment Date'])
+
+    for inv in invoices:
+        total_paid = sum(float(p.amount) for p in inv.payments)
+        outstanding = float(inv.total_amount) - total_paid
+        payment_date = inv.paid_at.strftime('%d/%m/%Y') if inv.paid_at else ''
+
+        writer.writerow([
+            inv.invoice_number,
+            inv.issue_date.strftime('%d/%m/%Y'),
+            inv.due_date.strftime('%d/%m/%Y') if inv.due_date else '',
+            inv.job.client_name,
+            inv.job.description or inv.job.activity_type,
+            f'{inv.subtotal:.2f}',
+            f'{inv.vat_amount:.2f}',
+            f'{inv.total_amount:.2f}',
+            f'{total_paid:.2f}',
+            f'{outstanding:.2f}',
+            inv.status,
+            payment_date
+        ])
+
+    output.seek(0)
+    month_name = first_day.strftime('%B_%Y')
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename=accounting_{month_name}.csv'}
+    )
