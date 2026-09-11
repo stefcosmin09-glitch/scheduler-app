@@ -91,7 +91,7 @@ If you didn't request this, ignore this email."""
                     from app.email_service import send_email
                     send_email(to, 'Reset your password - Scheduler App', body)
             Thread(target=send_reset, args=(app, email, body)).start()
-        flash('If that email exists, you will receive a reset link shortly.')
+            flash(_('If that email exists, you will receive a reset link shortly.'))
         return redirect(url_for('auth.login'))
 
     return render_template('forgot_password.html')

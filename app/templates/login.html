@@ -2,33 +2,33 @@
 
 {% block content %}
 <div class="max-w-md mx-auto bg-white rounded-lg shadow p-8">
-    <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">Login</h2>
-    
+    <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">{{ _('Login') }}</h2>
+
     <form method="POST">
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Email</label>
+            <label class="block text-gray-700 mb-2">{{ _('Email') }}</label>
             <input type="email" name="email" required
                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
         </div>
 
         <div class="mb-6">
-            <label class="block text-gray-700 mb-2">Parolă</label>
+            <label class="block text-gray-700 mb-2">{{ _('Password') }}</label>
             <input type="password" name="password" required
                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
         </div>
 
         <button type="submit"
             class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-            Intră în cont
+            {{ _('Login') }}
         </button>
     </form>
 
     <p class="text-center mt-4 text-gray-600">
-        <a href="{{ url_for('auth.forgot_password') }}" class="text-blue-600 hover:underline">Forgot password?</a>
+        <a href="{{ url_for('auth.forgot_password') }}" class="text-blue-600 hover:underline">{{ _('Forgot password?') }}</a>
     </p>
     <p class="text-center mt-2 text-gray-600">
-    Don't have an account? 
-    <a href="{{ url_for('auth.register') }}" class="text-blue-600 hover:underline">Sign up</a>
+    {{ _("Don't have an account?") }}
+    <a href="{{ url_for('auth.register') }}" class="text-blue-600 hover:underline">{{ _('Sign up') }}</a>
     </p>
 </div>
 {% endblock %}

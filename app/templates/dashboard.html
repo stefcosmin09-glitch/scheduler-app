@@ -50,7 +50,7 @@
         {% for value, label in activity_types %}
         <a href="?status={{ filter_status }}&type={{ value }}"
             class="px-3 py-1 rounded text-sm {{ 'bg-blue-600 text-white' if filter_type == value else 'bg-gray-100 text-gray-700' }}">
-            {{ label }}
+            {{ _(label) }}
         </a>
         {% endfor %}
     </div>
@@ -65,7 +65,7 @@
                 <h3 class="text-lg font-bold text-gray-800">{{ job.client_name }}</h3>
                 <span class="text-sm px-2 py-0.5 rounded bg-blue-50 text-blue-700">
                     {% for value, label in activity_types %}
-                        {% if value == job.activity_type %}{{ label }}{% endif %}
+                        {% if value == job.activity_type %}{{ _(label) }}{% endif %}
                     {% endfor %}
                 </span>
             </div>
@@ -81,7 +81,7 @@
 
         <div class="flex flex-col gap-2 ml-4">
             {% if job.status == 'pending' %}
-            {% if job.status == 'pending' %}
+            
             <a href="{{ url_for('main.send_quote', job_id=job.id) }}"
         class="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 text-center">
                 📤 {{ _('Quote') }}

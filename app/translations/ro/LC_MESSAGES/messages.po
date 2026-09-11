@@ -247,3 +247,171 @@ msgstr "Setările business au fost salvate!"
 msgid "Payment recorded!"
 msgstr "Plată înregistrată!"
 
+msgid "Client Name"
+msgstr "Nume client"
+
+msgid "Client Email"
+msgstr "Email client"
+
+msgid "Address"
+msgstr "Adresă"
+
+msgid "Activity Type"
+msgstr "Tip activitate"
+
+msgid "Date & Time"
+msgstr "Data și ora"
+
+msgid "Description"
+msgstr "Descriere"
+
+msgid "Save Job"
+msgstr "Salvează job"
+
+msgid "Cancel"
+msgstr "Anulează"
+
+msgid "Electrical"
+msgstr "Instalații electrice"
+
+msgid "Plumbing"
+msgstr "Instalații sanitare"
+
+msgid "Construction"
+msgstr "Construcții"
+
+msgid "Carpentry"
+msgstr "Tâmplărie"
+
+msgid "Decorating"
+msgstr "Decorare"
+
+msgid "General Repairs"
+msgstr "Reparații generale"
+
+msgid "Other"
+msgstr "Altă activitate"
+
+msgid "Login"
+msgstr "Autentificare"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Password"
+msgstr "Parolă"
+
+msgid "Forgot password?"
+msgstr "Ai uitat parola?"
+
+msgid "Don't have an account?"
+msgstr "Nu ai cont?"
+
+msgid "Sign up"
+msgstr "Înregistrează-te"
+
+msgid "New Account"
+msgstr "Cont nou"
+
+msgid "Username"
+msgstr "Nume utilizator"
+
+msgid "Create Account"
+msgstr "Creează cont"
+
+msgid "Already have an account?"
+msgstr "Ai deja cont?"
+
+msgid "Log in"
+msgstr "Loghează-te"
+
+msgid "Forgot Password"
+msgstr "Parolă uitată"
+
+msgid "Enter your email and we'll send you a reset link."
+msgstr "Introdu emailul și îți vom trimite un link de resetare."
+
+msgid "Send Reset Link"
+msgstr "Trimite linkul"
+
+msgid "Back to Login"
+msgstr "Înapoi la autentificare"
+
+msgid "Business Settings"
+msgstr "Setări business"
+
+msgid "Business Type"
+msgstr "Tip de business"
+
+msgid "Legal Name"
+msgstr "Denumire legală"
+
+msgid "Trading Name"
+msgstr "Denumire comercială"
+
+msgid "Business Address"
+msgstr "Adresa business"
+
+msgid "Phone"
+msgstr "Telefon"
+
+msgid "Business Email"
+msgstr "Email business"
+
+msgid "Company Registration Number"
+msgstr "Număr de înregistrare"
+
+msgid "Tax Country"
+msgstr "Țara de taxare"
+
+msgid "Invoice Settings"
+msgstr "Setări factură"
+
+msgid "Invoice Prefix"
+msgstr "Prefix factură"
+
+msgid "Next Invoice Number"
+msgstr "Următorul număr"
+
+msgid "Payment Terms"
+msgstr "Termeni de plată"
+
+msgid "Due on receipt"
+msgstr "La primire"
+
+msgid "7 days"
+msgstr "7 zile"
+
+msgid "14 days"
+msgstr "14 zile"
+
+msgid "30 days"
+msgstr "30 de zile"
+
+msgid "Payment Details"
+msgstr "Detalii plată"
+
+msgid "Show bank details on invoices"
+msgstr "Arată datele bancare pe facturi"
+
+msgid "Account Name"
+msgstr "Numele contului"
+
+msgid "Sort Code"
+msgstr "Sort code"
+
+msgid "Account Number"
+msgstr "Număr cont"
+
+msgid "Save Settings"
+msgstr "Salvează setările"
+
+msgid "Send Quote"
+msgstr "Trimite oferta"
+
+msgid "Sending quote to"
+msgstr "Trimiți oferta către"
+
+msgid "Description of work"
+msgstr "Descrierea lucrării"
+
