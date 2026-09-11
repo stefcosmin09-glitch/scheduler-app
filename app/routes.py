@@ -376,6 +376,7 @@ def business_settings():
         business.phone = request.form.get('phone')
         business.business_email = request.form.get('business_email')
         business.company_number = request.form.get('company_number')
+        business.tax_country = request.form.get('tax_country', 'UK')
         business.vat_registered = 'vat_registered' in request.form
         business.vat_number = request.form.get('vat_number')
         business.vat_rate = request.form.get('vat_rate') or 20.00

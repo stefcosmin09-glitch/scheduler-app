@@ -24,6 +24,7 @@ class BusinessProfile(db.Model):
     business_type = db.Column(db.String(20), default='sole_trader')
     legal_name = db.Column(db.String(200))
     trading_name = db.Column(db.String(200))
+    tax_country = db.Column(db.String(10), default='UK', nullable=False, server_default='UK')
     address = db.Column(db.Text)
     phone = db.Column(db.String(50))
     business_email = db.Column(db.String(120))

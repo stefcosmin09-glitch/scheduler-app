@@ -39,12 +39,16 @@ def generate_invoice(job, user):
     else:
         due_date = issue_date + timedelta(days=30)
 
-    # VAT calculation
+         # Tax calculation
     subtotal = float(job.price or 0)
-    vat_amount = 0
-    if business and business.vat_registered and business.vat_rate:
-        vat_amount = subtotal * float(business.vat_rate) / 100
-    total = subtotal + vat_amount
+    tax_amount = 0
+    tax_country = (business.tax_country if business else 'UK') or 'UK'
+    tax_labels = {'UK': 'VAT', 'USA': 'Sales Tax', 'RO': 'TVA'}
+    tax_label = tax_labels.get(tax_country, 'VAT')
+    tax_rate = float(business.vat_rate) if business and business.vat_rate else 0
+    if business and business.vat_registered and tax_rate:
+        tax_amount = subtotal * tax_rate / 100
+    total = subtotal + tax_amount
 
     styles = getSampleStyleSheet()
     elements = []
@@ -62,11 +66,9 @@ def generate_invoice(job, user):
         ['Email:', business_email],
     ]
 
-    if business and business.business_type == 'limited_company' and business.company_number:
-        info_data.append(['Company No:', business.company_number])
-
     if business and business.vat_registered and business.vat_number:
-        info_data.append(['VAT No:', business.vat_number])
+        tax_no_labels = {'UK': 'VAT No:', 'USA': 'Sales Tax ID:', 'RO': 'Nr. TVA:'}
+        info_data.append([tax_no_labels.get(tax_country, 'VAT No:'), business.vat_number])
 
     info_data += [
         ['', ''],
@@ -97,9 +99,9 @@ def generate_invoice(job, user):
         [job.description or job.activity_type, format_money(subtotal, user.currency)],
     ]
 
-    if vat_amount > 0:
+    if tax_amount > 0:
         job_data.append(['Subtotal', format_money(subtotal, user.currency)])
-        job_data.append([f'VAT ({business.vat_rate}%)', format_money(vat_amount, user.currency)])
+        job_data.append([f'{tax_label} ({tax_rate}%)', format_money(tax_amount, user.currency)])
 
     job_data.append(['', ''])
     job_data.append(['TOTAL DUE', format_money(total, user.currency)])

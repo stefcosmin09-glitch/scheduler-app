@@ -72,30 +72,38 @@
                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
         </div>
 
-        <!-- VAT -->
+               <!-- Tax -->
         <div class="mb-4 border-t pt-4 mt-4">
-            <label class="block text-gray-700 font-semibold mb-2">VAT</label>
+            <label class="block text-gray-700 font-semibold mb-2">Tax Country</label>
+            <select name="tax_country" id="tax_country" onchange="toggleTaxCountry(this.value)"
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500 mb-3">
+                <option value="UK" {{ 'selected' if not business or business.tax_country == 'UK' }}>🇬🇧 UK — VAT</option>
+                <option value="USA" {{ 'selected' if business and business.tax_country == 'USA' }}>🇺🇸 USA — Sales Tax</option>
+                <option value="RO" {{ 'selected' if business and business.tax_country == 'RO' }}>🇷🇴 România — TVA</option>
+            </select>
+
             <label class="flex items-center gap-2 mb-3">
                 <input type="checkbox" name="vat_registered" id="vat_registered"
                     {{ 'checked' if business and business.vat_registered }}
                     onchange="toggleVAT(this.checked)">
-                VAT Registered
+                <span id="tax_registered_label">VAT Registered</span>
             </label>
 
             <div id="vat_fields" style="{{ 'display:none' if not business or not business.vat_registered else '' }}">
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">VAT Number</label>
+                    <label class="block text-gray-700 mb-2" id="tax_number_label">VAT Number</label>
                     <input type="text" name="vat_number" value="{{ business.vat_number or '' if business else '' }}"
                         class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-gray-700 mb-2">VAT Rate (%)</label>
-                    <input type="number" name="vat_rate" step="0.01"
+                    <label class="block text-gray-700 mb-2" id="tax_rate_label">VAT Rate (%)</label>
+                    <input type="number" name="vat_rate" id="vat_rate_input" step="0.01"
                         value="{{ business.vat_rate or '20.00' if business else '20.00' }}"
                         class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
                 </div>
             </div>
         </div>
+           
 
         <!-- Invoice Settings -->
         <div class="mb-4 border-t pt-4 mt-4">
@@ -165,10 +173,35 @@
         <div>
             <label class="block text-gray-700 font-semibold mb-2">{{ _('Language') }}</label>
             <form method="POST" action="{{ url_for('main.set_language', next=request.full_path) }}">
-                <select name="language" onchange="this.form.submit()"
-                    class="border border-gray-300 rounded px-3 py-2">
-                    <option value="en" {{ 'selected' if current_user.language == 'en' else '' }}>🇬🇧 English</option>
-                    <option value="ro" {{ 'selected' if current_user.language == 'ro' else '' }}>🇷🇴 Română</option>
+               <script>
+function toggleBusinessType(type) {
+    const field = document.getElementById('company_number_field');
+    field.style.display = type === 'limited_company' ? 'block' : 'none';
+}
+
+const TAX_LABELS = {
+    UK: { registered: 'VAT Registered', number: 'VAT Number', rate: 'VAT Rate (%)', defaultRate: '20.00' },
+    USA: { registered: 'Collect Sales Tax', number: 'Sales Tax ID', rate: 'Sales Tax Rate (%)', defaultRate: '0.00' },
+    RO: { registered: 'Plătitor TVA', number: 'Număr TVA', rate: 'Cota TVA (%)', defaultRate: '19.00' }
+};
+
+function toggleTaxCountry(country) {
+    const labels = TAX_LABELS[country] || TAX_LABELS.UK;
+    document.getElementById('tax_registered_label').textContent = labels.registered;
+    document.getElementById('tax_number_label').textContent = labels.number;
+    document.getElementById('tax_rate_label').textContent = labels.rate;
+    const rateInput = document.getElementById('vat_rate_input');
+    if (!rateInput.dataset.saved) {
+        rateInput.value = labels.defaultRate;
+        rateInput.dataset.saved = '1';
+    }
+}
+
+function toggleVAT(checked) {
+    const fields = document.getElementById('vat_fields');
+    fields.style.display = checked ? 'block' : 'none';
+}
+</script>
                 </select>
             </form>
         </div>
