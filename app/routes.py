@@ -78,7 +78,18 @@ def forgot_password():
             s = get_serializer()
             token = s.dumps(email, salt='password-reset')
             reset_url = url_for('auth.reset_password', token=token, _external=True)
-            body = f"""Hi {user.username},
+            if user.language == 'ro':
+                subject = 'Resetare parolă - Scheduler App'
+                body = f"""Bună ziua {user.username},
+
+Click pe link-ul de mai jos pentru a vă reseta parola. Link-ul expiră în 1 oră.
+
+{reset_url}
+
+Dacă nu ați solicitat acest lucru, ignorați acest email."""
+            else:
+                subject = 'Reset your password - Scheduler App'
+                body = f"""Hi {user.username},
 
 Click the link below to reset your password. The link expires in 1 hour.
 
@@ -86,11 +97,11 @@ Click the link below to reset your password. The link expires in 1 hour.
 
 If you didn't request this, ignore this email."""
             app = current_app._get_current_object()
-            def send_reset(app, to, body):
+            def send_reset(app, to, subject, body):
                 with app.app_context():
                     from app.email_service import send_email
-                    send_email(to, 'Reset your password - Scheduler App', body)
-            Thread(target=send_reset, args=(app, email, body)).start()
+                    send_email(to, subject, body)
+            Thread(target=send_reset, args=(app, email, subject, body)).start()
             flash(_('If that email exists, you will receive a reset link shortly.'))
         return redirect(url_for('auth.login'))
 
@@ -270,7 +281,21 @@ def download_invoice(job_id):
     if job.client_email:
         try:
             from app.email_service import send_email_with_attachment
-            body = f"""Dear {job.client_name},
+            if current_user.language == 'ro':
+                subject = f'Factura {invoice.invoice_number}'
+                body = f"""Bună ziua {job.client_name},
+
+Găsiți atașată factura pentru lucrările finalizate pe {job.date.strftime('%d/%m/%Y')}.
+
+Număr factură: {invoice.invoice_number}
+Suma de plată: {format_money(invoice.total_amount, current_user.currency)}
+Scadența: {invoice.due_date.strftime('%d/%m/%Y')}
+
+Vă mulțumim pentru colaborare!
+{business.trading_name or business.legal_name if business else current_user.username}"""
+            else:
+                subject = f'Invoice {invoice.invoice_number}'
+                body = f"""Dear {job.client_name},
 
 Please find attached your invoice for the work completed on {job.date.strftime('%d/%m/%Y')}.
 
@@ -282,10 +307,10 @@ Thank you for your business!
 {business.trading_name or business.legal_name if business else current_user.username}"""
             app = current_app._get_current_object()
             pdf_b64 = base64.b64encode(pdf_bytes).decode()
-            def send_inv(app, to, body, pdf_b64, inv_number):
+            def send_inv(app, to, subject, body, pdf_b64, inv_number):
                 with app.app_context():
-                    send_email_with_attachment(to, f'Invoice {inv_number}', body, pdf_b64, f'{inv_number}.pdf')
-            Thread(target=send_inv, args=(app, job.client_email, body, pdf_b64, invoice.invoice_number)).start()
+                    send_email_with_attachment(to, subject, body, pdf_b64, f'{inv_number}.pdf')
+            Thread(target=send_inv, args=(app, job.client_email, subject, body, pdf_b64, invoice.invoice_number)).start()
             flash(_('Invoice downloaded and sent to client!'))
         except Exception as e:
             print(f">>> Invoice email error: {e}")
@@ -323,7 +348,24 @@ def send_quote(job_id):
         decline_url = url_for('main.quote_response', job_id=job.id, response='declined', token=job.quote_token, _external=True)
 
         if job.client_email:
-            body = f"""Dear {job.client_name},
+            if current_user.language == 'ro':
+                subject = f'Ofertă de la {current_user.username}'
+                body = f"""Bună ziua {job.client_name},
+
+Ați primit o ofertă pentru următoarele lucrări:
+
+Adresă: {job.address}
+Descriere: {quote_description}
+Preț: {format_money(quote_price, current_user.currency)}
+
+Pentru a accepta: {accept_url}
+Pentru a refuza: {decline_url}
+
+Vă mulțumim,
+{current_user.username}"""
+            else:
+                subject = f'Quote from {current_user.username}'
+                body = f"""Dear {job.client_name},
 
 You have received a quote for the following work:
 
@@ -342,7 +384,7 @@ Thank you,
                 with app.app_context():
                     from app.email_service import send_email
                     send_email(to, subject, body)
-            Thread(target=send_async, args=(app, job.client_email, f'Quote from {username}', body)).start()
+            Thread(target=send_async, args=(app, job.client_email, subject, body)).start()
             flash(_('Quote sent successfully!'))
         else:
             flash(_('No client email — quote saved but not sent.'))

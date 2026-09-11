@@ -12,11 +12,11 @@ def send_reminder(app, job_id):
         if not job.client_email:
             return
 
-        msg = Message(
-            subject='Reminder: Job în 40 de minute',
-            recipients=[job.client_email],
-            body=f"""
-Bună ziua {job.client_name},
+        lang = job.owner.language if job.owner else 'en'
+
+        if lang == 'ro':
+            subject = 'Reminder: Job în 40 de minute'
+            body = f"""Bună ziua {job.client_name},
 
 Acesta este un reminder că meșterul dvs. va ajunge în aproximativ 40 de minute.
 
@@ -24,7 +24,22 @@ Acesta este un reminder că meșterul dvs. va ajunge în aproximativ 40 de minut
 📅 Ora programată: {job.date.strftime('%d/%m/%Y %H:%M')}
 
 Vă mulțumim!
-            """
+"""
+        else:
+            subject = 'Reminder: Job in 40 minutes'
+            body = f"""Hi {job.client_name},
+
+This is a reminder that your contractor will arrive in approximately 40 minutes.
+
+📍 Address: {job.address}
+📅 Scheduled time: {job.date.strftime('%d/%m/%Y %H:%M')}
+
+Thank you!
+"""
+        msg = Message(
+            subject=subject,
+            recipients=[job.client_email],
+            body=body
         )
         mail.send(msg)
         print(f">>> Email trimis pentru job {job_id}")
