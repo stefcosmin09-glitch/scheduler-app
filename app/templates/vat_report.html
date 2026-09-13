@@ -3,8 +3,12 @@
 {% block content %}
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-bold text-gray-800">🧾 {{ _('VAT Report') }} {{ year }}</h2>
-    <a href="{{ url_for('main.accounting', year=year, month=1) }}"
-        class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">{{ _('Accounting') }}</a>
+    <div class="flex gap-2">
+        <a href="{{ url_for('main.vat_report_export', year=year) }}"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{{ _('Export CSV') }}</a>
+        <a href="{{ url_for('main.accounting', year=year, month=1) }}"
+            class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">{{ _('Accounting') }}</a>
+    </div>
 </div>
 
 <div class="bg-white rounded-lg shadow p-4 mb-6 flex justify-between items-center">

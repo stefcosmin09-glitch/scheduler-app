@@ -10,6 +10,7 @@ psycopg2-binary
 apscheduler
 python-dotenv
 reportlab
+pillow
 itsdangerous
 resend
 flask-babel 

@@ -21,6 +21,24 @@ def _start_scheduler():
             coalesce=True,
             misfire_grace_time=10,
         )
+        from app.backup_service import run_auto_backup
+
+        def _auto_backup():
+            with app.app_context():
+                run_auto_backup(app)
+
+        scheduler.add_job(
+            func=_auto_backup,
+            trigger='cron',
+            hour=3,
+            minute=0,
+            timezone='UTC',
+            id='auto_backup',
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+            misfire_grace_time=3600,
+        )
     scheduler.start()
     print(">>> Scheduler started")
 

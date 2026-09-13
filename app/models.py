@@ -39,6 +39,8 @@ class BusinessProfile(db.Model):
     account_name = db.Column(db.String(100))
     sort_code = db.Column(db.String(20))
     account_number = db.Column(db.String(20))
+    logo = db.Column(db.LargeBinary)
+    logo_mime = db.Column(db.String(32))
 
 class Invoice(db.Model):
     id = db.Column(db.Integer, primary_key=True)

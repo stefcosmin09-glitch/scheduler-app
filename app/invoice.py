@@ -8,7 +8,7 @@ from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.lib.enums import TA_RIGHT, TA_LEFT
 from reportlab.lib.styles import ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
@@ -115,10 +115,36 @@ def generate_invoice(job, user):
         tax_no_labels = {'UK': 'VAT No', 'USA': 'Sales Tax ID', 'RO': 'Nr. TVA'}
         vat_note = f"{tax_no_labels.get(tax_country, 'VAT No')}: {esc(business.vat_number)}"
 
-    left = f"<b>{esc(business_name)}</b>" + (f"<br/>{vat_note}" if vat_note else '')
+    biz_para = Paragraph(
+        f"<b>{esc(business_name)}</b>" + (f"<br/>{vat_note}" if vat_note else ''),
+        s['biz'])
+
+    if business and business.logo:
+        try:
+            from PIL import Image as PILImage
+            _img = PILImage.open(io.BytesIO(business.logo))
+            _ratio = _img.width / max(_img.height, 1)
+            _img.verify()
+        except Exception:
+            _ratio = 1.0
+        logo_w = 1.7 * cm
+        logo = Image(io.BytesIO(business.logo),
+                     width=logo_w, height=logo_w / _ratio)
+        left_cell = Table([[logo], [biz_para]], colWidths=[0.58*W])
+        left_cell.setStyle(TableStyle([
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ]))
+        left_content = left_cell
+    else:
+        left_content = biz_para
+
     right = f"<font size='26'><b>{esc(L['title'])}</b></font><br/>{esc(invoice_number)}"
     header = Table(
-        [[Paragraph(left, s['biz']), Paragraph(right, s['title'])]],
+        [[left_content, Paragraph(right, s['title'])]],
         colWidths=[0.58*W, 0.42*W],
     )
     header.setStyle(TableStyle([

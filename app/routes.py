@@ -442,11 +442,37 @@ def business_settings():
         business.sort_code = request.form.get('sort_code')
         business.account_number = request.form.get('account_number')
 
+        logo_file = request.files.get('logo')
+        if logo_file and logo_file.filename:
+            data = logo_file.read()
+            mime = logo_file.mimetype or 'image/png'
+            if len(data) > 1_500_000:
+                flash(_('Logo too large. Max 1.5MB.'))
+                return redirect(url_for('main.business_settings'))
+            if mime not in ('image/png', 'image/jpeg'):
+                flash(_('Logo must be PNG or JPG.'))
+                return redirect(url_for('main.business_settings'))
+            business.logo = data
+            business.logo_mime = mime
+        else:
+            if request.form.get('remove_logo'):
+                business.logo = None
+                business.logo_mime = None
+
         db.session.commit()
         flash(_('Business settings saved!'))
         return redirect(url_for('main.business_settings'))
 
     return render_template('business_settings.html', business=business)
+
+@main.route('/business-logo')
+@login_required
+def business_logo():
+    from app.models import BusinessProfile
+    business = BusinessProfile.query.filter_by(user_id=current_user.id).first()
+    if not business or not business.logo:
+        abort(404)
+    return Response(business.logo, mimetype=business.logo_mime or 'image/png')
 
 @main.route('/invoices')
 @login_required
@@ -692,6 +718,51 @@ def vat_report():
     return render_template('vat_report.html',
         year=year, prev_year=year - 1, next_year=year + 1,
         rows=rows, totals=totals)
+
+@main.route('/accounting/vat-report/export')
+@login_required
+def vat_report_export():
+    from app.models import Invoice
+    import calendar
+    import csv
+    import io
+
+    year = int(request.args.get('year', datetime.utcnow().year))
+    first_day = datetime(year, 1, 1)
+    last_day = datetime(year, 12, 31, 23, 59, 59)
+
+    invoices = Invoice.query.filter_by(user_id=current_user.id).filter(
+        Invoice.issue_date >= first_day,
+        Invoice.issue_date <= last_day,
+        Invoice.status != 'cancelled'
+    ).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Month', 'Invoices', 'Subtotal', 'VAT', 'Total'])
+
+    totals = [0, 0.0, 0.0, 0.0]
+    for m in range(1, 13):
+        mf = datetime(year, m, 1)
+        ml = datetime(year, m, calendar.monthrange(year, m)[1], 23, 59, 59)
+        mins = [i for i in invoices if mf <= i.issue_date <= ml]
+        subtotal = sum(float(i.subtotal) for i in mins)
+        vat = sum(float(i.vat_amount) for i in mins)
+        total = sum(float(i.total_amount) for i in mins)
+        writer.writerow([mf.strftime('%B'), len(mins), f'{subtotal:.2f}', f'{vat:.2f}', f'{total:.2f}'])
+        totals[0] += len(mins)
+        totals[1] += subtotal
+        totals[2] += vat
+        totals[3] += total
+
+    writer.writerow(['TOTAL', totals[0], f'{totals[1]:.2f}', f'{totals[2]:.2f}', f'{totals[3]:.2f}'])
+
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': f'attachment; filename=vat_report_{year}.csv'}
+    )
 
 @main.route('/sw.js')
 def service_worker():

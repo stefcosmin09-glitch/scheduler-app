@@ -14,7 +14,7 @@
         {% endif %}
     {% endwith %}
 
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <!-- Business Type -->
         <div class="mb-6">
@@ -156,6 +156,29 @@
                 <label class="block text-gray-700 mb-2">{{ _('Account Number') }}</label>
                 <input type="text" name="account_number" value="{{ business.account_number or '' if business else '' }}"
                     class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
+            </div>
+        </div>
+
+        <!-- Logo -->
+        <div class="mb-4 border-t pt-4 mt-4">
+            <label class="block text-gray-700 font-semibold mb-2">{{ _('Business Logo') }}</label>
+            <div class="flex items-center gap-4">
+                {% if business and business.logo %}
+                <img src="{{ url_for('main.business_logo') }}" alt="logo"
+                    class="w-20 h-20 object-contain bg-gray-50 border rounded">
+                {% else %}
+                <div class="w-20 h-20 object-contain bg-gray-50 border rounded flex items-center justify-center text-gray-400 text-3xl">🏢</div>
+                {% endif %}
+                <div class="flex-1">
+                    <input type="file" name="logo" accept="image/png,image/jpeg"
+                        class="block w-full text-sm text-gray-600">
+                    <p class="text-xs text-gray-400 mt-1">{{ _('Max 1.5MB, PNG or JPG. Appears on invoice header.') }}</p>
+                    {% if business and business.logo %}
+                    <label class="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                        <input type="checkbox" name="remove_logo" value="1"> {{ _('Remove logo') }}
+                    </label>
+                    {% endif %}
+                </div>
             </div>
         </div>
 

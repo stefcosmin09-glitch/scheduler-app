@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-11 18:21+0300\n"
+"POT-Creation-Date: 2026-09-13 23:12+0300\n"
 "PO-Revision-Date: 2026-09-11 18:22+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ro\n"
@@ -19,483 +19,651 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app/templates/base.html:15
-msgid "Dashboard"
-msgstr "Panou de control"
-
-#: app/templates/base.html:16
-msgid "New Job"
-msgstr "Job nou"
-
-#: app/templates/base.html:17
-msgid "Invoices"
-msgstr "Facturi"
-
-#: app/templates/base.html:18
-msgid "Accounting"
-msgstr "Contabilitate"
-
-#: app/templates/base.html:36
-msgid "Settings"
-msgstr "Setări"
-
-#: app/templates/base.html:37
-msgid "Logout"
-msgstr "Deconectare"
-
-msgid "My Jobs"
-msgstr "Lucrările mele"
-
-msgid "This Week"
-msgstr "Această săptămână"
-
-msgid "This Month"
-msgstr "Această lună"
-
-msgid "completed jobs"
-msgstr "joburi finalizate"
-
-msgid "Status"
-msgstr "Status"
-
-msgid "Type"
-msgstr "Tip"
-
-msgid "Active"
-msgstr "Active"
-
-msgid "Completed"
-msgstr "Finalizat"
-
-msgid "All"
-msgstr "Toate"
-
-msgid "Quote"
-msgstr "Ofertă"
-
-msgid "Quote Accepted"
-msgstr "Ofertă acceptată"
-
-msgid "Quote Declined"
-msgstr "Ofertă refuzată"
-
-msgid "Quote Sent"
-msgstr "Ofertă trimisă"
-
-msgid "Done"
-msgstr "Finalizează"
-
-msgid "Invoice"
-msgstr "Factură"
-
-msgid "Delete"
-msgstr "Șterge"
-
-msgid "No jobs in this category."
-msgstr "Niciun job în această categorie."
-
-msgid "Add your first job"
-msgstr "Adaugă primul tău job"
-
-msgid "Issued"
-msgstr "Emisă"
-
-msgid "Due"
-msgstr "Scadență"
-
-msgid "N/A"
-msgstr "N/A"
-
-msgid "Outstanding"
-msgstr "Rest de plată"
-
-msgid "Partially Paid"
-msgstr "Plătită parțial"
-
-msgid "Sent"
-msgstr "Trimisă"
-
-msgid "Draft"
-msgstr "Ciornă"
-
-msgid "Record Payment"
-msgstr "Înregistrează plata"
-
-msgid "Amount"
-msgstr "Sumă"
-
-msgid "Method"
-msgstr "Metodă"
-
-msgid "Bank Transfer"
-msgstr "Transfer bancar"
-
-msgid "Cash"
-msgstr "Numerar"
-
-msgid "Card"
-msgstr "Card"
-
-msgid "Other"
-msgstr "Altă metodă"
-
-msgid "Reference"
-msgstr "Referință"
-
-msgid "Optional"
-msgstr "Opțional"
-
-msgid "Save Payment"
-msgstr "Salvează plata"
-
-msgid "No invoices yet."
-msgstr "Nicio factură încă."
-
-msgid "Download an invoice from the dashboard to get started."
-msgstr "Descarcă o factură din dashboard pentru a începe."
-
-msgid "Export CSV"
-msgstr "Exportă CSV"
-
-msgid "Previous"
-msgstr "Anterior"
-
-msgid "Next"
-msgstr "Următorul"
-
-msgid "Total Invoiced"
-msgstr "Total facturat"
-
-msgid "Total Paid"
-msgstr "Total plătit"
-
-msgid "Invoices"
-msgstr "Facturi"
-
-msgid "invoices"
-msgstr "facturi"
-
-msgid "paid"
-msgstr "plătite"
-
-msgid "unpaid"
-msgstr "neplătite"
-
-msgid "Invoice"
-msgstr "Factură"
-
-msgid "Client"
-msgstr "Client"
-
-msgid "No invoices for"
-msgstr "Nicio factură pentru"
-
-msgid "Price"
-msgstr "Preț"
-
-msgid "Price"
-msgstr "Preț"
-
+#: app/routes.py:28
 msgid "Email already used."
 msgstr "Email deja folosit."
 
+#: app/routes.py:38
 msgid "Account created successfully!"
 msgstr "Cont creat cu succes!"
 
+#: app/routes.py:52
 msgid "Wrong email or password."
 msgstr "Email sau parolă greșită."
 
+#: app/routes.py:105
 msgid "If that email exists, you will receive a reset link shortly."
 msgstr "Dacă acest email există, vei primi un link de resetare în curând."
 
+#: app/routes.py:117
 msgid "Invalid or expired link."
 msgstr "Link invalid sau expirat."
 
+#: app/routes.py:126
 msgid "Password changed successfully!"
 msgstr "Parola schimbată cu succes!"
 
+#: app/routes.py:192
 msgid "Job added!"
 msgstr "Job adăugat!"
 
+#: app/routes.py:203 app/routes.py:236 app/routes.py:340 app/routes.py:516
+#: app/routes.py:552
 msgid "You do not have permission."
 msgstr "Nu ai permisiunea."
 
+#: app/routes.py:207
 msgid "Job marked as completed!"
 msgstr "Job marcat ca finalizat!"
 
+#: app/routes.py:216
 msgid "You do not have permission to delete this job."
 msgstr "Nu ai permisiunea să ștergi acest job."
 
-msgid "Job deleted."
-msgstr "Job șters."
-
+#: app/routes.py:219
 msgid "This job has an invoice and cannot be deleted."
 msgstr "Acest job are o factură emisă și nu poate fi șters."
 
+#: app/routes.py:223
+msgid "Job deleted."
+msgstr "Job șters."
+
+#: app/routes.py:321
 msgid "Invoice downloaded and sent to client!"
 msgstr "Factură descărcată și trimisă clientului!"
 
+#: app/routes.py:324
 msgid "Invoice downloaded."
 msgstr "Factură descărcată."
 
+#: app/routes.py:395
 msgid "Quote sent successfully!"
 msgstr "Ofertă trimisă cu succes!"
 
+#: app/routes.py:397
 msgid "No client email — quote saved but not sent."
 msgstr "Fără email client — oferta e salvată, dar n-a fost trimisă."
 
+#: app/routes.py:450
+msgid "Logo too large. Max 1.5MB."
+msgstr "Logo prea mare. Max 1.5MB."
+
+#: app/routes.py:453
+msgid "Logo must be PNG or JPG."
+msgstr "Logo-ul trebuie să fie PNG sau JPG."
+
+#: app/routes.py:463
 msgid "Business settings saved!"
 msgstr "Setările business au fost salvate!"
 
-msgid "Payment recorded!"
-msgstr "Plată înregistrată!"
-
+#: app/routes.py:519
 msgid "This invoice is already fully paid."
 msgstr "Această factură este deja plătită integral."
 
-msgid "Client Name"
-msgstr "Nume client"
-
-msgid "Client Email"
-msgstr "Email client"
-
-msgid "Address"
-msgstr "Adresă"
-
-msgid "Activity Type"
-msgstr "Tip activitate"
-
-msgid "Date & Time"
-msgstr "Data și ora"
-
-msgid "Description"
-msgstr "Descriere"
-
-msgid "Save Job"
-msgstr "Salvează job"
-
-msgid "Cancel"
-msgstr "Anulează"
-
-msgid "Electrical"
-msgstr "Instalații electrice"
-
-msgid "Plumbing"
-msgstr "Instalații sanitare"
-
-msgid "Construction"
-msgstr "Construcții"
-
-msgid "Carpentry"
-msgstr "Tâmplărie"
-
-msgid "Decorating"
-msgstr "Decorare"
-
-msgid "General Repairs"
-msgstr "Reparații generale"
-
-msgid "Other"
-msgstr "Altă activitate"
-
-msgid "⚡ Electrical"
-msgstr "⚡ Instalații electrice"
-
-msgid "🔧 Plumbing"
-msgstr "🔧 Instalații sanitare"
-
-msgid "🏗️ Construction"
-msgstr "🏗️ Construcții"
-
-msgid "🪟 Carpentry"
-msgstr "🪟 Tâmplărie"
-
-msgid "🎨 Decorating"
-msgstr "🎨 Decorare"
-
-msgid "🔩 General Repairs"
-msgstr "🔩 Reparații generale"
-
-msgid "➕ Other"
-msgstr "➕ Altă activitate"
-
-msgid "Login"
-msgstr "Autentificare"
-
-msgid "Email"
-msgstr "Email"
-
-msgid "Password"
-msgstr "Parolă"
-
-msgid "Forgot password?"
-msgstr "Ai uitat parola?"
-
-msgid "Don't have an account?"
-msgstr "Nu ai cont?"
-
-msgid "Sign up"
-msgstr "Înregistrează-te"
-
-msgid "New Account"
-msgstr "Cont nou"
-
-msgid "Username"
-msgstr "Nume utilizator"
-
-msgid "Create Account"
-msgstr "Creează cont"
-
-msgid "Already have an account?"
-msgstr "Ai deja cont?"
-
-msgid "Log in"
-msgstr "Loghează-te"
-
-msgid "Forgot Password"
-msgstr "Parolă uitată"
-
-msgid "Enter your email and we'll send you a reset link."
-msgstr "Introdu emailul și îți vom trimite un link de resetare."
-
-msgid "Send Reset Link"
-msgstr "Trimite linkul"
-
-msgid "Back to Login"
-msgstr "Înapoi la autentificare"
-
-msgid "Business Settings"
-msgstr "Setări business"
-
-msgid "Business Type"
-msgstr "Tip de business"
-
-msgid "Legal Name"
-msgstr "Denumire legală"
-
-msgid "Trading Name"
-msgstr "Denumire comercială"
-
-msgid "Business Address"
-msgstr "Adresa business"
-
-msgid "Phone"
-msgstr "Telefon"
-
-msgid "Business Email"
-msgstr "Email business"
-
-msgid "Company Registration Number"
-msgstr "Număr de înregistrare"
-
-msgid "Tax Country"
-msgstr "Țara de taxare"
-
-msgid "Invoice Settings"
-msgstr "Setări factură"
-
-msgid "Invoice Prefix"
-msgstr "Prefix factură"
-
-msgid "Next Invoice Number"
-msgstr "Următorul număr"
-
-msgid "Payment Terms"
-msgstr "Termeni de plată"
-
-msgid "Due on receipt"
-msgstr "La primire"
-
-msgid "7 days"
-msgstr "7 zile"
-
-msgid "14 days"
-msgstr "14 zile"
-
-msgid "30 days"
-msgstr "30 de zile"
-
-msgid "Payment Details"
-msgstr "Detalii plată"
-
-msgid "Show bank details on invoices"
-msgstr "Arată datele bancare pe facturi"
-
-msgid "Account Name"
-msgstr "Numele contului"
-
-msgid "Sort Code"
-msgstr "Sort code"
-
-msgid "Account Number"
-msgstr "Număr cont"
-
-msgid "Save Settings"
-msgstr "Salvează setările"
-
-msgid "Send Quote"
-msgstr "Trimite oferta"
-
-msgid "Sending quote to"
-msgstr "Trimiți oferta către"
-
-msgid "Description of work"
-msgstr "Descrierea lucrării"
-
-msgid "Payments"
-msgstr "Plăți"
-
-msgid "Payment Journal"
-msgstr "Jurnal de plăți"
-
-msgid "Total received"
-msgstr "Total încasat"
-
-msgid "Date"
-msgstr "Data"
-
-msgid "No payments recorded yet."
-msgstr "Nicio plată înregistrată încă."
-
-msgid "Record a payment from the Invoices page."
-msgstr "Înregistrează o plată din pagina Facturi."
-
-msgid "Cancelled"
-msgstr "Anulată"
-
-msgid "Void"
-msgstr "Anulează"
-
-msgid "Cancel this invoice?"
-msgstr "Anulezi această factură?"
-
-msgid "Invoice cancelled."
-msgstr "Factură anulată."
-
+#: app/routes.py:544
+msgid "Payment recorded!"
+msgstr "Plată înregistrată!"
+
+#: app/routes.py:555
 msgid "Cannot cancel an invoice that is already paid."
 msgstr "Nu poți anula o factură deja plătită."
 
-msgid "Delete this job?"
-msgstr "Ștergi acest job?"
+#: app/routes.py:559
+msgid "Invoice cancelled."
+msgstr "Factură anulată."
 
+#: app/templates/accounting.html:5 app/templates/base.html:43
+#: app/templates/vat_report.html:10
+msgid "Accounting"
+msgstr "Contabilitate"
+
+#: app/templates/accounting.html:9 app/templates/vat_report.html:5
 msgid "VAT Report"
 msgstr "Raport TVA"
 
+#: app/templates/accounting.html:13 app/templates/vat_report.html:8
+msgid "Export CSV"
+msgstr "Exportă CSV"
+
+#: app/templates/accounting.html:20
+msgid "Previous"
+msgstr "Anterior"
+
+#: app/templates/accounting.html:23
+msgid "Next"
+msgstr "Următorul"
+
+#: app/templates/accounting.html:28 app/templates/vat_report.html:24
+msgid "Total Invoiced"
+msgstr "Total facturat"
+
+#: app/templates/accounting.html:30 app/templates/vat_report.html:30
+msgid "invoices"
+msgstr "facturi"
+
+#: app/templates/accounting.html:33
+msgid "Total Paid"
+msgstr "Total plătit"
+
+#: app/templates/accounting.html:35
+msgid "paid"
+msgstr "plătite"
+
+#: app/templates/accounting.html:38 app/templates/invoices.html:46
+msgid "Outstanding"
+msgstr "Rest de plată"
+
+#: app/templates/accounting.html:40
+msgid "unpaid"
+msgstr "neplătite"
+
+#: app/templates/accounting.html:49 app/templates/dashboard.html:112
+#: app/templates/payments.html:18
+msgid "Invoice"
+msgstr "Factură"
+
+#: app/templates/accounting.html:50 app/templates/payments.html:19
+msgid "Client"
+msgstr "Client"
+
+#: app/templates/accounting.html:51 app/templates/invoices.html:41
+msgid "Issued"
+msgstr "Emisă"
+
+#: app/templates/accounting.html:52 app/templates/invoices.html:42
+msgid "Due"
+msgstr "Scadență"
+
+#: app/templates/accounting.html:53 app/templates/invoices.html:75
+#: app/templates/payments.html:23
+msgid "Amount"
+msgstr "Sumă"
+
+#: app/templates/accounting.html:54 app/templates/dashboard.html:29
+msgid "Status"
+msgstr "Status"
+
+#: app/templates/accounting.html:63 app/templates/invoices.html:42
+msgid "N/A"
+msgstr "N/A"
+
+#: app/templates/accounting.html:66 app/templates/invoices.html:5
+#: app/templates/invoices.html:45
+#, fuzzy
+msgid "Paid"
+msgstr "plătite"
+
+#: app/templates/accounting.html:66 app/templates/invoices.html:6
+#, fuzzy
+msgid "Overdue"
+msgstr "Scadență"
+
+#: app/templates/accounting.html:66 app/templates/invoices.html:7
+msgid "Partially Paid"
+msgstr "Plătită parțial"
+
+#: app/templates/accounting.html:66 app/templates/invoices.html:8
+msgid "Sent"
+msgstr "Trimisă"
+
+#: app/templates/accounting.html:66 app/templates/invoices.html:9
+msgid "Draft"
+msgstr "Ciornă"
+
+#: app/templates/accounting.html:66 app/templates/invoices.html:10
+msgid "Cancelled"
+msgstr "Anulată"
+
+#: app/templates/accounting.html:83 app/templates/vat_report.html:74
+msgid "No invoices for"
+msgstr "Nicio factură pentru"
+
+#: app/templates/add_job.html:22
+msgid "Address"
+msgstr "Adresă"
+
+#: app/templates/add_job.html:38 app/templates/send_quote.html:17
+msgid "Price"
+msgstr "Preț"
+
+#: app/templates/add_job.html:53
+msgid "Date & Time"
+msgstr "Data și ora"
+
+#: app/templates/base.html:40
+msgid "Dashboard"
+msgstr "Panou de control"
+
+#: app/templates/base.html:41 app/templates/dashboard.html:8
+msgid "New Job"
+msgstr "Job nou"
+
+#: app/templates/base.html:42 app/templates/invoices.html:13
+#: app/templates/vat_report.html:44
+msgid "Invoices"
+msgstr "Facturi"
+
+#: app/templates/base.html:44
+msgid "Payments"
+msgstr "Plăți"
+
+#: app/templates/base.html:46
+msgid "Settings"
+msgstr "Setări"
+
+#: app/templates/base.html:47
 msgid "Install app"
 msgstr "Instalează aplicația"
 
+#: app/templates/base.html:48
+msgid "Logout"
+msgstr "Deconectare"
+
+#: app/templates/business_settings.html:5
+msgid "Business Settings"
+msgstr "Setări business"
+
+#: app/templates/business_settings.html:21
+msgid "Business Type"
+msgstr "Tip de business"
+
+#: app/templates/business_settings.html:40
+msgid "Legal Name"
+msgstr "Denumire legală"
+
+#: app/templates/business_settings.html:46
+msgid "Trading Name"
+msgstr "Denumire comercială"
+
+#: app/templates/business_settings.html:52
+msgid "Business Address"
+msgstr "Adresa business"
+
+#: app/templates/business_settings.html:58
+msgid "Phone"
+msgstr "Telefon"
+
+#: app/templates/business_settings.html:64
+msgid "Business Email"
+msgstr "Email business"
+
+#: app/templates/business_settings.html:71
+msgid "Company Registration Number"
+msgstr "Număr de înregistrare"
+
+#: app/templates/business_settings.html:78
+msgid "Tax Country"
+msgstr "Țara de taxare"
+
+#: app/templates/business_settings.html:110
+msgid "Invoice Settings"
+msgstr "Setări factură"
+
+#: app/templates/business_settings.html:113
+msgid "Invoice Prefix"
+msgstr "Prefix factură"
+
+#: app/templates/business_settings.html:119
+msgid "Next Invoice Number"
+msgstr "Următorul număr"
+
+#: app/templates/business_settings.html:125
+msgid "Payment Terms"
+msgstr "Termeni de plată"
+
+#: app/templates/business_settings.html:128
+msgid "Due on receipt"
+msgstr "La primire"
+
+#: app/templates/business_settings.html:129
+msgid "7 days"
+msgstr "7 zile"
+
+#: app/templates/business_settings.html:130
+msgid "14 days"
+msgstr "14 zile"
+
+#: app/templates/business_settings.html:131
+msgid "30 days"
+msgstr "30 de zile"
+
+#: app/templates/business_settings.html:138
+msgid "Payment Details"
+msgstr "Detalii plată"
+
+#: app/templates/business_settings.html:142
+msgid "Show bank details on invoices"
+msgstr "Arată datele bancare pe facturi"
+
+#: app/templates/business_settings.html:146
+msgid "Account Name"
+msgstr "Numele contului"
+
+#: app/templates/business_settings.html:151
+msgid "Sort Code"
+msgstr "Sort code"
+
+#: app/templates/business_settings.html:156
+msgid "Account Number"
+msgstr "Număr cont"
+
+#: app/templates/business_settings.html:164
+msgid "Business Logo"
+msgstr "Logo firmă"
+
+#: app/templates/business_settings.html:175
+msgid "Max 1.5MB, PNG or JPG. Appears on invoice header."
+msgstr "Max 1.5MB, PNG sau JPG. Apare în antetul facturii."
+
+#: app/templates/business_settings.html:178
+msgid "Remove logo"
+msgstr "Șterge logo"
+
+#: app/templates/business_settings.html:187
+msgid "Save Settings"
+msgstr "Salvează setările"
+
+#: app/templates/business_settings.html:195
+msgid "Language"
+msgstr ""
+
+#: app/templates/business_settings.html:206
+msgid "Currency"
+msgstr ""
+
+#: app/templates/dashboard.html:5
+msgid "My Jobs"
+msgstr "Lucrările mele"
+
+#: app/templates/dashboard.html:15
+msgid "This Week"
+msgstr "Această săptămână"
+
+#: app/templates/dashboard.html:17 app/templates/dashboard.html:22
+msgid "completed jobs"
+msgstr "joburi finalizate"
+
+#: app/templates/dashboard.html:20
+msgid "This Month"
+msgstr "Această lună"
+
+#: app/templates/dashboard.html:32
+msgid "Active"
+msgstr "Active"
+
+#: app/templates/dashboard.html:36 app/templates/dashboard.html:108
+msgid "Completed"
+msgstr "Finalizat"
+
+#: app/templates/dashboard.html:40 app/templates/dashboard.html:48
+msgid "All"
+msgstr "Toate"
+
+#: app/templates/dashboard.html:45
+msgid "Type"
+msgstr "Tip"
+
+#: app/templates/dashboard.html:87
+msgid "Quote"
+msgstr "Ofertă"
+
+#: app/templates/dashboard.html:91
+msgid "Quote Accepted"
+msgstr "Ofertă acceptată"
+
+#: app/templates/dashboard.html:95
+msgid "Quote Declined"
+msgstr "Ofertă refuzată"
+
+#: app/templates/dashboard.html:99
+msgid "Quote Sent"
+msgstr "Ofertă trimisă"
+
+#: app/templates/dashboard.html:104
+msgid "Done"
+msgstr "Finalizează"
+
+#: app/templates/dashboard.html:116
+msgid "Delete this job?"
+msgstr "Ștergi acest job?"
+
+#: app/templates/dashboard.html:118
+msgid "Delete"
+msgstr "Șterge"
+
+#: app/templates/dashboard.html:127
+msgid "No jobs in this category."
+msgstr "Niciun job în această categorie."
+
+#: app/templates/dashboard.html:130
+msgid "Add your first job"
+msgstr "Adaugă primul tău job"
+
+#: app/templates/forgot_password.html:5
+msgid "Forgot Password"
+msgstr "Parolă uitată"
+
+#: app/templates/forgot_password.html:6
+msgid "Enter your email and we'll send you a reset link."
+msgstr "Introdu emailul și îți vom trimite un link de resetare."
+
+#: app/templates/forgot_password.html:11 app/templates/login.html:10
+#: app/templates/register.html:16
+msgid "Email"
+msgstr "Email"
+
+#: app/templates/forgot_password.html:18
+msgid "Send Reset Link"
+msgstr "Trimite linkul"
+
+#: app/templates/forgot_password.html:23
+msgid "Back to Login"
+msgstr "Înapoi la autentificare"
+
+#: app/templates/invoices.html:55
+msgid "Record Payment"
+msgstr "Înregistrează plata"
+
+#: app/templates/invoices.html:58
+msgid "Cancel this invoice?"
+msgstr "Anulezi această factură?"
+
+#: app/templates/invoices.html:62
+msgid "Void"
+msgstr "Anulează"
+
+#: app/templates/invoices.html:81 app/templates/payments.html:21
+msgid "Method"
+msgstr "Metodă"
+
+#: app/templates/invoices.html:83
+msgid "Bank Transfer"
+msgstr "Transfer bancar"
+
+#: app/templates/invoices.html:84
+msgid "Cash"
+msgstr "Numerar"
+
+#: app/templates/invoices.html:85
+msgid "Card"
+msgstr "Card"
+
+#: app/templates/invoices.html:86
+msgid "Other"
+msgstr "Altă metodă"
+
+#: app/templates/invoices.html:90 app/templates/payments.html:22
+msgid "Reference"
+msgstr "Referință"
+
+#: app/templates/invoices.html:91
+msgid "Optional"
+msgstr "Opțional"
+
+#: app/templates/invoices.html:97
+msgid "Save Payment"
+msgstr "Salvează plata"
+
+#: app/templates/invoices.html:108
+msgid "No invoices yet."
+msgstr "Nicio factură încă."
+
+#: app/templates/invoices.html:109
+msgid "Download an invoice from the dashboard to get started."
+msgstr "Descarcă o factură din dashboard pentru a începe."
+
+#: app/templates/login.html:5 app/templates/login.html:23
+msgid "Login"
+msgstr "Autentificare"
+
+#: app/templates/login.html:16 app/templates/register.html:22
+msgid "Password"
+msgstr "Parolă"
+
+#: app/templates/login.html:28
+msgid "Forgot password?"
+msgstr "Ai uitat parola?"
+
+#: app/templates/login.html:31
+msgid "Don't have an account?"
+msgstr "Nu ai cont?"
+
+#: app/templates/login.html:32
+msgid "Sign up"
+msgstr "Înregistrează-te"
+
+#: app/templates/payments.html:5
+msgid "Payment Journal"
+msgstr "Jurnal de plăți"
+
+#: app/templates/payments.html:10
+msgid "Total received"
+msgstr "Total încasat"
+
+#: app/templates/payments.html:20
+msgid "Date"
+msgstr "Data"
+
+#: app/templates/payments.html:42
+msgid "No payments recorded yet."
+msgstr "Nicio plată înregistrată încă."
+
+#: app/templates/payments.html:43
+msgid "Record a payment from the Invoices page."
+msgstr "Înregistrează o plată din pagina Facturi."
+
+#: app/templates/register.html:5
+msgid "New Account"
+msgstr "Cont nou"
+
+#: app/templates/register.html:10
+msgid "Username"
+msgstr "Nume utilizator"
+
+#: app/templates/register.html:29
+msgid "Create Account"
+msgstr "Creează cont"
+
+#: app/templates/register.html:34
+msgid "Already have an account?"
+msgstr "Ai deja cont?"
+
+#: app/templates/register.html:35
+msgid "Log in"
+msgstr "Loghează-te"
+
+#: app/templates/send_quote.html:5 app/templates/send_quote.html:35
+msgid "Send Quote"
+msgstr "Trimite oferta"
+
+#: app/templates/send_quote.html:6
+msgid "Sending quote to"
+msgstr "Trimiți oferta către"
+
+#: app/templates/send_quote.html:10
+msgid "Description of work"
+msgstr "Descrierea lucrării"
+
+#: app/templates/send_quote.html:39
+msgid "Cancel"
+msgstr "Anulează"
+
+#: app/templates/vat_report.html:28
 msgid "Total VAT"
 msgstr "Total TVA"
 
+#: app/templates/vat_report.html:33
 msgid "Total (with VAT)"
 msgstr "Total (cu TVA)"
 
+#: app/templates/vat_report.html:43
 msgid "Month"
 msgstr "Luna"
 
+#: app/templates/vat_report.html:45
+msgid "Subtotal"
+msgstr "Subtotal"
+
+#: app/templates/vat_report.html:46
 msgid "VAT"
 msgstr "TVA"
 
-msgid "Subtotal"
+#: app/templates/vat_report.html:47 app/templates/vat_report.html:63
+#, fuzzy
+msgid "Total"
 msgstr "Subtotal"
+
+#~ msgid "Client Name"
+#~ msgstr "Nume client"
+
+#~ msgid "Client Email"
+#~ msgstr "Email client"
+
+#~ msgid "Activity Type"
+#~ msgstr "Tip activitate"
+
+#~ msgid "Description"
+#~ msgstr "Descriere"
+
+#~ msgid "Save Job"
+#~ msgstr "Salvează job"
+
+#~ msgid "Electrical"
+#~ msgstr "Instalații electrice"
+
+#~ msgid "Plumbing"
+#~ msgstr "Instalații sanitare"
+
+#~ msgid "Construction"
+#~ msgstr "Construcții"
+
+#~ msgid "Carpentry"
+#~ msgstr "Tâmplărie"
+
+#~ msgid "Decorating"
+#~ msgstr "Decorare"
+
+#~ msgid "General Repairs"
+#~ msgstr "Reparații generale"
+
+#~ msgid "⚡ Electrical"
+#~ msgstr "⚡ Instalații electrice"
+
+#~ msgid "🔧 Plumbing"
+#~ msgstr "🔧 Instalații sanitare"
+
+#~ msgid "🏗️ Construction"
+#~ msgstr "🏗️ Construcții"
+
+#~ msgid "🪟 Carpentry"
+#~ msgstr "🪟 Tâmplărie"
+
+#~ msgid "🎨 Decorating"
+#~ msgstr "🎨 Decorare"
+
+#~ msgid "🔩 General Repairs"
+#~ msgstr "🔩 Reparații generale"
+
+#~ msgid "➕ Other"
+#~ msgstr "➕ Altă activitate"
 
