@@ -19,6 +19,11 @@ main = Blueprint('main', __name__)
 
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
+    import os
+    if os.getenv('SIGNUP_OPEN', '1').strip().lower() in ('0', 'false', 'no'):
+        flash(_('New registrations are currently disabled.'))
+        return redirect(url_for('auth.login'))
+
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
@@ -35,6 +40,11 @@ def register():
         )
         db.session.add(user)
         db.session.commit()
+        from app.email_service import send_welcome
+        try:
+            send_welcome(email)
+        except Exception:
+            pass
         flash(_('Account created successfully!'))
         return redirect(url_for('auth.login'))
 
@@ -132,9 +142,11 @@ def reset_password(token):
 # ─── MAIN ───────────────────────────────────────────
 
 @main.route('/')
-@login_required
 def dashboard():
     from datetime import timedelta
+    if not current_user.is_authenticated:
+        return render_template('landing.html')
+
     filter_type = request.args.get('type', 'all')
     filter_status = request.args.get('status', 'active')
 

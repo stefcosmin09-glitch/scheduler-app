@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-13 23:12+0300\n"
+"POT-Creation-Date: 2026-09-13 23:34+0300\n"
 "PO-Revision-Date: 2026-09-11 18:22+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ro\n"
@@ -19,100 +19,104 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app/routes.py:28
+#: app/routes.py:24
+msgid "New registrations are currently disabled."
+msgstr "Înregistrările noi sunt momentan dezactivate."
+
+#: app/routes.py:33
 msgid "Email already used."
 msgstr "Email deja folosit."
 
-#: app/routes.py:38
+#: app/routes.py:48
 msgid "Account created successfully!"
 msgstr "Cont creat cu succes!"
 
-#: app/routes.py:52
+#: app/routes.py:62
 msgid "Wrong email or password."
 msgstr "Email sau parolă greșită."
 
-#: app/routes.py:105
+#: app/routes.py:115
 msgid "If that email exists, you will receive a reset link shortly."
 msgstr "Dacă acest email există, vei primi un link de resetare în curând."
 
-#: app/routes.py:117
+#: app/routes.py:127
 msgid "Invalid or expired link."
 msgstr "Link invalid sau expirat."
 
-#: app/routes.py:126
+#: app/routes.py:136
 msgid "Password changed successfully!"
 msgstr "Parola schimbată cu succes!"
 
-#: app/routes.py:192
+#: app/routes.py:204
 msgid "Job added!"
 msgstr "Job adăugat!"
 
-#: app/routes.py:203 app/routes.py:236 app/routes.py:340 app/routes.py:516
-#: app/routes.py:552
+#: app/routes.py:215 app/routes.py:248 app/routes.py:352 app/routes.py:528
+#: app/routes.py:564
 msgid "You do not have permission."
 msgstr "Nu ai permisiunea."
 
-#: app/routes.py:207
+#: app/routes.py:219
 msgid "Job marked as completed!"
 msgstr "Job marcat ca finalizat!"
 
-#: app/routes.py:216
+#: app/routes.py:228
 msgid "You do not have permission to delete this job."
 msgstr "Nu ai permisiunea să ștergi acest job."
 
-#: app/routes.py:219
+#: app/routes.py:231
 msgid "This job has an invoice and cannot be deleted."
 msgstr "Acest job are o factură emisă și nu poate fi șters."
 
-#: app/routes.py:223
+#: app/routes.py:235
 msgid "Job deleted."
 msgstr "Job șters."
 
-#: app/routes.py:321
+#: app/routes.py:333
 msgid "Invoice downloaded and sent to client!"
 msgstr "Factură descărcată și trimisă clientului!"
 
-#: app/routes.py:324
+#: app/routes.py:336
 msgid "Invoice downloaded."
 msgstr "Factură descărcată."
 
-#: app/routes.py:395
+#: app/routes.py:407
 msgid "Quote sent successfully!"
 msgstr "Ofertă trimisă cu succes!"
 
-#: app/routes.py:397
+#: app/routes.py:409
 msgid "No client email — quote saved but not sent."
 msgstr "Fără email client — oferta e salvată, dar n-a fost trimisă."
 
-#: app/routes.py:450
+#: app/routes.py:462
 msgid "Logo too large. Max 1.5MB."
 msgstr "Logo prea mare. Max 1.5MB."
 
-#: app/routes.py:453
+#: app/routes.py:465
 msgid "Logo must be PNG or JPG."
 msgstr "Logo-ul trebuie să fie PNG sau JPG."
 
-#: app/routes.py:463
+#: app/routes.py:475
 msgid "Business settings saved!"
 msgstr "Setările business au fost salvate!"
 
-#: app/routes.py:519
+#: app/routes.py:531
 msgid "This invoice is already fully paid."
 msgstr "Această factură este deja plătită integral."
 
-#: app/routes.py:544
+#: app/routes.py:556
 msgid "Payment recorded!"
 msgstr "Plată înregistrată!"
 
-#: app/routes.py:555
+#: app/routes.py:567
 msgid "Cannot cancel an invoice that is already paid."
 msgstr "Nu poți anula o factură deja plătită."
 
-#: app/routes.py:559
+#: app/routes.py:571
 msgid "Invoice cancelled."
 msgstr "Factură anulată."
 
-#: app/templates/accounting.html:5 app/templates/base.html:43
+#: app/templates/accounting.html:5 app/templates/base.html:41
 #: app/templates/vat_report.html:10
 msgid "Accounting"
 msgstr "Contabilitate"
@@ -230,32 +234,32 @@ msgstr "Preț"
 msgid "Date & Time"
 msgstr "Data și ora"
 
-#: app/templates/base.html:40
+#: app/templates/base.html:38
 msgid "Dashboard"
 msgstr "Panou de control"
 
-#: app/templates/base.html:41 app/templates/dashboard.html:8
+#: app/templates/base.html:39 app/templates/dashboard.html:8
 msgid "New Job"
 msgstr "Job nou"
 
-#: app/templates/base.html:42 app/templates/invoices.html:13
+#: app/templates/base.html:40 app/templates/invoices.html:13
 #: app/templates/vat_report.html:44
 msgid "Invoices"
 msgstr "Facturi"
 
-#: app/templates/base.html:44
+#: app/templates/base.html:42
 msgid "Payments"
 msgstr "Plăți"
 
-#: app/templates/base.html:46
+#: app/templates/base.html:43
 msgid "Settings"
 msgstr "Setări"
 
-#: app/templates/base.html:47
+#: app/templates/base.html:44
 msgid "Install app"
 msgstr "Instalează aplicația"
 
-#: app/templates/base.html:48
+#: app/templates/base.html:45
 msgid "Logout"
 msgstr "Deconectare"
 

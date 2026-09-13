@@ -6,3 +6,4 @@ instance/
 backups/
 *.db
 .pytest_cache/
+messages.pot
