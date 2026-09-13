@@ -452,6 +452,8 @@ def business_settings():
 def invoices():
     from app.models import Invoice
     from datetime import date
+    from app.notifications import send_overdue_invoice_reminders
+    send_overdue_invoice_reminders(current_app._get_current_object())
     
     all_invoices = Invoice.query.filter_by(user_id=current_user.id).order_by(Invoice.issue_date.desc()).all()
     

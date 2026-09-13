@@ -53,6 +53,7 @@ class Invoice(db.Model):
     status = db.Column(db.String(20), default='draft')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     paid_at = db.Column(db.DateTime)
+    reminder_sent = db.Column(db.Boolean, default=False)
     job = db.relationship('Job', backref='invoice', uselist=False)
     payments = db.relationship('Payment', backref='invoice', lazy=True)
 
