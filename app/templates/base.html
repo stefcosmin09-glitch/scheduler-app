@@ -14,38 +14,57 @@
 <body class="bg-gray-100 min-h-screen">
 
     {% if current_user.is_authenticated %}
-    <nav class="bg-blue-600 text-white p-4 flex flex-wrap justify-between items-center gap-2">
-        <div class="flex flex-wrap items-center gap-2">
-            <span class="font-bold text-lg">TradeScheduler</span>
-            <form method="POST" action="{{ url_for('main.set_language', next=request.full_path) }}" class="inline">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <select name="language" onchange="this.form.submit()"
-                    class="bg-blue-700 text-white text-sm rounded px-2 py-1">
-                    <option value="en" {{ 'selected' if current_user.language == 'en' else '' }}>🇬🇧 EN</option>
-                    <option value="ro" {{ 'selected' if current_user.language == 'ro' else '' }}>🇷🇴 RO</option>
-                </select>
-            </form>
-            <form method="POST" action="{{ url_for('main.set_currency', next=request.full_path) }}" class="inline">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <select name="currency" onchange="this.form.submit()"
-                    class="bg-blue-700 text-white text-sm rounded px-2 py-1">
-                    <option value="GBP" {{ 'selected' if current_user.currency == 'GBP' else '' }}>£ GBP</option>
-                    <option value="RON" {{ 'selected' if current_user.currency == 'RON' else '' }}>lei RON</option>
-                    <option value="EUR" {{ 'selected' if current_user.currency == 'EUR' else '' }}>€ EUR</option>
-                    <option value="USD" {{ 'selected' if current_user.currency == 'USD' else '' }}>$ USD</option>
-                </select>
-            </form>
-        </div>
-        <div class="flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
-            <a href="{{ url_for('main.dashboard') }}" class="hover:underline">🏠 {{ _('Dashboard') }}</a>
-            <a href="{{ url_for('main.add_job') }}" class="hover:underline">➕ {{ _('New Job') }}</a>
-            <a href="{{ url_for('main.invoices') }}" class="hover:underline">📄 {{ _('Invoices') }}</a>
-            <a href="{{ url_for('main.accounting') }}" class="hover:underline">📊 {{ _('Accounting') }}</a>
-            <a href="{{ url_for('main.payments') }}" class="hover:underline">💳 {{ _('Payments') }}</a>
+    {% macro lang_currency() %}
+        <form method="POST" action="{{ url_for('main.set_language', next=request.full_path) }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="language" onchange="this.form.submit()"
+                class="bg-blue-700 text-white text-sm rounded px-2 py-1">
+                <option value="en" {{ 'selected' if current_user.language == 'en' else '' }}>🇬🇧 EN</option>
+                <option value="ro" {{ 'selected' if current_user.language == 'ro' else '' }}>🇷🇴 RO</option>
+            </select>
+        </form>
+        <form method="POST" action="{{ url_for('main.set_currency', next=request.full_path) }}" class="inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <select name="currency" onchange="this.form.submit()"
+                class="bg-blue-700 text-white text-sm rounded px-2 py-1">
+                <option value="GBP" {{ 'selected' if current_user.currency == 'GBP' else '' }}>£ GBP</option>
+                <option value="RON" {{ 'selected' if current_user.currency == 'RON' else '' }}>lei RON</option>
+                <option value="EUR" {{ 'selected' if current_user.currency == 'EUR' else '' }}>€ EUR</option>
+                <option value="USD" {{ 'selected' if current_user.currency == 'USD' else '' }}>$ USD</option>
+            </select>
+        </form>
+    {% endmacro %}
+    {% macro nav_links() %}
+        <a href="{{ url_for('main.dashboard') }}" class="hover:underline">🏠 {{ _('Dashboard') }}</a>
+        <a href="{{ url_for('main.add_job') }}" class="hover:underline">➕ {{ _('New Job') }}</a>
+        <a href="{{ url_for('main.invoices') }}" class="hover:underline">📄 {{ _('Invoices') }}</a>
+        <a href="{{ url_for('main.accounting') }}" class="hover:underline">📊 {{ _('Accounting') }}</a>
+        <a href="{{ url_for('main.payments') }}" class="hover:underline">💳 {{ _('Payments') }}</a>
+        <a href="{{ url_for('main.business_settings') }}" class="hover:underline">⚙️ {{ _('Settings') }}</a>
+        <button class="install-btn hidden bg-blue-600 text-white text-sm rounded px-2 py-1 whitespace-nowrap">📲 {{ _('Install app') }}</button>
+        <a href="{{ url_for('auth.logout') }}" class="hover:underline">🚪 {{ _('Logout') }}</a>
+    {% endmacro %}
 
-            <a href="{{ url_for('main.business_settings') }}" class="hover:underline">⚙️ {{ _('Settings') }}</a>
-            <button id="install-btn" class="hidden bg-blue-700 text-white text-sm rounded px-2 py-1">📲 {{ _('Install app') }}</button>
-            <a href="{{ url_for('auth.logout') }}" class="hover:underline">🚪 {{ _('Logout') }}</a>
+    <nav class="bg-blue-600 text-white">
+        <div class="flex items-center justify-between px-4 py-3">
+            <span class="font-bold text-lg whitespace-nowrap">TradeScheduler</span>
+            <div class="hidden md:flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    {{ lang_currency() }}
+                </div>
+                <div class="flex items-center gap-x-4">
+                    {{ nav_links() }}
+                </div>
+            </div>
+            <button id="menu-toggle" class="md:hidden text-2xl px-2 focus:outline-none" aria-label="Menu">☰</button>
+        </div>
+        <div id="nav-menu" class="hidden md:hidden bg-blue-700 px-4 pb-4">
+            <div class="flex items-center gap-2 pb-3">
+                {{ lang_currency() }}
+            </div>
+            <div class="flex flex-col gap-3 pt-3 border-t border-blue-600">
+                {{ nav_links() }}
+            </div>
         </div>
     </nav>
     {% endif %}
@@ -69,26 +88,35 @@
 
 <script>
     (function () {
-        var btn = document.getElementById('install-btn');
-        if (btn) {
+        var toggle = document.getElementById('menu-toggle');
+        var menu = document.getElementById('nav-menu');
+        if (toggle && menu) {
+            toggle.addEventListener('click', function () {
+                menu.classList.toggle('hidden');
+            });
+        }
+
+        var installBtns = Array.prototype.slice.call(document.querySelectorAll('.install-btn'));
+        var deferredPrompt = null;
+        installBtns.forEach(function (btn) {
             btn.addEventListener('click', function () {
-                if (window.deferredPrompt) {
-                    window.deferredPrompt.prompt();
-                    window.deferredPrompt.userChoice.then(function () {
-                        window.deferredPrompt = null;
-                        btn.classList.add('hidden');
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then(function () {
+                        deferredPrompt = null;
+                        installBtns.forEach(function (b) { b.classList.add('hidden'); });
                     });
                 }
             });
-            window.addEventListener('beforeinstallprompt', function (e) {
-                e.preventDefault();
-                window.deferredPrompt = e;
-                btn.classList.remove('hidden');
-            });
-            window.addEventListener('appinstalled', function () {
-                btn.classList.add('hidden');
-            });
-        }
+        });
+        window.addEventListener('beforeinstallprompt', function (e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtns.forEach(function (btn) { btn.classList.remove('hidden'); });
+        });
+        window.addEventListener('appinstalled', function () {
+            installBtns.forEach(function (btn) { btn.classList.add('hidden'); });
+        });
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('/sw.js').catch(function () {});
