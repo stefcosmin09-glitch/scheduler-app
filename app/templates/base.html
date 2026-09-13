@@ -14,8 +14,8 @@
 <body class="bg-gray-100 min-h-screen">
 
     {% if current_user.is_authenticated %}
-    <nav class="bg-blue-600 text-white p-4 flex justify-between items-center">
-        <div class="flex items-center gap-2">
+    <nav class="bg-blue-600 text-white p-4 flex flex-wrap justify-between items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
             <span class="font-bold text-lg">TradeScheduler</span>
             <form method="POST" action="{{ url_for('main.set_language', next=request.full_path) }}" class="inline">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -36,7 +36,7 @@
                 </select>
             </form>
         </div>
-        <div class="space-x-4">
+        <div class="flex flex-wrap items-center justify-end gap-x-3 gap-y-2">
             <a href="{{ url_for('main.dashboard') }}" class="hover:underline">🏠 {{ _('Dashboard') }}</a>
             <a href="{{ url_for('main.add_job') }}" class="hover:underline">➕ {{ _('New Job') }}</a>
             <a href="{{ url_for('main.invoices') }}" class="hover:underline">📄 {{ _('Invoices') }}</a>
