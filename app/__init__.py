@@ -4,6 +4,7 @@ from flask_login import LoginManager, current_user
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_babel import Babel
+from flask_wtf.csrf import CSRFProtect
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import Config
 import os
@@ -46,6 +47,7 @@ mail = Mail()
 scheduler = BackgroundScheduler()
 migrate = Migrate()
 babel = Babel()
+csrf = CSRFProtect()
 
 def create_app():
     app = Flask(__name__)
@@ -61,6 +63,7 @@ def create_app():
     mail.init_app(app)
     migrate.init_app(app, db)
     babel.init_app(app, default_locale='en', locale_selector=get_locale)
+    csrf.init_app(app)
     app.jinja_env.filters['money'] = format_money
 
     from app.routes import auth, main

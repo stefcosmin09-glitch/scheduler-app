@@ -56,6 +56,7 @@
                 </button>
                 <form method="POST" action="{{ url_for('main.cancel_invoice', invoice_id=inv.id) }}"
                     onsubmit="return confirm('{{ _('Cancel this invoice?') }}')">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit"
                         class="mt-2 bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200">
                         ❌ {{ _('Void') }}
@@ -68,6 +69,7 @@
         {% if inv.status not in ['paid', 'cancelled'] %}
         <div id="pay-{{ inv.id }}" class="hidden mt-4 border-t pt-4">
             <form method="POST" action="{{ url_for('main.mark_invoice_paid', invoice_id=inv.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="grid grid-cols-3 gap-3">
                     <div>
                         <label class="block text-gray-700 text-sm mb-1">{{ _('Amount') }} ({{ current_user.currency }})</label>

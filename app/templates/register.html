@@ -5,6 +5,7 @@
     <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">{{ _('New Account') }}</h2>
 
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="mb-4">
             <label class="block text-gray-700 mb-2">{{ _('Username') }}</label>
             <input type="text" name="username" required

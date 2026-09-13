@@ -18,6 +18,7 @@
             <a href="{{ url_for('main.accounting') }}" class="hover:underline">📊 {{ _('Accounting') }}</a>
             <a href="{{ url_for('main.payments') }}" class="hover:underline">💳 {{ _('Payments') }}</a>
             <form method="POST" action="{{ url_for('main.set_language', next=request.full_path) }}" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <select name="language" onchange="this.form.submit()"
                     class="bg-blue-700 text-white text-sm rounded px-2 py-1">
                     <option value="en" {{ 'selected' if current_user.language == 'en' else '' }}>🇬🇧 EN</option>
@@ -25,6 +26,7 @@
                 </select>
             </form>
             <form method="POST" action="{{ url_for('main.set_currency', next=request.full_path) }}" class="inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <select name="currency" onchange="this.form.submit()"
                     class="bg-blue-700 text-white text-sm rounded px-2 py-1">
                     <option value="GBP" {{ 'selected' if current_user.currency == 'GBP' else '' }}>£ GBP</option>
