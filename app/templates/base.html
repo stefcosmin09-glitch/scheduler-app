@@ -10,13 +10,8 @@
 
     {% if current_user.is_authenticated %}
     <nav class="bg-blue-600 text-white p-4 flex justify-between items-center">
-        <span class="font-bold text-lg">TradeScheduler</span>
-        <div class="space-x-4">
-            <a href="{{ url_for('main.dashboard') }}" class="hover:underline">{{ _('Dashboard') }}</a>
-            <a href="{{ url_for('main.add_job') }}" class="hover:underline">+ {{ _('New Job') }}</a>
-            <a href="{{ url_for('main.invoices') }}" class="hover:underline">📄 {{ _('Invoices') }}</a>
-            <a href="{{ url_for('main.accounting') }}" class="hover:underline">📊 {{ _('Accounting') }}</a>
-            <a href="{{ url_for('main.payments') }}" class="hover:underline">💳 {{ _('Payments') }}</a>
+        <div class="flex items-center gap-2">
+            <span class="font-bold text-lg">TradeScheduler</span>
             <form method="POST" action="{{ url_for('main.set_language', next=request.full_path) }}" class="inline">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <select name="language" onchange="this.form.submit()"
@@ -35,9 +30,16 @@
                     <option value="USD" {{ 'selected' if current_user.currency == 'USD' else '' }}>$ USD</option>
                 </select>
             </form>
+        </div>
+        <div class="space-x-4">
+            <a href="{{ url_for('main.dashboard') }}" class="hover:underline">🏠 {{ _('Dashboard') }}</a>
+            <a href="{{ url_for('main.add_job') }}" class="hover:underline">➕ {{ _('New Job') }}</a>
+            <a href="{{ url_for('main.invoices') }}" class="hover:underline">📄 {{ _('Invoices') }}</a>
+            <a href="{{ url_for('main.accounting') }}" class="hover:underline">📊 {{ _('Accounting') }}</a>
+            <a href="{{ url_for('main.payments') }}" class="hover:underline">💳 {{ _('Payments') }}</a>
 
             <a href="{{ url_for('main.business_settings') }}" class="hover:underline">⚙️ {{ _('Settings') }}</a>
-            <a href="{{ url_for('auth.logout') }}" class="hover:underline">{{ _('Logout') }}</a>
+            <a href="{{ url_for('auth.logout') }}" class="hover:underline">🚪 {{ _('Logout') }}</a>
         </div>
     </nav>
     {% endif %}
