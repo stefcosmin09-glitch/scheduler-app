@@ -47,14 +47,14 @@
 
     <nav class="bg-blue-600 text-white">
         <div class="flex items-center justify-between px-4 py-3">
-            <span class="font-bold text-lg whitespace-nowrap">TradeScheduler</span>
-            <div class="hidden md:flex items-center gap-4">
-                <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3 whitespace-nowrap">
+                <span class="font-bold text-lg">TradeScheduler</span>
+                <div class="hidden md:flex items-center gap-2">
                     {{ lang_currency() }}
                 </div>
-                <div class="flex items-center gap-x-4">
-                    {{ nav_links() }}
-                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-x-4">
+                {{ nav_links() }}
             </div>
             <button id="menu-toggle" class="md:hidden text-2xl px-2 focus:outline-none" aria-label="Menu">☰</button>
         </div>
