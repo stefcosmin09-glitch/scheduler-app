@@ -1,72 +1,82 @@
-from reportlab.lib.pagesizes import A4
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.units import cm
+import os
 import io
 from datetime import datetime, timedelta
+from xml.sax.saxutils import escape as esc
+
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import cm
+from reportlab.lib.enums import TA_RIGHT, TA_LEFT
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+
 from app import format_money
+
+_FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
+pdfmetrics.registerFont(TTFont('DejaVu', os.path.join(_FONT_DIR, 'DejaVuSans.ttf')))
+pdfmetrics.registerFont(TTFont('DejaVu-Bold', os.path.join(_FONT_DIR, 'DejaVuSans-Bold.ttf')))
+pdfmetrics.registerFontFamily('DejaVu', normal='DejaVu', bold='DejaVu-Bold')
+
+NAVY = colors.HexColor('#1E3A8A')
+BLUE = colors.HexColor('#2563EB')
+SKY = colors.HexColor('#EFF6FF')
+LIGHT = colors.HexColor('#F8FAFC')
+LINE = colors.HexColor('#E2E8F0')
+DARK = colors.HexColor('#0F172A')
+MUTED = colors.HexColor('#64748B')
+C_LIGHT = colors.HexColor('#CBD5E1')
 
 def generate_invoice(job, user):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4,
-                            rightMargin=2*cm, leftMargin=2*cm,
-                            topMargin=2*cm, bottomMargin=2*cm)
+                            rightMargin=1.5*cm, leftMargin=1.5*cm,
+                            topMargin=1.3*cm, bottomMargin=1.9*cm,
+                            title='Invoice', author='TradeScheduler')
+    W = doc.width
 
-    styles = getSampleStyleSheet()
-    elements = []
-
-    # Get business profile
     business = user.business
-
     lang = user.language or 'en'
+
     L = {
-        'title': 'FACTURA' if lang == 'ro' else 'INVOICE',
+        'title': 'FACTURĂ' if lang == 'ro' else 'INVOICE',
         'from': 'DE LA' if lang == 'ro' else 'FROM',
-        'address': 'Adresa' if lang == 'ro' else 'Address',
-        'phone': 'Telefon' if lang == 'ro' else 'Phone',
-        'email': 'Email',
-        'to': 'CATRE' if lang == 'ro' else 'TO',
-        'client_email': 'Email client' if lang == 'ro' else 'Client Email',
+        'bill_to': 'CĂTRE' if lang == 'ro' else 'BILL TO',
+        'invoice_no': 'Nr. factură' if lang == 'ro' else 'Invoice No',
         'invoice_date': 'Data facturii' if lang == 'ro' else 'Invoice Date',
-        'due_date': 'Scadenta' if lang == 'ro' else 'Due Date',
-        'job_date': 'Data lucrarii' if lang == 'ro' else 'Job Date',
-        'job_details': 'Detalii lucrare' if lang == 'ro' else 'Job Details',
+        'due_date': 'Scadența' if lang == 'ro' else 'Due Date',
+        'job_date': 'Data lucrării' if lang == 'ro' else 'Job Date',
         'description': 'Descriere' if lang == 'ro' else 'Description',
-        'amount': 'Suma' if lang == 'ro' else 'Amount',
+        'amount': 'Sumă' if lang == 'ro' else 'Amount',
         'subtotal': 'Subtotal',
-        'total_due': 'TOTAL DE PLATA' if lang == 'ro' else 'TOTAL DUE',
+        'total_due': 'TOTAL DE PLATĂ' if lang == 'ro' else 'TOTAL DUE',
         'payment_receipt': 'Plata la primire.' if lang == 'ro' else 'Payment due on receipt.',
-        'payment_days': 'Plata in termen de' if lang == 'ro' else 'Payment due within',
+        'payment_days': 'Plata în termen de' if lang == 'ro' else 'Payment due within',
         'days': 'zile.' if lang == 'ro' else 'days.',
-        'payment_details': 'Detalii plata' if lang == 'ro' else 'Payment Details',
+        'payment_details': 'Detalii plată' if lang == 'ro' else 'Payment Details',
         'account_name': 'Nume cont' if lang == 'ro' else 'Account Name',
         'sort_code': 'Cod sortare' if lang == 'ro' else 'Sort Code',
-        'account_number': 'Numar cont' if lang == 'ro' else 'Account Number',
-        'thank_you': 'Va multumim pentru colaborare!' if lang == 'ro' else 'Thank you for your business!',
+        'account_number': 'Număr cont' if lang == 'ro' else 'Account Number',
+        'thank_you': 'Vă mulțumim pentru colaborare!' if lang == 'ro' else 'Thank you for your business!',
     }
 
-    # Business name
-    business_name = (business.trading_name or business.legal_name) if business else user.username
+    business_name = (business.trading_name or business.legal_name or user.username) if business else user.username
     business_email = (business.business_email) if business else user.email
     business_address = (business.address or '') if business else ''
     business_phone = (business.phone or '') if business else ''
 
-    # Invoice number
     if business:
         invoice_number = f"{business.invoice_prefix}-{str(business.next_invoice_number).zfill(6)}"
     else:
         invoice_number = f"INV-{str(job.id).zfill(6)}"
 
-    # Due date
     issue_date = datetime.now()
     if business and business.payment_terms:
-        days = int(business.payment_terms)
-        due_date = issue_date + timedelta(days=days)
+        due_date = issue_date + timedelta(days=int(business.payment_terms))
     else:
         due_date = issue_date + timedelta(days=30)
 
-         # Tax calculation
     subtotal = float(job.price or 0)
     tax_amount = 0
     tax_country = (business.tax_country if business else 'UK') or 'UK'
@@ -77,107 +87,170 @@ def generate_invoice(job, user):
         tax_amount = subtotal * tax_rate / 100
     total = subtotal + tax_amount
 
-    styles = getSampleStyleSheet()
+    invoice_curr = job.currency or user.currency or 'GBP'
+
+    s = {}
+    s['title'] = ParagraphStyle('title', fontName='DejaVu', fontSize=26, leading=30,
+                                alignment=TA_RIGHT, textColor=colors.white)
+    s['hdr_small'] = ParagraphStyle('hdr_small', fontName='DejaVu', fontSize=10, leading=14,
+                                    alignment=TA_RIGHT, textColor=C_LIGHT)
+    s['biz'] = ParagraphStyle('biz', fontName='DejaVu', fontSize=13, leading=17, textColor=colors.white)
+    s['biz_small'] = ParagraphStyle('biz_small', fontName='DejaVu', fontSize=8.5, leading=12,
+                                    textColor=C_LIGHT)
+    s['sec'] = ParagraphStyle('sec', fontName='DejaVu', fontSize=8, leading=10, textColor=MUTED)
+    s['body'] = ParagraphStyle('body', fontName='DejaVu', fontSize=9.5, leading=14, textColor=DARK)
+    s['body_b'] = ParagraphStyle('body_b', fontName='DejaVu', fontSize=9.5, leading=14, textColor=DARK)
+    s['amount'] = ParagraphStyle('amount', fontName='DejaVu', fontSize=9.5, leading=14,
+                                 textColor=DARK, alignment=TA_RIGHT)
+    s['amount_b'] = ParagraphStyle('amount_b', fontName='DejaVu', fontSize=11, leading=14,
+                                   textColor=NAVY, alignment=TA_RIGHT)
+    s['total_lbl'] = ParagraphStyle('total_lbl', fontName='DejaVu', fontSize=11, leading=14,
+                                    textColor=DARK)
+
     elements = []
 
-    # Header
-    elements.append(Paragraph(f"<b>{L['title']}</b>", styles['Title']))
-    elements.append(Paragraph(f"<b>{invoice_number}</b>", styles['Normal']))
+    # ---------- Header band ----------
+    vat_note = ''
+    if business and business.vat_registered and business.vat_number:
+        tax_no_labels = {'UK': 'VAT No', 'USA': 'Sales Tax ID', 'RO': 'Nr. TVA'}
+        vat_note = f"{tax_no_labels.get(tax_country, 'VAT No')}: {esc(business.vat_number)}"
+
+    left = f"<b>{esc(business_name)}</b>" + (f"<br/>{vat_note}" if vat_note else '')
+    right = f"<font size='26'><b>{esc(L['title'])}</b></font><br/>{esc(invoice_number)}"
+    header = Table(
+        [[Paragraph(left, s['biz']), Paragraph(right, s['title'])]],
+        colWidths=[0.58*W, 0.42*W],
+    )
+    header.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), NAVY),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ROUNDEDCORNERS', [8, 8, 0, 0]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 18),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 18),
+        ('TOPPADDING', (0, 0), (-1, -1), 16),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 16),
+    ]))
+    elements.append(header)
+    elements.append(Spacer(1, 0.65*cm))
+
+    # ---------- FROM / BILL TO ----------
+    from_lines = [f"<b>{esc(business_name)}</b>"]
+    if business_address:
+        from_lines.append(esc(business_address))
+    if business_phone:
+        from_lines.append(esc(business_phone))
+    if business_email:
+        from_lines.append(esc(business_email))
+    from_para = Paragraph('<br/>'.join(from_lines), s['body'])
+
+    client_lines = [f"<b>{esc(job.client_name)}</b>"]
+    if job.client_email:
+        client_lines.append(esc(job.client_email))
+    if job.address:
+        client_lines.append(esc(job.address))
+    to_para = Paragraph('<br/>'.join(client_lines), s['body'])
+
+    meta = Table([[from_para, to_para]], colWidths=[0.5*W, 0.5*W])
+    meta.setStyle(TableStyle([
+        ('LEFTPADDING', (0, 0), (-1, -1), 0),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('TOPPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+    ]))
+    elements.append(meta)
     elements.append(Spacer(1, 0.5*cm))
 
-    # Business + Invoice info
-    info_data = [
-        [f"{L['from']}:", business_name],
-        [f"{L['address']}:", business_address],
-        [f"{L['phone']}:", business_phone],
-        [f"{L['email']}:", business_email],
-    ]
-
-    if business and business.vat_registered and business.vat_number:
-        tax_no_labels = {'UK': 'VAT No:', 'USA': 'Sales Tax ID:', 'RO': 'Nr. TVA:'}
-        info_data.append([tax_no_labels.get(tax_country, 'VAT No:'), business.vat_number])
-
-    info_data += [
-        ['', ''],
-        [f"{L['to']}:", job.client_name],
-        [f"{L['client_email']}:", job.client_email or 'N/A'],
-        [f"{L['address']}:", job.address],
-        ['', ''],
-        [f"{L['invoice_date']}:", issue_date.strftime('%d/%m/%Y')],
-        [f"{L['due_date']}:", due_date.strftime('%d/%m/%Y')],
-        [f"{L['job_date']}:", job.date.strftime('%d/%m/%Y %H:%M')],
-    ]
-
-    info_table = Table(info_data, colWidths=[4*cm, 12*cm])
-    info_table.setStyle(TableStyle([
-        ('FONTNAME', (0,0), (0,-1), 'Helvetica-Bold'),
-        ('FONTSIZE', (0,0), (-1,-1), 10),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+    # ---------- Dates strip ----------
+    dates = Table(
+        [[Paragraph(L['invoice_date'], s['sec']), Paragraph(L['due_date'], s['sec']),
+          Paragraph(L['job_date'], s['sec'])],
+         [Paragraph(issue_date.strftime('%d/%m/%Y'), s['body_b']),
+          Paragraph(due_date.strftime('%d/%m/%Y'), s['body_b']),
+          Paragraph(job.date.strftime('%d/%m/%Y %H:%M'), s['body_b'])]],
+        colWidths=[W/3, W/3, W/3],
+    )
+    dates.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, -1), LIGHT),
+        ('LINEABOVE', (0, 0), (-1, 0), 1, LINE),
+        ('LINEBELOW', (0, -1), (-1, -1), 1, LINE),
+        ('LINEAFTER', (0, 0), (-1, -1), 1, LINE),
+        ('TOPPADDING', (0, 0), (-1, -1), 9),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 9),
+        ('LEFTPADDING', (0, 0), (-1, -1), 12),
     ]))
-    elements.append(info_table)
-    elements.append(Spacer(1, 1*cm))
+    elements.append(dates)
+    elements.append(Spacer(1, 0.8*cm))
 
-    # Job Details
-    elements.append(Paragraph(f"<b>{L['job_details']}</b>", styles['Heading2']))
+    # ---------- Items ----------
+    rows = [
+        [Paragraph(L['description'], s['sec']), Paragraph(L['amount'], s['sec'])],
+        [Paragraph(esc(job.description or job.activity_type or ''), s['body']),
+         Paragraph(format_money(subtotal, invoice_curr), s['amount'])],
+        ['', ''],
+        [Paragraph(L['subtotal'], s['body']),
+         Paragraph(format_money(subtotal, invoice_curr), s['amount'])],
+    ]
+    if tax_amount > 0:
+        rows.append([Paragraph(f"{tax_label} ({tax_rate}%)", s['body']),
+                     Paragraph(format_money(tax_amount, invoice_curr), s['amount'])])
+    rows.append([Paragraph(L['total_due'], s['total_lbl']),
+                 Paragraph(format_money(total, invoice_curr), s['amount_b'])])
+
+    items = Table(rows, colWidths=[0.68*W, 0.32*W])
+    items.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), SKY),
+        ('BACKGROUND', (0, -1), (-1, -1), LIGHT),
+        ('LINEBEFORE', (1, 1), (1, -1), 0.75, LINE),
+        ('GRID', (0, 1), (-1, -2), 0.5, LINE),
+        ('GRID', (0, -1), (-1, -1), 0.75, LINE),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('LEFTPADDING', (0, 0), (-1, -1), 10),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+    ]))
+    elements.append(items)
+    elements.append(Spacer(1, 0.7*cm))
+
+    # ---------- Payment terms ----------
+    if business and business.payment_terms == '0':
+        terms = L['payment_receipt']
+    else:
+        terms = f"{L['payment_days']} {business.payment_terms if business else 30} {L['days']}"
+    elements.append(Paragraph(esc(terms), s['body']))
     elements.append(Spacer(1, 0.3*cm))
 
-    invoice_curr = job.currency or user.currency or 'GBP'
-    job_data = [
-        [L['description'], L['amount']],
-        [job.description or job.activity_type, format_money(subtotal, invoice_curr)],
-    ]
-
-    if tax_amount > 0:
-        job_data.append([L['subtotal'], format_money(subtotal, invoice_curr)])
-        job_data.append([f'{tax_label} ({tax_rate}%)', format_money(tax_amount, invoice_curr)])
-
-    job_data.append(['', ''])
-    job_data.append([L['total_due'], format_money(total, invoice_curr)])
-
-    job_table = Table(job_data, colWidths=[12*cm, 4*cm])
-    job_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#2563EB')),
-        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
-        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor('#F3F4F6')),
-        ('ALIGN', (1,0), (1,-1), 'RIGHT'),
-        ('FONTSIZE', (0,0), (-1,-1), 10),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-        ('TOPPADDING', (0,0), (-1,-1), 8),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#E5E7EB')),
-    ]))
-    elements.append(job_table)
-    elements.append(Spacer(1, 1*cm))
-
-    # Payment terms
-       
-    if business and business.payment_terms == '0':
-        elements.append(Paragraph(L['payment_receipt'], styles['Normal']))
-    else:
-        elements.append(Paragraph(f"{L['payment_days']} {business.payment_terms if business else 30} {L['days']}", styles['Normal']))
-
-    # Bank details
+    # ---------- Bank details ----------
     if business and business.show_bank_details and business.account_name:
-        elements.append(Spacer(1, 0.5*cm))
-        elements.append(Paragraph(f"<b>{L['payment_details']}</b>", styles['Heading2']))
-        bank_data = [
-            [f"{L['account_name']}:", business.account_name],
-            [f"{L['sort_code']}:", business.sort_code or ''],
-            [f"{L['account_number']}:", business.account_number or ''],
-        ]
-        
-        bank_table = Table(bank_data, colWidths=[4*cm, 12*cm])
-        bank_table.setStyle(TableStyle([
-            ('FONTNAME', (0,0), (0,-1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0,0), (-1,-1), 10),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        elements.append(Paragraph(L['payment_details'].upper(), s['sec']))
+        elements.append(Spacer(1, 0.2*cm))
+        bank = Table(
+            [[Paragraph(L['account_name'], s['sec']), Paragraph(esc(business.account_name), s['body'])],
+             [Paragraph(L['sort_code'], s['sec']), Paragraph(esc(business.sort_code or ''), s['body'])],
+             [Paragraph(L['account_number'], s['sec']), Paragraph(esc(business.account_number or ''), s['body'])]],
+            colWidths=[0.3*W, 0.7*W],
+        )
+        bank.setStyle(TableStyle([
+            ('LINEBELOW', (1, 0), (1, -1), 0.5, LINE),
+            ('TOPPADDING', (0, 0), (-1, -1), 4),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
         ]))
-        elements.append(bank_table)
+        elements.append(bank)
+        elements.append(Spacer(1, 0.3*cm))
 
-    elements.append(Spacer(1, 1*cm))
-    elements.append(Paragraph(L['thank_you'], styles['Normal']))
+    # ---------- Footer ----------
+    def footer(canvas, doc):
+        canvas.saveState()
+        canvas.setStrokeColor(LINE)
+        canvas.setLineWidth(0.7)
+        canvas.line(doc.leftMargin, 1.3*cm, A4[0] - doc.rightMargin, 1.3*cm)
+        canvas.setFont('DejaVu', 8)
+        canvas.setFillColor(MUTED)
+        canvas.drawString(doc.leftMargin, 1.0*cm, L['thank_you'])
+        canvas.drawRightString(A4[0] - doc.rightMargin, 1.0*cm, f"Page {doc.page}")
+        canvas.drawCentredString(A4[0]/2, 1.0*cm, 'TradeScheduler')
+        canvas.restoreState()
 
-    doc.build(elements)
+    doc.build(elements, onFirstPage=footer, onLaterPages=footer)
     buffer.seek(0)
     return buffer
