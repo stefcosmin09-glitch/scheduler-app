@@ -229,6 +229,9 @@ msgstr "Nu ai permisiunea să ștergi acest job."
 msgid "Job deleted."
 msgstr "Job șters."
 
+msgid "This job has an invoice and cannot be deleted."
+msgstr "Acest job are o factură emisă și nu poate fi șters."
+
 msgid "Invoice downloaded and sent to client!"
 msgstr "Factură descărcată și trimisă clientului!"
 

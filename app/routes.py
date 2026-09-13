@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.currency import convert_to_base
 from itsdangerous import URLSafeTimedSerializer
-from app.models import User, Job, ACTIVITY_TYPES
+from app.models import User, Job, Invoice, ACTIVITY_TYPES
 from app.notifications import schedule_reminder
 from datetime import datetime
 from flask import current_app
@@ -213,6 +213,9 @@ def delete_job(job_id):
     job = Job.query.get_or_404(job_id)
     if job.user_id != current_user.id:
         flash(_('You do not have permission to delete this job.'))
+        return redirect(url_for('main.dashboard'))
+    if Invoice.query.filter_by(job_id=job.id).first():
+        flash(_('This job has an invoice and cannot be deleted.'))
         return redirect(url_for('main.dashboard'))
     db.session.delete(job)
     db.session.commit()
