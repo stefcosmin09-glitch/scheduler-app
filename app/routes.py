@@ -175,6 +175,7 @@ def dashboard():
 @login_required
 def add_job():
     if request.method == 'POST':
+        currency = request.form.get('price_currency', 'GBP')
         job = Job(
             client_name=request.form.get('client_name'),
             client_email=request.form.get('client_email'),
@@ -182,7 +183,8 @@ def add_job():
             date=datetime.strptime(request.form.get('date'), '%Y-%m-%dT%H:%M'),
             description=request.form.get('description'),
             activity_type=request.form.get('activity_type', 'altele'),
-            price=float(convert_to_base(request.form.get('price') or 0, request.form.get('price_currency', 'GBP'))),
+            price=float(convert_to_base(request.form.get('price') or 0, currency)),
+            currency=currency,
             user_id=current_user.id
         )
         db.session.add(job)
@@ -294,7 +296,7 @@ def download_invoice(job_id):
 Găsiți atașată factura pentru lucrările finalizate pe {job.date.strftime('%d/%m/%Y')}.
 
 Număr factură: {invoice.invoice_number}
-Suma de plată: {format_money(invoice.total_amount, current_user.currency)}
+Suma de plată: {format_money(invoice.total_amount, job.currency)}
 Scadența: {invoice.due_date.strftime('%d/%m/%Y')}
 
 Vă mulțumim pentru colaborare!
@@ -306,7 +308,7 @@ Vă mulțumim pentru colaborare!
 Please find attached your invoice for the work completed on {job.date.strftime('%d/%m/%Y')}.
 
 Invoice Number: {invoice.invoice_number}
-Amount Due: {format_money(invoice.total_amount, current_user.currency)}
+Amount Due: {format_money(invoice.total_amount, job.currency)}
 Due Date: {invoice.due_date.strftime('%d/%m/%Y')}
 
 Thank you for your business!

@@ -85,6 +85,7 @@ class Job(db.Model):
     description = db.Column(db.Text)
     activity_type = db.Column(db.String(50), default='other')
     price = db.Column(db.Numeric(10, 2), default=0.0)
+    currency = db.Column(db.String(10), default='GBP', server_default='GBP')
     status = db.Column(db.String(20), default='pending')
     quote_status = db.Column(db.String(20), default='none')
     quote_token = db.Column(db.String(64))

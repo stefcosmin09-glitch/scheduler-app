@@ -121,17 +121,18 @@ def generate_invoice(job, user):
     elements.append(Paragraph(f"<b>{L['job_details']}</b>", styles['Heading2']))
     elements.append(Spacer(1, 0.3*cm))
 
+    invoice_curr = job.currency or user.currency or 'GBP'
     job_data = [
         [L['description'], L['amount']],
-        [job.description or job.activity_type, format_money(subtotal, user.currency)],
+        [job.description or job.activity_type, format_money(subtotal, invoice_curr)],
     ]
 
     if tax_amount > 0:
-        job_data.append([L['subtotal'], format_money(subtotal, user.currency)])
-        job_data.append([f'{tax_label} ({tax_rate}%)', format_money(tax_amount, user.currency)])
+        job_data.append([L['subtotal'], format_money(subtotal, invoice_curr)])
+        job_data.append([f'{tax_label} ({tax_rate}%)', format_money(tax_amount, invoice_curr)])
 
     job_data.append(['', ''])
-    job_data.append([L['total_due'], format_money(total, user.currency)])
+    job_data.append([L['total_due'], format_money(total, invoice_curr)])
 
     job_table = Table(job_data, colWidths=[12*cm, 4*cm])
     job_table.setStyle(TableStyle([
