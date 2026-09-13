@@ -475,3 +475,6 @@ msgstr "Factură anulată."
 msgid "Cannot cancel an invoice that is already paid."
 msgstr "Nu poți anula o factură deja plătită."
 
+msgid "Delete this job?"
+msgstr "Ștergi acest job?"
+

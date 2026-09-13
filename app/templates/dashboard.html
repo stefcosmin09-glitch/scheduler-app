@@ -113,6 +113,7 @@
             </a>
             {% endif %}
             <a href="{{ url_for('main.delete_job', job_id=job.id) }}"
+                onclick="return confirm('{{ _('Delete this job?') }}')"
                 class="bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200 text-center">
                 🗑️ {{ _('Delete') }}
             </a>
