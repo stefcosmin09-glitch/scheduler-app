@@ -460,3 +460,18 @@ msgstr "Nicio plată înregistrată încă."
 msgid "Record a payment from the Invoices page."
 msgstr "Înregistrează o plată din pagina Facturi."
 
+msgid "Cancelled"
+msgstr "Anulată"
+
+msgid "Void"
+msgstr "Anulează"
+
+msgid "Cancel this invoice?"
+msgstr "Anulezi această factură?"
+
+msgid "Invoice cancelled."
+msgstr "Factură anulată."
+
+msgid "Cannot cancel an invoice that is already paid."
+msgstr "Nu poți anula o factură deja plătită."
+

@@ -515,6 +515,21 @@ def mark_invoice_paid(invoice_id):
     flash(_('Payment recorded!'))
     return redirect(url_for('main.invoices'))
 
+@main.route('/invoice/<int:invoice_id>/cancel', methods=['POST'])
+@login_required
+def cancel_invoice(invoice_id):
+    invoice = Invoice.query.get_or_404(invoice_id)
+    if invoice.user_id != current_user.id:
+        flash(_('You do not have permission.'))
+        return redirect(url_for('main.invoices'))
+    if invoice.status == 'paid':
+        flash(_('Cannot cancel an invoice that is already paid.'))
+        return redirect(url_for('main.invoices'))
+    invoice.status = 'cancelled'
+    db.session.commit()
+    flash(_('Invoice cancelled.'))
+    return redirect(url_for('main.invoices'))
+
 @main.route('/accounting')
 @login_required
 def accounting():
@@ -534,7 +549,8 @@ def accounting():
     # Invoicele lunii
     monthly_invoices = Invoice.query.filter_by(user_id=current_user.id).filter(
         Invoice.issue_date >= first_day,
-        Invoice.issue_date <= last_day
+        Invoice.issue_date <= last_day,
+        Invoice.status != 'cancelled'
     ).all()
 
     # Calcule
@@ -591,7 +607,8 @@ def accounting_export():
 
     invoices = Invoice.query.filter_by(user_id=current_user.id).filter(
         Invoice.issue_date >= first_day,
-        Invoice.issue_date <= last_day
+        Invoice.issue_date <= last_day,
+        Invoice.status != 'cancelled'
     ).all()
 
     output = io.StringIO()
