@@ -292,6 +292,27 @@ msgstr "Reparații generale"
 msgid "Other"
 msgstr "Altă activitate"
 
+msgid "⚡ Electrical"
+msgstr "⚡ Instalații electrice"
+
+msgid "🔧 Plumbing"
+msgstr "🔧 Instalații sanitare"
+
+msgid "🏗️ Construction"
+msgstr "🏗️ Construcții"
+
+msgid "🪟 Carpentry"
+msgstr "🪟 Tâmplărie"
+
+msgid "🎨 Decorating"
+msgstr "🎨 Decorare"
+
+msgid "🔩 General Repairs"
+msgstr "🔩 Reparații generale"
+
+msgid "➕ Other"
+msgstr "➕ Altă activitate"
+
 msgid "Login"
 msgstr "Autentificare"
 
