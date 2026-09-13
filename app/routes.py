@@ -649,6 +649,51 @@ def accounting_export():
         headers={'Content-Disposition': f'attachment; filename=accounting_{month_name}.csv'}
     )
 
+@main.route('/accounting/vat-report')
+@login_required
+def vat_report():
+    from app.models import Invoice
+    import calendar
+    from babel.dates import format_date
+
+    year = int(request.args.get('year', datetime.utcnow().year))
+    first_day = datetime(year, 1, 1)
+    last_day = datetime(year, 12, 31, 23, 59, 59)
+
+    invoices = Invoice.query.filter_by(user_id=current_user.id).filter(
+        Invoice.issue_date >= first_day,
+        Invoice.issue_date <= last_day,
+        Invoice.status != 'cancelled'
+    ).all()
+
+    locale = current_user.language if current_user.language == 'ro' else 'en'
+
+    rows = []
+    totals = {'count': 0, 'subtotal': 0.0, 'vat': 0.0, 'total': 0.0}
+    for m in range(1, 13):
+        mf = datetime(year, m, 1)
+        ml = datetime(year, m, calendar.monthrange(year, m)[1], 23, 59, 59)
+        mins = [i for i in invoices if mf <= i.issue_date <= ml]
+        subtotal = sum(float(i.subtotal) for i in mins)
+        vat = sum(float(i.vat_amount) for i in mins)
+        total = sum(float(i.total_amount) for i in mins)
+        rows.append({
+            'month': m,
+            'name': format_date(mf, 'MMMM', locale=locale),
+            'count': len(mins),
+            'subtotal': subtotal,
+            'vat': vat,
+            'total': total,
+        })
+        totals['count'] += len(mins)
+        totals['subtotal'] += subtotal
+        totals['vat'] += vat
+        totals['total'] += total
+
+    return render_template('vat_report.html',
+        year=year, prev_year=year - 1, next_year=year + 1,
+        rows=rows, totals=totals)
+
 @main.route('/set-language', methods=['POST'])
 @login_required
 def set_language():

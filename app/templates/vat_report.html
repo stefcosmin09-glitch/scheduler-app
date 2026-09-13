@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">🧾 {{ _('VAT Report') }} {{ year }}</h2>
+    <a href="{{ url_for('main.accounting', year=year, month=1) }}"
+        class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">{{ _('Accounting') }}</a>
+</div>
+
+<div class="bg-white rounded-lg shadow p-4 mb-6 flex justify-between items-center">
+    <a href="{{ url_for('main.vat_report', year=prev_year) }}"
+        class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">◀ {{ prev_year }}</a>
+    <h3 class="text-xl font-bold text-gray-800">{{ year }}</h3>
+    <a href="{{ url_for('main.vat_report', year=next_year) }}"
+        class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">{{ next_year }} ▶</a>
+</div>
+
+<div class="grid grid-cols-3 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+        <p class="text-gray-500 text-sm mb-1">{{ _('Total Invoiced') }}</p>
+        <p class="text-3xl font-bold text-blue-600">{{ totals.subtotal|money }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+        <p class="text-gray-500 text-sm mb-1">{{ _('Total VAT') }}</p>
+        <p class="text-3xl font-bold text-purple-600">{{ totals.vat|money }}</p>
+        <p class="text-gray-400 text-xs mt-1">{{ totals.count }} {{ _('invoices') }}</p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+        <p class="text-gray-500 text-sm mb-1">{{ _('Total (with VAT)') }}</p>
+        <p class="text-3xl font-bold text-green-600">{{ totals.total|money }}</p>
+    </div>
+</div>
+
+{% if totals.count > 0 %}
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">{{ _('Month') }}</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600">{{ _('Invoices') }}</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600">{{ _('Subtotal') }}</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600">{{ _('VAT') }}</th>
+                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600">{{ _('Total') }}</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for r in rows if r.count > 0 %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 font-semibold text-gray-800">{{ r.name }}</td>
+                <td class="px-4 py-3 text-right text-gray-600">{{ r.count }}</td>
+                <td class="px-4 py-3 text-right text-gray-600">{{ r.subtotal|money }}</td>
+                <td class="px-4 py-3 text-right text-purple-600 font-semibold">{{ r.vat|money }}</td>
+                <td class="px-4 py-3 text-right text-gray-800">{{ r.total|money }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot class="bg-gray-50">
+            <tr>
+                <td class="px-4 py-3 font-bold text-gray-800">{{ _('Total') }}</td>
+                <td class="px-4 py-3 text-right font-bold text-gray-800">{{ totals.count }}</td>
+                <td class="px-4 py-3 text-right font-bold text-gray-800">{{ totals.subtotal|money }}</td>
+                <td class="px-4 py-3 text-right font-bold text-purple-700">{{ totals.vat|money }}</td>
+                <td class="px-4 py-3 text-right font-bold text-gray-800">{{ totals.total|money }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% else %}
+<div class="bg-white rounded-lg shadow p-12 text-center">
+    <p class="text-gray-500 text-lg">{{ _('No invoices for') }} {{ year }}.</p>
+</div>
+{% endif %}
+{% endblock %}

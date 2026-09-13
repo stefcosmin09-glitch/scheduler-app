@@ -478,3 +478,21 @@ msgstr "Nu poți anula o factură deja plătită."
 msgid "Delete this job?"
 msgstr "Ștergi acest job?"
 
+msgid "VAT Report"
+msgstr "Raport TVA"
+
+msgid "Total VAT"
+msgstr "Total TVA"
+
+msgid "Total (with VAT)"
+msgstr "Total (cu TVA)"
+
+msgid "Month"
+msgstr "Luna"
+
+msgid "VAT"
+msgstr "TVA"
+
+msgid "Subtotal"
+msgstr "Subtotal"
+
