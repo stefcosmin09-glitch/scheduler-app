@@ -19,6 +19,33 @@ def generate_invoice(job, user):
     # Get business profile
     business = user.business
 
+    lang = user.language or 'en'
+    L = {
+        'title': 'FACTURA' if lang == 'ro' else 'INVOICE',
+        'from': 'DE LA' if lang == 'ro' else 'FROM',
+        'address': 'Adresa' if lang == 'ro' else 'Address',
+        'phone': 'Telefon' if lang == 'ro' else 'Phone',
+        'email': 'Email',
+        'to': 'CATRE' if lang == 'ro' else 'TO',
+        'client_email': 'Email client' if lang == 'ro' else 'Client Email',
+        'invoice_date': 'Data facturii' if lang == 'ro' else 'Invoice Date',
+        'due_date': 'Scadenta' if lang == 'ro' else 'Due Date',
+        'job_date': 'Data lucrarii' if lang == 'ro' else 'Job Date',
+        'job_details': 'Detalii lucrare' if lang == 'ro' else 'Job Details',
+        'description': 'Descriere' if lang == 'ro' else 'Description',
+        'amount': 'Suma' if lang == 'ro' else 'Amount',
+        'subtotal': 'Subtotal',
+        'total_due': 'TOTAL DE PLATA' if lang == 'ro' else 'TOTAL DUE',
+        'payment_receipt': 'Plata la primire.' if lang == 'ro' else 'Payment due on receipt.',
+        'payment_days': 'Plata in termen de' if lang == 'ro' else 'Payment due within',
+        'days': 'zile.' if lang == 'ro' else 'days.',
+        'payment_details': 'Detalii plata' if lang == 'ro' else 'Payment Details',
+        'account_name': 'Nume cont' if lang == 'ro' else 'Account Name',
+        'sort_code': 'Cod sortare' if lang == 'ro' else 'Sort Code',
+        'account_number': 'Numar cont' if lang == 'ro' else 'Account Number',
+        'thank_you': 'Va multumim pentru colaborare!' if lang == 'ro' else 'Thank you for your business!',
+    }
+
     # Business name
     business_name = (business.trading_name or business.legal_name) if business else user.username
     business_email = (business.business_email) if business else user.email
@@ -54,16 +81,16 @@ def generate_invoice(job, user):
     elements = []
 
     # Header
-    elements.append(Paragraph(f"<b>INVOICE</b>", styles['Title']))
+    elements.append(Paragraph(f"<b>{L['title']}</b>", styles['Title']))
     elements.append(Paragraph(f"<b>{invoice_number}</b>", styles['Normal']))
     elements.append(Spacer(1, 0.5*cm))
 
     # Business + Invoice info
     info_data = [
-        ['FROM:', business_name],
-        ['Address:', business_address],
-        ['Phone:', business_phone],
-        ['Email:', business_email],
+        [f"{L['from']}:", business_name],
+        [f"{L['address']}:", business_address],
+        [f"{L['phone']}:", business_phone],
+        [f"{L['email']}:", business_email],
     ]
 
     if business and business.vat_registered and business.vat_number:
@@ -72,13 +99,13 @@ def generate_invoice(job, user):
 
     info_data += [
         ['', ''],
-        ['TO:', job.client_name],
-        ['Client Email:', job.client_email or 'N/A'],
-        ['Address:', job.address],
+        [f"{L['to']}:", job.client_name],
+        [f"{L['client_email']}:", job.client_email or 'N/A'],
+        [f"{L['address']}:", job.address],
         ['', ''],
-        ['Invoice Date:', issue_date.strftime('%d/%m/%Y')],
-        ['Due Date:', due_date.strftime('%d/%m/%Y')],
-        ['Job Date:', job.date.strftime('%d/%m/%Y %H:%M')],
+        [f"{L['invoice_date']}:", issue_date.strftime('%d/%m/%Y')],
+        [f"{L['due_date']}:", due_date.strftime('%d/%m/%Y')],
+        [f"{L['job_date']}:", job.date.strftime('%d/%m/%Y %H:%M')],
     ]
 
     info_table = Table(info_data, colWidths=[4*cm, 12*cm])
@@ -91,20 +118,20 @@ def generate_invoice(job, user):
     elements.append(Spacer(1, 1*cm))
 
     # Job Details
-    elements.append(Paragraph("<b>Job Details</b>", styles['Heading2']))
+    elements.append(Paragraph(f"<b>{L['job_details']}</b>", styles['Heading2']))
     elements.append(Spacer(1, 0.3*cm))
 
     job_data = [
-        ['Description', 'Amount'],
+        [L['description'], L['amount']],
         [job.description or job.activity_type, format_money(subtotal, user.currency)],
     ]
 
     if tax_amount > 0:
-        job_data.append(['Subtotal', format_money(subtotal, user.currency)])
+        job_data.append([L['subtotal'], format_money(subtotal, user.currency)])
         job_data.append([f'{tax_label} ({tax_rate}%)', format_money(tax_amount, user.currency)])
 
     job_data.append(['', ''])
-    job_data.append(['TOTAL DUE', format_money(total, user.currency)])
+    job_data.append([L['total_due'], format_money(total, user.currency)])
 
     job_table = Table(job_data, colWidths=[12*cm, 4*cm])
     job_table.setStyle(TableStyle([
@@ -123,20 +150,22 @@ def generate_invoice(job, user):
     elements.append(Spacer(1, 1*cm))
 
     # Payment terms
+       
     if business and business.payment_terms == '0':
-        elements.append(Paragraph("Payment due on receipt.", styles['Normal']))
+        elements.append(Paragraph(L['payment_receipt'], styles['Normal']))
     else:
-        elements.append(Paragraph(f"Payment due within {business.payment_terms if business else 30} days.", styles['Normal']))
+        elements.append(Paragraph(f"{L['payment_days']} {business.payment_terms if business else 30} {L['days']}", styles['Normal']))
 
     # Bank details
     if business and business.show_bank_details and business.account_name:
         elements.append(Spacer(1, 0.5*cm))
-        elements.append(Paragraph("<b>Payment Details</b>", styles['Heading2']))
+        elements.append(Paragraph(f"<b>{L['payment_details']}</b>", styles['Heading2']))
         bank_data = [
-            ['Account Name:', business.account_name],
-            ['Sort Code:', business.sort_code or ''],
-            ['Account Number:', business.account_number or ''],
+            [f"{L['account_name']}:", business.account_name],
+            [f"{L['sort_code']}:", business.sort_code or ''],
+            [f"{L['account_number']}:", business.account_number or ''],
         ]
+        
         bank_table = Table(bank_data, colWidths=[4*cm, 12*cm])
         bank_table.setStyle(TableStyle([
             ('FONTNAME', (0,0), (0,-1), 'Helvetica-Bold'),
@@ -146,7 +175,7 @@ def generate_invoice(job, user):
         elements.append(bank_table)
 
     elements.append(Spacer(1, 1*cm))
-    elements.append(Paragraph("Thank you for your business!", styles['Normal']))
+    elements.append(Paragraph(L['thank_you'], styles['Normal']))
 
     doc.build(elements)
     buffer.seek(0)
