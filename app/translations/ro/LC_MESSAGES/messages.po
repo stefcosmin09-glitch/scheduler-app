@@ -481,6 +481,9 @@ msgstr "Ștergi acest job?"
 msgid "VAT Report"
 msgstr "Raport TVA"
 
+msgid "Install app"
+msgstr "Instalează aplicația"
+
 msgid "Total VAT"
 msgstr "Total TVA"
 

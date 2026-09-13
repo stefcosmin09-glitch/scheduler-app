@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, Response, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, send_from_directory, Response, abort
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
@@ -692,6 +692,10 @@ def vat_report():
     return render_template('vat_report.html',
         year=year, prev_year=year - 1, next_year=year + 1,
         rows=rows, totals=totals)
+
+@main.route('/sw.js')
+def service_worker():
+    return send_from_directory(current_app.static_folder, 'sw.js', mimetype='application/javascript')
 
 @main.route('/set-language', methods=['POST'])
 @login_required

@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TradeScheduler</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+    <meta name="theme-color" content="#1E3A8A">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
 </head>
 <body class="bg-gray-100 min-h-screen">
 
@@ -39,6 +44,7 @@
             <a href="{{ url_for('main.payments') }}" class="hover:underline">💳 {{ _('Payments') }}</a>
 
             <a href="{{ url_for('main.business_settings') }}" class="hover:underline">⚙️ {{ _('Settings') }}</a>
+            <button id="install-btn" class="hidden bg-blue-700 text-white text-sm rounded px-2 py-1">📲 {{ _('Install app') }}</button>
             <a href="{{ url_for('auth.logout') }}" class="hover:underline">🚪 {{ _('Logout') }}</a>
         </div>
     </nav>
@@ -60,3 +66,33 @@
 
 </body>
 </html>
+
+<script>
+    (function () {
+        var btn = document.getElementById('install-btn');
+        if (btn) {
+            btn.addEventListener('click', function () {
+                if (window.deferredPrompt) {
+                    window.deferredPrompt.prompt();
+                    window.deferredPrompt.userChoice.then(function () {
+                        window.deferredPrompt = null;
+                        btn.classList.add('hidden');
+                    });
+                }
+            });
+            window.addEventListener('beforeinstallprompt', function (e) {
+                e.preventDefault();
+                window.deferredPrompt = e;
+                btn.classList.remove('hidden');
+            });
+            window.addEventListener('appinstalled', function () {
+                btn.classList.add('hidden');
+            });
+        }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw.js').catch(function () {});
+            });
+        }
+    })();
+</script>
