@@ -87,6 +87,7 @@ class Job(db.Model):
     price = db.Column(db.Numeric(10, 2), default=0.0)
     currency = db.Column(db.String(10), default='GBP', server_default='GBP')
     status = db.Column(db.String(20), default='pending')
+    reminder_sent = db.Column(db.Boolean, default=False)
     quote_status = db.Column(db.String(20), default='none')
     quote_token = db.Column(db.String(64))
     quote_price = db.Column(db.Numeric(10, 2), default=0.0)

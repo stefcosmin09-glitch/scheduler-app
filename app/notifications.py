@@ -1,22 +1,28 @@
 from flask_mail import Message
-from app import mail, db, scheduler, format_money
+from sqlalchemy import or_
+from app import mail, db, format_money
 from app.models import Job, Invoice
 from datetime import datetime, timedelta
 
-def send_reminder(app, job_id):
+def send_due_job_reminders(app):
     with app.app_context():
-        job = Job.query.get(job_id)
-        if not job or job.status == 'done':
-            return
+        now = datetime.now()
+        window_start = now - timedelta(minutes=40)
+        pending = Job.query.filter(
+            Job.status != 'done',
+            Job.client_email != '',
+            Job.date >= window_start,
+            Job.date > now,
+            or_(Job.reminder_sent.is_(None), Job.reminder_sent == False)
+        ).all()
 
-        if not job.client_email:
-            return
+        sent = 0
+        for job in pending:
+            lang = job.owner.language if job.owner and job.owner.language else 'en'
 
-        lang = job.owner.language if job.owner else 'en'
-
-        if lang == 'ro':
-            subject = 'Reminder: Job în 40 de minute'
-            body = f"""Bună ziua {job.client_name},
+            if lang == 'ro':
+                subject = 'Reminder: Job în 40 de minute'
+                body = f"""Bună ziua {job.client_name},
 
 Acesta este un reminder că meșterul dvs. va ajunge în aproximativ 40 de minute.
 
@@ -25,9 +31,9 @@ Acesta este un reminder că meșterul dvs. va ajunge în aproximativ 40 de minut
 
 Vă mulțumim!
 """
-        else:
-            subject = 'Reminder: Job in 40 minutes'
-            body = f"""Hi {job.client_name},
+            else:
+                subject = 'Reminder: Job in 40 minutes'
+                body = f"""Hi {job.client_name},
 
 This is a reminder that your contractor will arrive in approximately 40 minutes.
 
@@ -36,34 +42,20 @@ This is a reminder that your contractor will arrive in approximately 40 minutes.
 
 Thank you!
 """
-        msg = Message(
-            subject=subject,
-            recipients=[job.client_email],
-            body=body
-        )
-        mail.send(msg)
-        print(f">>> Email trimis pentru job {job_id}")
-
-def schedule_reminder(app, job):
-    reminder_time = job.date - timedelta(minutes=40)
-    now = datetime.now()
-
-    print(f">>> Ora acum: {now}")
-    print(f">>> Reminder programat pentru: {reminder_time}")
-
-    if reminder_time <= now:
-        print(">>> Reminder in trecut, nu se programeaza")
-        return
-
-    scheduler.add_job(
-        func=send_reminder,
-        trigger='date',
-        run_date=reminder_time,
-        args=[app, job.id],
-        id=f'reminder_{job.id}',
-        replace_existing=True
-    )
-    print(f">>> Reminder adaugat in scheduler cu succes!")
+            msg = Message(
+                subject=subject,
+                recipients=[job.client_email],
+                body=body
+            )
+            try:
+                mail.send(msg)
+                job.reminder_sent = True
+                sent += 1
+            except Exception:
+                pass
+        db.session.commit()
+        if sent:
+            print(f">>> Job reminders sent: {sent}")
 
 def send_overdue_invoice_reminders(app):
     from app.email_service import send_email
@@ -72,7 +64,7 @@ def send_overdue_invoice_reminders(app):
         overdue = Invoice.query.filter(
             Invoice.status.in_(('sent', 'overdue')),
             Invoice.due_date < now,
-            Invoice.reminder_sent == False
+            or_(Invoice.reminder_sent.is_(None), Invoice.reminder_sent == False)
         ).all()
 
         for invoice in overdue:

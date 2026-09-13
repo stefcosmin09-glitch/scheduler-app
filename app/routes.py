@@ -5,7 +5,7 @@ from app import db
 from app.currency import convert_to_base
 from itsdangerous import URLSafeTimedSerializer
 from app.models import User, Job, Invoice, Payment, ACTIVITY_TYPES
-from app.notifications import schedule_reminder
+from app.notifications import send_overdue_invoice_reminders
 from datetime import datetime
 from flask import current_app
 from flask_babel import _ 
@@ -189,7 +189,6 @@ def add_job():
         )
         db.session.add(job)
         db.session.commit()
-        schedule_reminder(current_app._get_current_object(), job)
         flash(_('Job added!'))
         return redirect(url_for('main.dashboard'))
 
