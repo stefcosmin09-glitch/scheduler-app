@@ -16,7 +16,7 @@
             <a href="{{ url_for('main.add_job') }}" class="hover:underline">+ {{ _('New Job') }}</a>
             <a href="{{ url_for('main.invoices') }}" class="hover:underline">📄 {{ _('Invoices') }}</a>
             <a href="{{ url_for('main.accounting') }}" class="hover:underline">📊 {{ _('Accounting') }}</a>
-
+            <a href="{{ url_for('main.payments') }}" class="hover:underline">💳 {{ _('Payments') }}</a>
             <form method="POST" action="{{ url_for('main.set_language', next=request.full_path) }}" class="inline">
                 <select name="language" onchange="this.form.submit()"
                     class="bg-blue-700 text-white text-sm rounded px-2 py-1">

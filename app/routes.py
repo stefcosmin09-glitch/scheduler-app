@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.currency import convert_to_base
 from itsdangerous import URLSafeTimedSerializer
-from app.models import User, Job, Invoice, ACTIVITY_TYPES
+from app.models import User, Job, Invoice, Payment, ACTIVITY_TYPES
 from app.notifications import schedule_reminder
 from datetime import datetime
 from flask import current_app
@@ -463,6 +463,19 @@ def invoices():
     db.session.commit()
     
     return render_template('invoices.html', invoices=all_invoices)
+
+@main.route('/payments')
+@login_required
+def payments():
+    payments = (
+        Payment.query
+        .join(Invoice, Payment.invoice_id == Invoice.id)
+        .filter(Invoice.user_id == current_user.id)
+        .order_by(Payment.payment_date.desc())
+        .all()
+    )
+    total_received = sum(float(p.amount) for p in payments)
+    return render_template('payments.html', payments=payments, total_received=total_received)
 
 
 @main.route('/invoice/<int:invoice_id>/mark-paid', methods=['POST'])

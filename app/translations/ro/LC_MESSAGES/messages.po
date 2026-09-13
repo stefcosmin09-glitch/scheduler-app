@@ -442,3 +442,21 @@ msgstr "Trimiți oferta către"
 msgid "Description of work"
 msgstr "Descrierea lucrării"
 
+msgid "Payments"
+msgstr "Plăți"
+
+msgid "Payment Journal"
+msgstr "Jurnal de plăți"
+
+msgid "Total received"
+msgstr "Total încasat"
+
+msgid "Date"
+msgstr "Data"
+
+msgid "No payments recorded yet."
+msgstr "Nicio plată înregistrată încă."
+
+msgid "Record a payment from the Invoices page."
+msgstr "Înregistrează o plată din pagina Facturi."
+
