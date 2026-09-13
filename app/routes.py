@@ -241,10 +241,13 @@ def download_invoice(job_id):
     existing_invoice = Invoice.query.filter_by(job_id=job.id).first()
 
     if not existing_invoice:
-        # Generam numar invoice
+        # Generam numar invoice (sari peste numere duplicate)
         if business:
-            invoice_number = f"{business.invoice_prefix}-{str(business.next_invoice_number).zfill(6)}"
-            business.next_invoice_number += 1
+            while True:
+                invoice_number = f"{business.invoice_prefix}-{str(business.next_invoice_number).zfill(6)}"
+                business.next_invoice_number += 1
+                if not Invoice.query.filter_by(invoice_number=invoice_number).first():
+                    break
         else:
             invoice_number = f"INV-{str(job.id).zfill(6)}"
 
@@ -455,7 +458,7 @@ def invoices():
     # Mark overdue
     today = datetime.utcnow()
     for inv in all_invoices:
-        if inv.status not in ['paid', 'cancelled'] and inv.due_date and inv.due_date < today:
+        if inv.status not in ('paid', 'cancelled', 'partially_paid') and inv.due_date and inv.due_date < today:
             inv.status = 'overdue'
     db.session.commit()
     
@@ -469,6 +472,9 @@ def mark_invoice_paid(invoice_id):
     invoice = Invoice.query.get_or_404(invoice_id)
     if invoice.user_id != current_user.id:
         flash(_('You do not have permission.'))
+        return redirect(url_for('main.invoices'))
+    if invoice.status == 'paid':
+        flash(_('This invoice is already fully paid.'))
         return redirect(url_for('main.invoices'))
     
     amount = float(request.form.get('amount') or invoice.total_amount)

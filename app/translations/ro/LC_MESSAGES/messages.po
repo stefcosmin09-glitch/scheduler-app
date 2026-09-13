@@ -250,6 +250,9 @@ msgstr "Setările business au fost salvate!"
 msgid "Payment recorded!"
 msgstr "Plată înregistrată!"
 
+msgid "This invoice is already fully paid."
+msgstr "Această factură este deja plătită integral."
+
 msgid "Client Name"
 msgstr "Nume client"
 
