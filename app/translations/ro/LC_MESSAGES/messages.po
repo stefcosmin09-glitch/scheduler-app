@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-13 23:34+0300\n"
+"POT-Creation-Date: 2026-09-14 18:09+0300\n"
 "PO-Revision-Date: 2026-09-11 18:22+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ro\n"
@@ -51,8 +51,8 @@ msgstr "Parola schimbată cu succes!"
 msgid "Job added!"
 msgstr "Job adăugat!"
 
-#: app/routes.py:215 app/routes.py:248 app/routes.py:352 app/routes.py:528
-#: app/routes.py:564
+#: app/routes.py:215 app/routes.py:248 app/routes.py:353 app/routes.py:373
+#: app/routes.py:392 app/routes.py:568 app/routes.py:604
 msgid "You do not have permission."
 msgstr "Nu ai permisiunea."
 
@@ -80,39 +80,39 @@ msgstr "Factură descărcată și trimisă clientului!"
 msgid "Invoice downloaded."
 msgstr "Factură descărcată."
 
-#: app/routes.py:407
+#: app/routes.py:447
 msgid "Quote sent successfully!"
 msgstr "Ofertă trimisă cu succes!"
 
-#: app/routes.py:409
+#: app/routes.py:449
 msgid "No client email — quote saved but not sent."
 msgstr "Fără email client — oferta e salvată, dar n-a fost trimisă."
 
-#: app/routes.py:462
+#: app/routes.py:502
 msgid "Logo too large. Max 1.5MB."
 msgstr "Logo prea mare. Max 1.5MB."
 
-#: app/routes.py:465
+#: app/routes.py:505
 msgid "Logo must be PNG or JPG."
 msgstr "Logo-ul trebuie să fie PNG sau JPG."
 
-#: app/routes.py:475
+#: app/routes.py:515
 msgid "Business settings saved!"
 msgstr "Setările business au fost salvate!"
 
-#: app/routes.py:531
+#: app/routes.py:571
 msgid "This invoice is already fully paid."
 msgstr "Această factură este deja plătită integral."
 
-#: app/routes.py:556
+#: app/routes.py:596
 msgid "Payment recorded!"
 msgstr "Plată înregistrată!"
 
-#: app/routes.py:567
+#: app/routes.py:607
 msgid "Cannot cancel an invoice that is already paid."
 msgstr "Nu poți anula o factură deja plătită."
 
-#: app/routes.py:571
+#: app/routes.py:611
 msgid "Invoice cancelled."
 msgstr "Factură anulată."
 
@@ -178,7 +178,7 @@ msgstr "Emisă"
 msgid "Due"
 msgstr "Scadență"
 
-#: app/templates/accounting.html:53 app/templates/invoices.html:75
+#: app/templates/accounting.html:53 app/templates/invoices.html:87
 #: app/templates/payments.html:23
 msgid "Amount"
 msgstr "Sumă"
@@ -187,38 +187,50 @@ msgstr "Sumă"
 msgid "Status"
 msgstr "Status"
 
-#: app/templates/accounting.html:63 app/templates/invoices.html:42
+#: app/templates/accounting.html:55
+msgid "Actions"
+msgstr "Acțiuni"
+
+#: app/templates/accounting.html:64 app/templates/invoices.html:42
 msgid "N/A"
 msgstr "N/A"
 
-#: app/templates/accounting.html:66 app/templates/invoices.html:5
+#: app/templates/accounting.html:67 app/templates/invoices.html:5
 #: app/templates/invoices.html:45
 #, fuzzy
 msgid "Paid"
 msgstr "plătite"
 
-#: app/templates/accounting.html:66 app/templates/invoices.html:6
+#: app/templates/accounting.html:67 app/templates/invoices.html:6
 #, fuzzy
 msgid "Overdue"
 msgstr "Scadență"
 
-#: app/templates/accounting.html:66 app/templates/invoices.html:7
+#: app/templates/accounting.html:67 app/templates/invoices.html:7
 msgid "Partially Paid"
 msgstr "Plătită parțial"
 
-#: app/templates/accounting.html:66 app/templates/invoices.html:8
+#: app/templates/accounting.html:67 app/templates/invoices.html:8
 msgid "Sent"
 msgstr "Trimisă"
 
-#: app/templates/accounting.html:66 app/templates/invoices.html:9
+#: app/templates/accounting.html:67 app/templates/invoices.html:9
 msgid "Draft"
 msgstr "Ciornă"
 
-#: app/templates/accounting.html:66 app/templates/invoices.html:10
+#: app/templates/accounting.html:67 app/templates/invoices.html:10
 msgid "Cancelled"
 msgstr "Anulată"
 
-#: app/templates/accounting.html:83 app/templates/vat_report.html:74
+#: app/templates/accounting.html:79 app/templates/invoices.html:61
+msgid "View"
+msgstr "Vezi"
+
+#: app/templates/accounting.html:81 app/templates/invoices.html:65
+msgid "Download"
+msgstr "Descarcă"
+
+#: app/templates/accounting.html:90 app/templates/vat_report.html:74
 msgid "No invoices for"
 msgstr "Nicio factură pentru"
 
@@ -468,51 +480,51 @@ msgstr "Înapoi la autentificare"
 msgid "Record Payment"
 msgstr "Înregistrează plata"
 
-#: app/templates/invoices.html:58
+#: app/templates/invoices.html:70
 msgid "Cancel this invoice?"
 msgstr "Anulezi această factură?"
 
-#: app/templates/invoices.html:62
+#: app/templates/invoices.html:74
 msgid "Void"
 msgstr "Anulează"
 
-#: app/templates/invoices.html:81 app/templates/payments.html:21
+#: app/templates/invoices.html:93 app/templates/payments.html:21
 msgid "Method"
 msgstr "Metodă"
 
-#: app/templates/invoices.html:83
+#: app/templates/invoices.html:95
 msgid "Bank Transfer"
 msgstr "Transfer bancar"
 
-#: app/templates/invoices.html:84
+#: app/templates/invoices.html:96
 msgid "Cash"
 msgstr "Numerar"
 
-#: app/templates/invoices.html:85
+#: app/templates/invoices.html:97
 msgid "Card"
 msgstr "Card"
 
-#: app/templates/invoices.html:86
+#: app/templates/invoices.html:98
 msgid "Other"
 msgstr "Altă metodă"
 
-#: app/templates/invoices.html:90 app/templates/payments.html:22
+#: app/templates/invoices.html:102 app/templates/payments.html:22
 msgid "Reference"
 msgstr "Referință"
 
-#: app/templates/invoices.html:91
+#: app/templates/invoices.html:103
 msgid "Optional"
 msgstr "Opțional"
 
-#: app/templates/invoices.html:97
+#: app/templates/invoices.html:109
 msgid "Save Payment"
 msgstr "Salvează plata"
 
-#: app/templates/invoices.html:108
+#: app/templates/invoices.html:120
 msgid "No invoices yet."
 msgstr "Nicio factură încă."
 
-#: app/templates/invoices.html:109
+#: app/templates/invoices.html:121
 msgid "Download an invoice from the dashboard to get started."
 msgstr "Descarcă o factură din dashboard pentru a începe."
 

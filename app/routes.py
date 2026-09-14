@@ -294,7 +294,7 @@ def download_invoice(job_id):
         invoice = existing_invoice
 
     from app.invoice import generate_invoice
-    buffer = generate_invoice(job, current_user)
+    buffer = generate_invoice(job, current_user, invoice=invoice)
     pdf_bytes = buffer.getvalue()
 
     if job.client_email:
@@ -335,6 +335,46 @@ Thank you for your business!
             print(f">>> Invoice email error: {e}")
             flash(_('Invoice downloaded.'))
 
+    return Response(
+        pdf_bytes,
+        mimetype='application/pdf',
+        headers={
+            'Content-Disposition': f'attachment; filename={invoice.invoice_number}.pdf',
+            'Content-Type': 'application/pdf'
+        }
+    )
+
+@main.route('/invoices/<int:invoice_id>/view')
+@login_required
+def view_invoice(invoice_id):
+    from app.models import Invoice, Job, BusinessProfile
+    invoice = Invoice.query.get_or_404(invoice_id)
+    if invoice.user_id != current_user.id:
+        flash(_('You do not have permission.'))
+        return redirect(url_for('main.invoices'))
+    job = invoice.job if invoice.job else Job.query.get(invoice.job_id)
+    from app.invoice import generate_invoice
+    pdf_bytes = generate_invoice(job, current_user, invoice=invoice).getvalue()
+    return Response(
+        pdf_bytes,
+        mimetype='application/pdf',
+        headers={
+            'Content-Disposition': f'inline; filename={invoice.invoice_number}.pdf',
+            'Content-Type': 'application/pdf'
+        }
+    )
+
+@main.route('/invoices/<int:invoice_id>/download')
+@login_required
+def download_invoice_pdf(invoice_id):
+    from app.models import Invoice, Job
+    invoice = Invoice.query.get_or_404(invoice_id)
+    if invoice.user_id != current_user.id:
+        flash(_('You do not have permission.'))
+        return redirect(url_for('main.invoices'))
+    job = invoice.job if invoice.job else Job.query.get(invoice.job_id)
+    from app.invoice import generate_invoice
+    pdf_bytes = generate_invoice(job, current_user, invoice=invoice).getvalue()
     return Response(
         pdf_bytes,
         mimetype='application/pdf',

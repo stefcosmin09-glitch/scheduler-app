@@ -54,6 +54,18 @@
                     class="mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">
                     💰 {{ _('Record Payment') }}
                 </button>
+                {% endif %}
+                <div class="mt-2 flex justify-end gap-2">
+                    <a href="{{ url_for('main.view_invoice', invoice_id=inv.id) }}" target="_blank"
+                        class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+                        👁 {{ _('View') }}
+                    </a>
+                    <a href="{{ url_for('main.download_invoice_pdf', invoice_id=inv.id) }}"
+                        class="bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-200">
+                        ⬇ {{ _('Download') }}
+                    </a>
+                </div>
+                {% if inv.status not in ['paid', 'cancelled'] %}
                 <form method="POST" action="{{ url_for('main.cancel_invoice', invoice_id=inv.id) }}"
                     onsubmit="return confirm('{{ _('Cancel this invoice?') }}')">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

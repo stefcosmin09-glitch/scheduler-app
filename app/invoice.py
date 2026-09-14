@@ -28,7 +28,7 @@ DARK = colors.HexColor('#0F172A')
 MUTED = colors.HexColor('#64748B')
 C_LIGHT = colors.HexColor('#CBD5E1')
 
-def generate_invoice(job, user):
+def generate_invoice(job, user, invoice=None):
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=A4,
                             rightMargin=1.5*cm, leftMargin=1.5*cm,
@@ -66,28 +66,38 @@ def generate_invoice(job, user):
     business_address = (business.address or '') if business else ''
     business_phone = (business.phone or '') if business else ''
 
-    if business:
-        invoice_number = f"{business.invoice_prefix}-{str(business.next_invoice_number).zfill(6)}"
-    else:
-        invoice_number = f"INV-{str(job.id).zfill(6)}"
-
-    issue_date = datetime.now()
-    if business and business.payment_terms:
-        due_date = issue_date + timedelta(days=int(business.payment_terms))
-    else:
-        due_date = issue_date + timedelta(days=30)
-
-    subtotal = float(job.price or 0)
-    tax_amount = 0
+    invoice_curr = job.currency or user.currency or 'GBP'
     tax_country = (business.tax_country if business else 'UK') or 'UK'
     tax_labels = {'UK': 'VAT', 'USA': 'Sales Tax', 'RO': 'TVA'}
     tax_label = tax_labels.get(tax_country, 'VAT')
     tax_rate = float(business.vat_rate) if business and business.vat_rate else 0
-    if business and business.vat_registered and tax_rate:
-        tax_amount = subtotal * tax_rate / 100
-    total = subtotal + tax_amount
 
-    invoice_curr = job.currency or user.currency or 'GBP'
+    if invoice:
+        # Use the stored invoice record: number, dates and amounts stay consistent
+        # no matter how many times the PDF is regenerated.
+        invoice_number = invoice.invoice_number
+        issue_date = invoice.issue_date or datetime.now()
+        due_date = invoice.due_date or (issue_date + timedelta(days=30))
+        subtotal = float(invoice.subtotal or 0)
+        tax_amount = float(invoice.vat_amount or 0)
+        total = float(invoice.total_amount or 0)
+    else:
+        if business:
+            invoice_number = f"{business.invoice_prefix}-{str(business.next_invoice_number).zfill(6)}"
+        else:
+            invoice_number = f"INV-{str(job.id).zfill(6)}"
+
+        issue_date = datetime.now()
+        if business and business.payment_terms:
+            due_date = issue_date + timedelta(days=int(business.payment_terms))
+        else:
+            due_date = issue_date + timedelta(days=30)
+
+        subtotal = float(job.price or 0)
+        tax_amount = 0
+        if business and business.vat_registered and tax_rate:
+            tax_amount = subtotal * tax_rate / 100
+        total = subtotal + tax_amount
 
     s = {}
     s['title'] = ParagraphStyle('title', fontName='DejaVu', fontSize=26, leading=30,
