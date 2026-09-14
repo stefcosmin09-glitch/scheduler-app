@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-14 18:09+0300\n"
+"POT-Creation-Date: 2026-09-14 19:25+0300\n"
 "PO-Revision-Date: 2026-09-11 18:22+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ro\n"
@@ -19,100 +19,120 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
-#: app/routes.py:24
+#: app/routes.py:25
 msgid "New registrations are currently disabled."
 msgstr "Înregistrările noi sunt momentan dezactivate."
 
-#: app/routes.py:33
+#: app/routes.py:34
 msgid "Email already used."
 msgstr "Email deja folosit."
 
-#: app/routes.py:48
+#: app/routes.py:49
 msgid "Account created successfully!"
 msgstr "Cont creat cu succes!"
 
-#: app/routes.py:62
+#: app/routes.py:63
 msgid "Wrong email or password."
 msgstr "Email sau parolă greșită."
 
-#: app/routes.py:115
+#: app/routes.py:116
 msgid "If that email exists, you will receive a reset link shortly."
 msgstr "Dacă acest email există, vei primi un link de resetare în curând."
 
-#: app/routes.py:127
+#: app/routes.py:128
 msgid "Invalid or expired link."
 msgstr "Link invalid sau expirat."
 
-#: app/routes.py:136
+#: app/routes.py:137
 msgid "Password changed successfully!"
 msgstr "Parola schimbată cu succes!"
 
-#: app/routes.py:204
+#: app/routes.py:205
 msgid "Job added!"
 msgstr "Job adăugat!"
 
-#: app/routes.py:215 app/routes.py:248 app/routes.py:353 app/routes.py:373
-#: app/routes.py:392 app/routes.py:568 app/routes.py:604
+#: app/routes.py:216 app/routes.py:249 app/routes.py:356 app/routes.py:376
+#: app/routes.py:395 app/routes.py:558 app/routes.py:681 app/routes.py:717
 msgid "You do not have permission."
 msgstr "Nu ai permisiunea."
 
-#: app/routes.py:219
+#: app/routes.py:220
 msgid "Job marked as completed!"
 msgstr "Job marcat ca finalizat!"
 
-#: app/routes.py:228
+#: app/routes.py:229
 msgid "You do not have permission to delete this job."
 msgstr "Nu ai permisiunea să ștergi acest job."
 
-#: app/routes.py:231
+#: app/routes.py:232
 msgid "This job has an invoice and cannot be deleted."
 msgstr "Acest job are o factură emisă și nu poate fi șters."
 
-#: app/routes.py:235
+#: app/routes.py:236
 msgid "Job deleted."
 msgstr "Job șters."
 
-#: app/routes.py:333
+#: app/routes.py:336
 msgid "Invoice downloaded and sent to client!"
 msgstr "Factură descărcată și trimisă clientului!"
 
-#: app/routes.py:336
+#: app/routes.py:339
 msgid "Invoice downloaded."
 msgstr "Factură descărcată."
 
-#: app/routes.py:447
+#: app/routes.py:450
 msgid "Quote sent successfully!"
 msgstr "Ofertă trimisă cu succes!"
 
-#: app/routes.py:449
+#: app/routes.py:452
 msgid "No client email — quote saved but not sent."
 msgstr "Fără email client — oferta e salvată, dar n-a fost trimisă."
 
-#: app/routes.py:502
+#: app/routes.py:505
 msgid "Logo too large. Max 1.5MB."
 msgstr "Logo prea mare. Max 1.5MB."
 
-#: app/routes.py:505
+#: app/routes.py:508
 msgid "Logo must be PNG or JPG."
 msgstr "Logo-ul trebuie să fie PNG sau JPG."
 
-#: app/routes.py:515
+#: app/routes.py:518
 msgid "Business settings saved!"
 msgstr "Setările business au fost salvate!"
 
-#: app/routes.py:571
+#: app/routes.py:561
+msgid "This invoice is already paid or cancelled."
+msgstr "Această factură este deja plătită sau anulată."
+
+#: app/routes.py:564
+msgid "Online payments are not configured yet."
+msgstr "Plățile online nu sunt încă configurate."
+
+#: app/routes.py:586
+msgid "Could not create payment link."
+msgstr "Nu s-a putut crea linkul de plată."
+
+#: app/routes.py:617
+msgid "Payment link created and sent to client!"
+msgstr "Link de plată creat și trimis clientului!"
+
+#: app/routes.py:619
+msgid "Payment link created (no client email set)."
+msgstr "Link de plată creat (clientul nu are email setat)."
+
+#: app/routes.py:684
 msgid "This invoice is already fully paid."
 msgstr "Această factură este deja plătită integral."
 
-#: app/routes.py:596
+#: app/routes.py:709
 msgid "Payment recorded!"
 msgstr "Plată înregistrată!"
 
-#: app/routes.py:607
+#: app/routes.py:720
 msgid "Cannot cancel an invoice that is already paid."
 msgstr "Nu poți anula o factură deja plătită."
 
-#: app/routes.py:611
+#: app/routes.py:724
 msgid "Invoice cancelled."
 msgstr "Factură anulată."
 
@@ -178,7 +198,7 @@ msgstr "Emisă"
 msgid "Due"
 msgstr "Scadență"
 
-#: app/templates/accounting.html:53 app/templates/invoices.html:87
+#: app/templates/accounting.html:53 app/templates/invoices.html:92
 #: app/templates/payments.html:23
 msgid "Amount"
 msgstr "Sumă"
@@ -222,15 +242,11 @@ msgstr "Ciornă"
 msgid "Cancelled"
 msgstr "Anulată"
 
-#: app/templates/accounting.html:79 app/templates/invoices.html:61
+#: app/templates/accounting.html:79
 msgid "View"
 msgstr "Vezi"
 
-#: app/templates/accounting.html:81 app/templates/invoices.html:65
-msgid "Download"
-msgstr "Descarcă"
-
-#: app/templates/accounting.html:90 app/templates/vat_report.html:74
+#: app/templates/accounting.html:88 app/templates/vat_report.html:74
 msgid "No invoices for"
 msgstr "Nicio factură pentru"
 
@@ -480,51 +496,59 @@ msgstr "Înapoi la autentificare"
 msgid "Record Payment"
 msgstr "Înregistrează plata"
 
+#: app/templates/invoices.html:64
+msgid "Pay Link"
+msgstr "Link Plată"
+
 #: app/templates/invoices.html:70
+msgid "Download"
+msgstr "Descarcă"
+
+#: app/templates/invoices.html:75
 msgid "Cancel this invoice?"
 msgstr "Anulezi această factură?"
 
-#: app/templates/invoices.html:74
+#: app/templates/invoices.html:79
 msgid "Void"
 msgstr "Anulează"
 
-#: app/templates/invoices.html:93 app/templates/payments.html:21
+#: app/templates/invoices.html:98 app/templates/payments.html:21
 msgid "Method"
 msgstr "Metodă"
 
-#: app/templates/invoices.html:95
+#: app/templates/invoices.html:100
 msgid "Bank Transfer"
 msgstr "Transfer bancar"
 
-#: app/templates/invoices.html:96
+#: app/templates/invoices.html:101
 msgid "Cash"
 msgstr "Numerar"
 
-#: app/templates/invoices.html:97
+#: app/templates/invoices.html:102
 msgid "Card"
 msgstr "Card"
 
-#: app/templates/invoices.html:98
+#: app/templates/invoices.html:103
 msgid "Other"
 msgstr "Altă metodă"
 
-#: app/templates/invoices.html:102 app/templates/payments.html:22
+#: app/templates/invoices.html:107 app/templates/payments.html:22
 msgid "Reference"
 msgstr "Referință"
 
-#: app/templates/invoices.html:103
+#: app/templates/invoices.html:108
 msgid "Optional"
 msgstr "Opțional"
 
-#: app/templates/invoices.html:109
+#: app/templates/invoices.html:114
 msgid "Save Payment"
 msgstr "Salvează plata"
 
-#: app/templates/invoices.html:120
+#: app/templates/invoices.html:125
 msgid "No invoices yet."
 msgstr "Nicio factură încă."
 
-#: app/templates/invoices.html:121
+#: app/templates/invoices.html:126
 msgid "Download an invoice from the dashboard to get started."
 msgstr "Descarcă o factură din dashboard pentru a începe."
 

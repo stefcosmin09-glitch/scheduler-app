@@ -10,7 +10,8 @@ from datetime import datetime
 from flask import current_app
 from flask_babel import _ 
 from threading import Thread
-from app import db, format_money
+from app import db, format_money, csrf
+import os
 
 auth = Blueprint('auth', __name__)
 main = Blueprint('main', __name__)
@@ -308,7 +309,8 @@ Găsiți atașată factura pentru lucrările finalizate pe {job.date.strftime('%
 
 Număr factură: {invoice.invoice_number}
 Suma de plată: {format_money(invoice.total_amount, job.currency)}
-Scadența: {invoice.due_date.strftime('%d/%m/%Y')}
+Scadența: {invoice.due_date.strftime('%d/%m/%Y') if invoice.due_date else '—'}""" + (f"""
+Plătește online: {invoice.payment_link}""" if invoice.payment_link else "") + f"""
 
 Vă mulțumim pentru colaborare!
 {business.trading_name or business.legal_name if business else current_user.username}"""
@@ -320,7 +322,8 @@ Please find attached your invoice for the work completed on {job.date.strftime('
 
 Invoice Number: {invoice.invoice_number}
 Amount Due: {format_money(invoice.total_amount, job.currency)}
-Due Date: {invoice.due_date.strftime('%d/%m/%Y')}
+Due Date: {invoice.due_date.strftime('%d/%m/%Y') if invoice.due_date else '—'}""" + (f"""
+Pay online: {invoice.payment_link}""" if invoice.payment_link else "") + f"""
 
 Thank you for your business!
 {business.trading_name or business.legal_name if business else current_user.username}"""
@@ -543,7 +546,117 @@ def invoices():
             inv.status = 'overdue'
     db.session.commit()
     
-    return render_template('invoices.html', invoices=all_invoices)
+    return render_template('invoices.html', invoices=all_invoices, pay_links_enabled=bool(os.getenv('STRIPE_API_KEY')))
+
+@main.route('/invoices/<int:invoice_id>/pay-link', methods=['POST'])
+@login_required
+def create_payment_link(invoice_id):
+    import os
+    from app.models import Invoice
+    invoice = Invoice.query.get_or_404(invoice_id)
+    if invoice.user_id != current_user.id:
+        flash(_('You do not have permission.'))
+        return redirect(url_for('main.invoices'))
+    if invoice.status in ('paid', 'cancelled'):
+        flash(_('This invoice is already paid or cancelled.'))
+        return redirect(url_for('main.invoices'))
+    if not os.getenv('STRIPE_API_KEY'):
+        flash(_('Online payments are not configured yet.'))
+        return redirect(url_for('main.invoices'))
+
+    if not invoice.payment_link:
+        import stripe
+        stripe.api_key = os.getenv('STRIPE_API_KEY')
+        try:
+            payment_link = stripe.PaymentLink.create(
+                line_items=[{
+                    'price_data': {
+                        'currency': 'gbp',
+                        'unit_amount': int(round(float(invoice.total_amount) * 100)),
+                        'product_data': {'name': f'Invoice {invoice.invoice_number}'},
+                    },
+                    'quantity': 1,
+                }],
+                metadata={'invoice_number': invoice.invoice_number},
+            )
+            invoice.payment_link = payment_link.url
+            db.session.commit()
+        except Exception as e:
+            print(f">>> PaymentLink error: {e}")
+            flash(_('Could not create payment link.'))
+            return redirect(url_for('main.invoices'))
+
+    link = invoice.payment_link
+    # trimite clientului email cu linkul (si pdf-ul)
+    try:
+        from app.models import Job
+        from app.invoice import generate_invoice
+        import base64
+        job = invoice.job if invoice.job else Job.query.get(invoice.job_id)
+        pdf_bytes = generate_invoice(job, current_user, invoice=invoice).getvalue()
+        pdf_b64 = base64.b64encode(pdf_bytes).decode()
+        if current_user.language == 'ro':
+            subject = f'Factura {invoice.invoice_number} - plata online'
+            body = (f'Bună ziua {job.client_name},\n\n'
+                    f'Factura {invoice.invoice_number} (suma {format_money(invoice.total_amount, job.currency)}) '
+                    f'este disponibilă și online. O poți achita acum cu cardul:\n\n{link}\n\n'
+                    f'Vă mulțumim!')
+        else:
+            subject = f'Invoice {invoice.invoice_number} - pay online'
+            body = (f'Dear {job.client_name},\n\n'
+                    f'Invoice {invoice.invoice_number} (amount {format_money(invoice.total_amount, job.currency)}) '
+                    f'is now available to pay online with card:\n\n{link}\n\n'
+                    f'Thank you!')
+        from app.email_service import send_email_with_attachment
+        app_ctx = current_app._get_current_object()
+        def _send(to, s, b, pdf, filename):
+            with app_ctx.app_context():
+                send_email_with_attachment(to, s, b, pdf, filename)
+        Thread(target=_send, args=(job.client_email, subject, body, pdf_b64, f'{invoice.invoice_number}.pdf')).start()
+        if job.client_email:
+            flash(_('Payment link created and sent to client!'))
+        else:
+            flash(_('Payment link created (no client email set).'))
+    except Exception as e:
+        print(f">>> Paylink email error: {e}")
+    return redirect(url_for('main.invoices'))
+
+@main.route('/stripe/webhook', methods=['POST'])
+@csrf.exempt
+def stripe_webhook():
+    import os
+    import stripe
+    from app.models import Invoice, Payment
+    payload = request.get_data()
+    sig = request.headers.get('Stripe-Signature')
+    secret = os.getenv('STRIPE_WEBHOOK_SECRET')
+    if not secret:
+        return Response('Webhook secret not configured', status=400)
+    try:
+        stripe.api_key = os.getenv('STRIPE_API_KEY')
+        event = stripe.Webhook.construct_event(payload, sig, secret)
+    except Exception as e:
+        print(f">>> Stripe webhook signature error: {e}")
+        return Response('Invalid signature', status=400)
+
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
+        inv_no = (session.get('metadata') or {}).get('invoice_number')
+        if inv_no:
+            invoice = Invoice.query.filter_by(invoice_number=inv_no).first()
+            if invoice and invoice.status not in ('paid', 'cancelled'):
+                payment = Payment(
+                    invoice_id=invoice.id,
+                    amount=invoice.total_amount,
+                    payment_method='card',
+                    reference=f'Stripe {session.get("id", "")}',
+                )
+                db.session.add(payment)
+                invoice.status = 'paid'
+                invoice.paid_at = datetime.utcnow()
+                db.session.commit()
+                print(f">>> Stripe payment recorded for {inv_no}")
+    return Response('ok', status=200)
 
 @main.route('/payments')
 @login_required

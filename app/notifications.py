@@ -59,7 +59,8 @@ Thank you!
 
 def send_overdue_invoice_reminders(app):
     from app.email_service import send_email
-    with app.app_context():
+    from flask import has_app_context
+    def _do():
         now = datetime.now()
         overdue = Invoice.query.filter(
             Invoice.status.in_(('sent', 'overdue')),
@@ -101,3 +102,8 @@ Thank you!
                 invoice.reminder_sent = True
         db.session.commit()
         print(f">>> Overdue invoice reminders processed: {len(overdue)}")
+    if has_app_context():
+        _do()
+    else:
+        with app.app_context():
+            _do()

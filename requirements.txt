@@ -4,6 +4,7 @@ flask-login
 flask-mail
 flask-migrate
 flask-wtf
+stripe
 werkzeug
 gunicorn
 psycopg2-binary
