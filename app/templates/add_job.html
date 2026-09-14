@@ -2,18 +2,18 @@
 
 {% block content %}
 <div class="max-w-lg mx-auto bg-white rounded-lg shadow p-8">
-    <h2 class="text-2xl font-bold mb-6 text-gray-800">Job nou</h2>
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">{{ _('New Job') }}</h2>
 
     <form method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Nume client</label>
+            <label class="block text-gray-700 mb-2">{{ _('Client Name') }}</label>
             <input type="text" name="client_name" required
                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Email client</label>
+            <label class="block text-gray-700 mb-2">{{ _('Client Email') }}</label>
             <input type="email" name="client_email"
                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
         </div>
@@ -25,7 +25,7 @@
         </div>
 
         <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Tip activitate</label>
+            <label class="block text-gray-700 mb-2">{{ _('Activity Type') }}</label>
             <select name="activity_type"
                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
                 {% for value, label in activity_types %}
@@ -56,7 +56,7 @@
         </div>
 
         <div class="mb-6">
-            <label class="block text-gray-700 mb-2">Descriere</label>
+            <label class="block text-gray-700 mb-2">{{ _('Description') }}</label>
             <textarea name="description" rows="3"
                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"></textarea>
         </div>
@@ -64,11 +64,11 @@
         <div class="flex gap-4">
             <button type="submit"
                 class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-                Salvează job
+                {{ _('Save Job') }}
             </button>
             <a href="{{ url_for('main.dashboard') }}"
                 class="flex-1 text-center border border-gray-300 py-2 rounded hover:bg-gray-50">
-                Anulează
+                {{ _('Cancel') }}
             </a>
         </div>
     </form>

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-14 19:25+0300\n"
+"POT-Creation-Date: 2026-09-14 19:38+0300\n"
 "PO-Revision-Date: 2026-09-11 18:22+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ro\n"
@@ -250,9 +250,26 @@ msgstr "Vezi"
 msgid "No invoices for"
 msgstr "Nicio factură pentru"
 
+#: app/templates/add_job.html:5 app/templates/base.html:39
+#: app/templates/dashboard.html:8
+msgid "New Job"
+msgstr "Job nou"
+
+#: app/templates/add_job.html:10
+msgid "Client Name"
+msgstr "Nume client"
+
+#: app/templates/add_job.html:16
+msgid "Client Email"
+msgstr "Email client"
+
 #: app/templates/add_job.html:22
 msgid "Address"
 msgstr "Adresă"
+
+#: app/templates/add_job.html:28
+msgid "Activity Type"
+msgstr "Tip activitate"
 
 #: app/templates/add_job.html:38 app/templates/send_quote.html:17
 msgid "Price"
@@ -262,13 +279,21 @@ msgstr "Preț"
 msgid "Date & Time"
 msgstr "Data și ora"
 
+#: app/templates/add_job.html:59
+msgid "Description"
+msgstr "Descriere"
+
+#: app/templates/add_job.html:67
+msgid "Save Job"
+msgstr "Salvează job"
+
+#: app/templates/add_job.html:71 app/templates/send_quote.html:39
+msgid "Cancel"
+msgstr "Anulează"
+
 #: app/templates/base.html:38
 msgid "Dashboard"
 msgstr "Panou de control"
-
-#: app/templates/base.html:39 app/templates/dashboard.html:8
-msgid "New Job"
-msgstr "Job nou"
 
 #: app/templates/base.html:40 app/templates/invoices.html:13
 #: app/templates/vat_report.html:44
@@ -623,10 +648,6 @@ msgstr "Trimiți oferta către"
 #: app/templates/send_quote.html:10
 msgid "Description of work"
 msgstr "Descrierea lucrării"
-
-#: app/templates/send_quote.html:39
-msgid "Cancel"
-msgstr "Anulează"
 
 #: app/templates/vat_report.html:28
 msgid "Total VAT"
