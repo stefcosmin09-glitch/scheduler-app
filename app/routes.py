@@ -171,6 +171,10 @@ def dashboard():
     if not current_user.is_authenticated:
         return render_template('landing.html')
 
+    from app.notifications import send_overdue_invoice_reminders, send_trial_expiry_reminders
+    send_overdue_invoice_reminders(current_app._get_current_object())
+    send_trial_expiry_reminders(current_app._get_current_object())
+
     filter_type = request.args.get('type', 'all')
     filter_status = request.args.get('status', 'active')
 

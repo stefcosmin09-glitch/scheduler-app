@@ -19,6 +19,7 @@ class User(UserMixin, db.Model):
     currency = db.Column(db.String(10), nullable=False, server_default='GBP', default='GBP')
     plan = db.Column(db.String(20), default='free')
     trial_ends_at = db.Column(db.DateTime)
+    trial_reminder_sent = db.Column(db.Boolean, default=False)
     stripe_customer_id = db.Column(db.String(100))
     stripe_subscription_id = db.Column(db.String(100))
     stripe_subscription_status = db.Column(db.String(50))
