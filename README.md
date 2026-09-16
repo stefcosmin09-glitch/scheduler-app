@@ -3,7 +3,7 @@
 A job scheduling web app for tradespeople — electricians, plumbers, builders.
 Built as an alternative to Jobber (£39/mo) at a fraction of the cost.
 
-🌐 **Live:** https://web-production-7928e.up.railway.app
+🌐 **Live:** https://thetradescheduler.com
 
 ## Features
 
