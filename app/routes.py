@@ -64,6 +64,11 @@ def register():
             send_welcome(email)
         except Exception:
             pass
+
+        if request.args.get('upgrade') == '1':
+            login_user(user)
+            return redirect(url_for('main.billing_checkout'))
+
         flash(_('Account created successfully!'))
         return redirect(url_for('auth.login'))
 
@@ -716,7 +721,7 @@ def stripe_webhook():
             print(f">>> User {user.username} subscription status -> {status}")
     return Response('ok', status=200)
 
-@main.route('/billing/checkout', methods=['POST'])
+@main.route('/billing/checkout', methods=['GET', 'POST'])
 @login_required
 def billing_checkout():
     import os
