@@ -1,158 +1,781 @@
 {% extends 'base.html' %}
 
+{% block title %}TradeScheduler – Job Management &amp; Invoice Software for UK Tradespeople{% endblock %}
+
+{% block head %}
+<meta name="description" content="Job management software for UK tradespeople. Manage jobs, schedules, customers, quotes, invoices and payments in one app. Try it free for 14 days – no credit card required.">
+<link rel="canonical" href="https://thetradescheduler.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TradeScheduler">
+<meta property="og:title" content="TradeScheduler – Job Management &amp; Invoice Software for UK Tradespeople">
+<meta property="og:description" content="Manage jobs, schedules, customers, quotes, invoices and payments in one simple app. Try TradeScheduler free for 14 days.">
+<meta property="og:url" content="https://thetradescheduler.com/">
+<meta property="og:image" content="{{ url_for('static', filename='icons/icon-512.png', _external=True) }}">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    html { scroll-behavior: smooth; }
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+    details summary::-webkit-details-marker { display: none; }
+    details[open] .faq-chevron { transform: rotate(180deg); }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "TradeScheduler",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web, Android, iOS",
+  "description": "Job management, scheduling, quotes, invoices and payments for UK tradespeople.",
+  "url": "https://thetradescheduler.com/",
+  "inLanguage": ["en", "ro"],
+  "offers": {
+    "@type": "Offer",
+    "price": "22.99",
+    "priceCurrency": "GBP"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is there really a free trial?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — 14 days with every feature unlocked. You'll see the remaining days in your account." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a credit card to start?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Create your account and use everything free for 14 days." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is TradeScheduler built for UK tradespeople?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Job management, quoting, invoicing and payments for UK tradespeople and small trade businesses." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use it on my phone?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — it's mobile-first and can be installed like an app from your browser." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I send quotes and invoices?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Create quotes from a job and download professional PDF invoices with VAT and your business details." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can customers pay me online?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Add a payment link to your invoices, or record payments received by bank transfer, cash or card." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I cancel anytime?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes — cancel from your account whenever you like. No lock-in." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it support GBP and Romanian?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. TradeScheduler supports GBP, RON, EUR and USD, and is available in English and Romanian." }
+    }
+  ]
+}
+</script>
+{% endblock %}
+
 {% block content %}
-<!-- Standalone nav for visitors -->
-<nav class="flex items-center justify-between mb-10">
-    <span class="font-bold text-xl text-gray-800">🔨 TradeScheduler</span>
-    <div class="flex items-center gap-3">
-        <a href="{{ url_for('auth.login') }}" class="text-gray-600 hover:text-gray-900 px-3 py-2">Log in</a>
-        <a href="{{ url_for('auth.register') }}"
-            class="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700">Get started</a>
-    </div>
-</nav>
+<div class="max-w-6xl mx-auto">
 
-<!-- Hero -->
-<section class="bg-gradient-to-r from-blue-700 to-blue-500 text-white rounded-2xl px-6 py-16 mb-10 text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mx-auto max-w-3xl">
-        Run your trade business from your pocket
-    </h1>
-    <p class="text-lg md:text-xl mt-4 text-blue-100 mx-auto max-w-2xl">
-        Jobs, quotes, professional invoices, payments and reminders — all in one simple app built for tradespeople.
-    </p>
-    <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
-        <a href="{{ url_for('auth.register') }}"
-            class="bg-white text-blue-700 font-bold px-8 py-3 rounded-lg hover:bg-blue-50 text-center">
-            Start free — 14 days, no card
+    <!-- ─── NAV ─────────────────────────────────────────── -->
+    <nav class="flex items-center justify-between py-5 mb-6">
+        <a href="{{ url_for('main.dashboard') }}" class="flex items-center gap-2 text-xl font-extrabold text-gray-900">
+            <span class="text-2xl">🔨</span> TradeScheduler
         </a>
-        <a href="{{ url_for('auth.register', upgrade=1) }}"
-            class="border-2 border-white font-semibold px-8 py-3 rounded-lg hover:bg-blue-600 text-center">
-            Go Pro — £22.99/month
-        </a>
-    </div>
-    <p class="text-blue-200 text-sm mt-6">No card required · Cancel anytime · English & Romanian</p>
-</section>
-
-<!-- Social proof strip -->
-<section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-blue-700">60s</p>
-        <p class="text-gray-500 text-sm">to send a first invoice</p>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-blue-700">100%</p>
-        <p class="text-gray-500 text-sm">professional look, every time</p>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-blue-700">£0</p>
-        <p class="text-gray-500 text-sm">to try the first 14 days</p>
-    </div>
-    <div class="bg-white rounded-lg shadow p-4 text-center">
-        <p class="text-2xl font-bold text-blue-700">RO+EN</p>
-        <p class="text-gray-500 text-sm">invoices in both languages</p>
-    </div>
-</section>
-
-<!-- Features -->
-<section class="mb-10">
-    <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 text-gray-800">Everything a tradesperson needs</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-        <div class="bg-white rounded-lg shadow p-6 text-center">
-            <p class="text-4xl mb-3">🗓️</p>
-            <h3 class="font-bold text-lg mb-1">Job Scheduling</h3>
-            <p class="text-gray-600 text-sm">Plan jobs with dates, addresses and job types. Mark work done in one tap.</p>
+        <div class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
+            <a href="#why" class="hover:text-gray-900">Why TradeScheduler</a>
+            <a href="#product" class="hover:text-gray-900">See the app</a>
+            <a href="#how-it-works" class="hover:text-gray-900">How it works</a>
+            <a href="#pricing" class="hover:text-gray-900">Pricing</a>
+            <a href="#faq" class="hover:text-gray-900">FAQ</a>
         </div>
-        <div class="bg-white rounded-lg shadow p-6 text-center">
-            <p class="text-4xl mb-3">🧾</p>
-            <h3 class="font-bold text-lg mb-1">Professional Invoices</h3>
-            <p class="text-gray-600 text-sm">Branded PDFs with your logo, automatic numbering, VAT and multi-currency.</p>
-        </div>
-        <div class="bg-white rounded-lg shadow p-6 text-center">
-            <p class="text-4xl mb-3">💳</p>
-            <h3 class="font-bold text-lg mb-1">Get Paid Faster</h3>
-            <p class="text-gray-600 text-sm">Send clients a payment link — they pay online by card and you get notified.</p>
-        </div>
-        <div class="bg-white rounded-lg shadow p-6 text-center">
-            <p class="text-4xl mb-3">🔔</p>
-            <h3 class="font-bold text-lg mb-1">Automatic Reminders</h3>
-            <p class="text-gray-600 text-sm">Overdue invoice reminders go out on your behalf. You never chase again.</p>
-        </div>
-        <div class="bg-white rounded-lg shadow p-6 text-center">
-            <p class="text-4xl mb-3">📊</p>
-            <h3 class="font-bold text-lg mb-1">P&L Built In</h3>
-            <p class="text-gray-600 text-sm">Weekly & monthly totals, outstanding amounts and annual VAT reports.</p>
-        </div>
-        <div class="bg-white rounded-lg shadow p-6 text-center">
-            <p class="text-4xl mb-3">📲</p>
-            <h3 class="font-bold text-lg mb-1">Works Like an App</h3>
-            <p class="text-gray-600 text-sm">Install on your phone once — it runs like a native app, offline-friendly.</p>
-        </div>
-    </div>
-</section>
-
-<!-- How it works -->
-<section class="bg-white rounded-lg shadow p-8 mb-10">
-    <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 text-gray-800">How it works</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-        <div class="text-center">
-            <div class="w-12 h-12 mx-auto bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl mb-3">1</div>
-            <h3 class="font-bold mb-1">Add the job</h3>
-            <p class="text-gray-600 text-sm">Client, date, address, price.</p>
-        </div>
-        <div class="text-center">
-            <div class="w-12 h-12 mx-auto bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl mb-3">2</div>
-            <h3 class="font-bold mb-1">Tap “Done”</h3>
-            <p class="text-gray-600 text-sm">A professional invoice is created automatically.</p>
-        </div>
-        <div class="text-center">
-            <div class="w-12 h-12 mx-auto bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl mb-3">3</div>
-            <h3 class="font-bold mb-1">Get paid</h3>
-            <p class="text-gray-600 text-sm">Email the payment link — money lands in your account.</p>
-        </div>
-    </div>
-</section>
-
-<!-- Pricing -->
-<section class="mb-10">
-    <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 text-gray-800">Simple pricing</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-        <div class="border border-gray-200 rounded-lg p-6 text-center bg-white">
-            <h3 class="font-bold text-lg mb-2">Free Trial</h3>
-            <p class="text-3xl font-bold mb-3">£0</p>
-            <p class="text-gray-600 text-sm mb-5">Everything unlocked for 14 days. No card required to start.</p>
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('auth.login') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-900 px-3 py-2">Log in</a>
             <a href="{{ url_for('auth.register') }}"
-                class="block bg-gray-100 text-gray-700 font-semibold px-5 py-2 rounded-lg hover:bg-gray-200">Start free</a>
+                class="hidden sm:inline-block bg-blue-600 text-white text-sm font-bold px-4 py-2.5 rounded-lg hover:bg-blue-700">
+                Start free
+            </a>
+            <a href="{{ url_for('auth.register') }}"
+                class="sm:hidden bg-blue-600 text-white text-sm font-bold px-4 py-2.5 rounded-lg hover:bg-blue-700">
+                Start free
+            </a>
         </div>
-        <div class="bg-blue-600 text-white rounded-lg p-6 text-center shadow-lg relative">
-            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full">MOST POPULAR</span>
-            <h3 class="font-bold text-lg mb-2">Pro</h3>
-            <p class="text-3xl font-bold mb-3">£22.99<span class="text-lg text-blue-200">/month</span></p>
-            <p class="text-blue-100 text-sm mb-5">Keep all features after the trial. Cancel anytime from your account.</p>
-            <a href="{{ url_for('auth.register', upgrade=1) }}"
-                class="block bg-white text-blue-700 font-bold px-5 py-2 rounded-lg hover:bg-blue-50">Go Pro</a>
+    </nav>
+
+    <!-- ─── HERO ────────────────────────────────────────── -->
+    <section id="hero" class="bg-gradient-to-br from-blue-800 to-blue-900 rounded-2xl px-6 py-12 md:py-16 md:px-12 mb-6 relative overflow-hidden">
+        <div class="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
+            <div>
+                <span class="inline-flex items-center gap-1.5 bg-blue-700 text-blue-100 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+                    🇬🇧 Built for UK tradespeople
+                </span>
+                <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white leading-tight">
+                    Stop juggling jobs, WhatsApp and invoices.
+                </h1>
+                <p class="text-blue-100 text-lg mt-5 leading-relaxed">
+                    TradeScheduler helps UK tradespeople manage jobs, schedules, customers, quotes, invoices and payments — in one simple app.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 mt-8">
+                    <a href="{{ url_for('auth.register') }}"
+                        class="bg-amber-400 hover:bg-amber-300 text-blue-900 font-bold text-center px-8 py-4 rounded-xl shadow-lg">
+                        Start your 14-day free trial
+                    </a>
+                    <a href="#how-it-works"
+                        class="border border-white text-white font-semibold text-center px-8 py-4 rounded-xl hover:bg-blue-800">
+                        See how it works
+                    </a>
+                </div>
+                <p class="text-blue-200 text-sm mt-4">No credit card required · Set up in minutes</p>
+            </div>
+
+            <!-- Product preview -->
+            <div class="mt-12 lg:mt-0">
+                <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                    <div class="bg-gray-50 border-b border-gray-200 px-4 py-2 flex items-center gap-1.5">
+                        <span class="h-2.5 w-2.5 rounded-full bg-red-400"></span>
+                        <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                        <span class="h-2.5 w-2.5 rounded-full bg-green-400"></span>
+                    </div>
+                    <div class="p-4 sm:p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <p class="font-bold text-gray-900">My Jobs</p>
+                            <span class="bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded">+ New Job</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-white border border-gray-100 rounded-lg p-3">
+                                <p class="text-gray-500 text-xs">This Week</p>
+                                <p class="text-2xl font-bold text-green-600">£1,842.00</p>
+                            </div>
+                            <div class="bg-white border border-gray-100 rounded-lg p-3">
+                                <p class="text-gray-500 text-xs">This Month</p>
+                                <p class="text-2xl font-bold text-blue-600">£6,950.00</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="border border-gray-100 rounded-lg p-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <p class="font-semibold text-gray-900 text-sm">Sarah Pemberton</p>
+                                    <span class="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">Heating Eng.</span>
+                                </div>
+                                <p class="text-xs text-gray-600">📍 14 Beech Road, Reading</p>
+                                <p class="text-xs text-gray-600">📅 24/09/2026 09:00</p>
+                                <p class="text-sm text-green-700 font-semibold mt-1">💰 £320.00</p>
+                            </div>
+                            <div class="border border-gray-100 rounded-lg p-3">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <p class="font-semibold text-gray-900 text-sm">Mark Davies</p>
+                                    <span class="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">Plumbing</span>
+                                </div>
+                                <p class="text-xs text-gray-600">📍 8 Elm Street, Slough</p>
+                                <p class="text-xs text-gray-600">📅 26/09/2026 14:30</p>
+                                <p class="text-sm text-green-700 font-semibold mt-1">💰 £175.00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-white/10 rounded-lg px-2 py-3">
+                        <p class="text-white font-bold text-sm">14 days</p>
+                        <p class="text-blue-200 text-xs">free trial</p>
+                    </div>
+                    <div class="bg-white/10 rounded-lg px-2 py-3">
+                        <p class="text-white font-bold text-sm">£0</p>
+                        <p class="text-blue-200 text-xs">to start</p>
+                    </div>
+                    <div class="bg-white/10 rounded-lg px-2 py-3">
+                        <p class="text-white font-bold text-sm">📲</p>
+                        <p class="text-blue-200 text-xs">works on your phone</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── TRUST ROW ──────────────────────────────────── -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-14">
+        <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+            <p class="font-bold text-gray-900">14-day free trial</p>
+            <p class="text-gray-500 text-xs mt-1">Every feature unlocked</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+            <p class="font-bold text-gray-900">No credit card</p>
+            <p class="text-gray-500 text-xs mt-1">Start at no cost</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+            <p class="font-bold text-gray-900">Cancel anytime</p>
+            <p class="text-gray-500 text-xs mt-1">No lock-in</p>
+        </div>
+        <div class="bg-white rounded-lg p-4 text-center shadow-sm">
+            <p class="font-bold text-gray-900">English &amp; Romanian</p>
+            <p class="text-gray-500 text-xs mt-1">GBP, RON, EUR, USD</p>
         </div>
     </div>
-</section>
 
-<!-- FAQ -->
-<section class="bg-white rounded-lg shadow p-8 mb-10 max-w-3xl mx-auto">
-    <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Questions</h2>
-    <div class="space-y-4">
-        <div>
-            <p class="font-semibold text-gray-800">Do I need a card to start?</p>
-            <p class="text-gray-600 text-sm">No. Your first 14 days are completely free.</p>
+    <!-- ─── PROBLEM ────────────────────────────────────── -->
+    <section id="why" class="mb-16">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Running a trade business shouldn't mean running on paperwork</h2>
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-8">If any of this sounds familiar, you're not alone — and you're exactly who TradeScheduler is for.</p>
+        <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide text-gray-500">Sound familiar?</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-red-500 font-bold">✕</span>
+                        <span class="text-gray-700">Jobs scattered across WhatsApp messages</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-red-500 font-bold">✕</span>
+                        <span class="text-gray-700">Appointments written in a notebook</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-red-500 font-bold">✕</span>
+                        <span class="text-gray-700">Quotes that get forgotten or lost</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-red-500 font-bold">✕</span>
+                        <span class="text-gray-700">Invoices sent late, if at all</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-red-500 font-bold">✕</span>
+                        <span class="text-gray-700">Chasing customers for payment</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-red-500 font-bold">✕</span>
+                        <span class="text-gray-700">Not knowing exactly what you're making</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="bg-gradient-to-br from-blue-700 to-blue-900 rounded-xl shadow-lg p-6 text-white">
+                <h3 class="font-bold mb-4 text-sm uppercase tracking-wide text-blue-200">With TradeScheduler</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-300 font-bold">✓</span>
+                        <span>Every job, date, address and price in one list</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-300 font-bold">✓</span>
+                        <span>Quotes and professional invoices in minutes</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-300 font-bold">✓</span>
+                        <span>Customers can pay online — no more chasing</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-300 font-bold">✓</span>
+                        <span>Income, expenses and VAT reports in one place</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-300 font-bold">✓</span>
+                        <span>Run it all from your phone</span>
+                    </li>
+                </ul>
+                <a href="{{ url_for('auth.register') }}"
+                    class="mt-6 block bg-white text-blue-900 font-bold text-center px-6 py-3 rounded-lg hover:bg-blue-50">
+                    Start your 14-day free trial
+                </a>
+            </div>
         </div>
-        <div>
-            <p class="font-semibold text-gray-800">Can clients pay invoices online?</p>
-            <p class="text-gray-600 text-sm">Yes — each invoice can include a card payment link.</p>
-        </div>
-        <div>
-            <p class="font-semibold text-gray-800">Can I cancel anytime?</p>
-            <p class="text-gray-600 text-sm">Yes, from your subscription management page. No lock-in.</p>
-        </div>
-    </div>
-</section>
+    </section>
 
-<footer class="text-center text-gray-500 text-sm pb-4">
-    <p>English & Romanian · GBP, RON, EUR, USD · Mobile-friendly & installable as an app</p>
-</footer>
+    <!-- ─── FEATURES / BENEFITS ────────────────────────── -->
+    <section id="features" class="mb-16">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Everything you need to run the job — without the paperwork</h2>
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-10">One app that keeps the whole job together, from the first enquiry to the final invoice.</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <p class="text-3xl mb-3">🗓️</p>
+                <h3 class="font-bold text-gray-900 mb-1">Schedule jobs</h3>
+                <p class="text-gray-600 text-sm">Keep your jobs, dates, addresses and customer details organised in one place.</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <p class="text-3xl mb-3">📝</p>
+                <h3 class="font-bold text-gray-900 mb-1">Quotes &amp; invoices</h3>
+                <p class="text-gray-600 text-sm">Create professional quotes and PDF invoices without spending your evening on paperwork.</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <p class="text-3xl mb-3">💳</p>
+                <h3 class="font-bold text-gray-900 mb-1">Online payments</h3>
+                <p class="text-gray-600 text-sm">Give customers an easy way to pay you online and keep track of what's been paid.</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <p class="text-3xl mb-3">🔔</p>
+                <h3 class="font-bold text-gray-900 mb-1">Payment reminders</h3>
+                <p class="text-gray-600 text-sm">Reminders go out automatically for overdue invoices, so you spend less time chasing.</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <p class="text-3xl mb-3">📊</p>
+                <h3 class="font-bold text-gray-900 mb-1">Expenses &amp; P&amp;L</h3>
+                <p class="text-gray-600 text-sm">See your income, expenses, outstanding amounts and annual VAT reports in one place.</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
+                <p class="text-3xl mb-3">👥</p>
+                <h3 class="font-bold text-gray-900 mb-1">Customer management</h3>
+                <p class="text-gray-600 text-sm">Keep customer details and job history organised and easy to find when you need them.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── REAL PRODUCT VISUALS ───────────────────────── -->
+    <section id="product" class="mb-16 ">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">What TradeScheduler looks like when you're working</h2>
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-10">The screens you'll use every day — on your phone, tablet or laptop.</p>
+
+        <div class="space-y-10">
+
+            <!-- Jobs screen -->
+            <div class="grid lg:grid-cols-5 gap-6 items-center">
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-xl shadow-xl overflow-hidden">
+                        <div class="border-b border-gray-200 px-4 py-2 flex items-center gap-1.5 bg-gray-50">
+                            <span class="h-2.5 w-2.5 rounded-full bg-red-400"></span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-green-400"></span>
+                            <span class="ml-3 hidden sm:block text-xs text-gray-400">thetradescheduler.com</span>
+                        </div>
+                        <div class="p-4 sm:p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <p class="font-bold text-gray-900">My Jobs</p>
+                                <span class="bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded">+ New Job</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 mb-4">
+                                <div class="bg-white border border-gray-100 rounded-lg p-3">
+                                    <p class="text-gray-500 text-xs">This Week</p>
+                                    <p class="text-xl sm:text-2xl font-bold text-green-600">£1,842.00</p>
+                                    <p class="text-gray-400 text-xs">completed jobs</p>
+                                </div>
+                                <div class="bg-white border border-gray-100 rounded-lg p-3">
+                                    <p class="text-gray-500 text-xs">This Month</p>
+                                    <p class="text-xl sm:text-2xl font-bold text-blue-600">£6,950.00</p>
+                                    <p class="text-gray-400 text-xs">completed jobs</p>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="border border-gray-100 rounded-lg p-3 flex items-start justify-between gap-2">
+                                    <div class="min-w-0">
+                                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                                            <p class="font-semibold text-gray-900 text-sm">Sarah Pemberton</p>
+                                            <span class="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">Heating Eng.</span>
+                                        </div>
+                                        <p class="text-xs text-gray-600 truncate">📍 14 Beech Road, Reading</p>
+                                        <p class="text-xs text-gray-600">📅 24/09/2026 09:00</p>
+                                        <p class="text-sm text-green-700 font-semibold mt-1">💰 £320.00</p>
+                                    </div>
+                                    <div class="flex flex-col gap-1.5 shrink-0">
+                                        <span class="bg-purple-500 text-white text-xs font-semibold px-2.5 py-1 rounded text-center">📤 Quote</span>
+                                        <span class="bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded text-center">✅ Done</span>
+                                    </div>
+                                </div>
+                                <div class="border border-gray-100 rounded-lg p-3 flex items-start justify-between gap-2">
+                                    <div class="min-w-0">
+                                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                                            <p class="font-semibold text-gray-900 text-sm">Mark Davies</p>
+                                            <span class="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">Plumbing</span>
+                                        </div>
+                                        <p class="text-xs text-gray-600 truncate">📍 8 Elm Street, Slough</p>
+                                        <p class="text-xs text-gray-600">📅 26/09/2026 14:30</p>
+                                        <p class="text-sm text-green-700 font-semibold mt-1">💰 £175.00</p>
+                                    </div>
+                                    <div class="flex flex-col gap-1.5 shrink-0">
+                                        <span class="bg-purple-500 text-white text-xs font-semibold px-2.5 py-1 rounded text-center">📤 Quote</span>
+                                        <span class="bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded text-center">✅ Done</span>
+                                    </div>
+                                </div>
+                                <div class="border border-gray-100 rounded-lg p-3 flex items-start justify-between gap-2">
+                                    <div class="min-w-0">
+                                        <div class="flex flex-wrap items-center gap-2 mb-1">
+                                            <p class="font-semibold text-gray-900 text-sm">Neil Carter</p>
+                                            <span class="text-xs px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-medium">Roofing</span>
+                                        </div>
+                                        <p class="text-xs text-gray-600 truncate">📍 3 Orchard Close, Bracknell</p>
+                                        <p class="text-xs text-gray-600">📅 29/09/2026 08:00</p>
+                                        <p class="text-sm text-green-700 font-semibold mt-1">💰 £1,240.00</p>
+                                    </div>
+                                    <div class="flex flex-col gap-1.5 shrink-0">
+                                        <span class="bg-purple-500 text-white text-xs font-semibold px-2.5 py-1 rounded text-center">📤 Quote</span>
+                                        <span class="bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded text-center">✅ Done</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <h3 class="font-bold text-gray-900 text-xl mb-2">Jobs</h3>
+                    <p class="text-gray-600">Every job in one list — client, date, address, price and what's been done. Mark work complete in one tap, from your phone on site or from the van.</p>
+                </div>
+            </div>
+
+            <!-- Invoices screen -->
+            <div class="grid lg:grid-cols-5 gap-6 items-center">
+                <div class="lg:col-span-3 lg:order-last">
+                    <div class="bg-white rounded-xl shadow-xl overflow-hidden">
+                        <div class="border-b border-gray-200 px-4 py-2 flex items-center gap-1.5 bg-gray-50">
+                            <span class="h-2.5 w-2.5 rounded-full bg-red-400"></span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-green-400"></span>
+                            <span class="ml-3 hidden sm:block text-xs text-gray-400">thetradescheduler.com/invoices</span>
+                        </div>
+                        <div class="p-4 sm:p-5">
+                            <p class="font-bold text-gray-900 mb-4">Invoices</p>
+                            <div class="space-y-3">
+                                <div class="border border-gray-100 rounded-lg p-3">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-semibold text-gray-900 text-sm">INV-0009</p>
+                                            <span class="text-xs px-2 py-0.5 rounded bg-red-100 text-red-700 font-semibold">OVERDUE</span>
+                                        </div>
+                                        <p class="text-lg font-bold text-gray-900">£320.00</p>
+                                    </div>
+                                    <p class="text-xs text-gray-600">👤 Sarah Pemberton · Due 30/09/2026</p>
+                                    <div class="flex gap-2 mt-2">
+                                        <span class="bg-green-500 text-white text-xs font-semibold px-2.5 py-1 rounded">💰 Record Payment</span>
+                                        <span class="bg-blue-600 text-white text-xs font-semibold px-2.5 py-1 rounded">💳 Pay Online</span>
+                                    </div>
+                                </div>
+                                <div class="border border-gray-100 rounded-lg p-3">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-semibold text-gray-900 text-sm">INV-0008</p>
+                                            <span class="text-xs px-2 py-0.5 rounded bg-green-100 text-green-700 font-semibold">PAID</span>
+                                        </div>
+                                        <p class="text-lg font-bold text-gray-900">£1,240.00</p>
+                                    </div>
+                                    <p class="text-xs text-gray-600">👤 Neil Carter · Paid by payment link</p>
+                                </div>
+                                <div class="border border-gray-100 rounded-lg p-3">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-semibold text-gray-900 text-sm">INV-0007</p>
+                                            <span class="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">SENT</span>
+                                        </div>
+                                        <p class="text-lg font-bold text-gray-900">£175.00</p>
+                                    </div>
+                                    <p class="text-xs text-gray-600">👤 Mark Davies · Due 05/10/2026</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 lg:order-first">
+                    <h3 class="font-bold text-gray-900 text-xl mb-2">Invoices</h3>
+                    <p class="text-gray-600">Send the invoice before you leave the job. Add a payment link so customers can pay online, and see exactly what's paid, sent or still owing.</p>
+                </div>
+            </div>
+
+            <!-- Accounting screen -->
+            <div class="grid lg:grid-cols-5 gap-6 items-center">
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-xl shadow-xl overflow-hidden">
+                        <div class="border-b border-gray-200 px-4 py-2 flex items-center gap-1.5 bg-gray-50">
+                            <span class="h-2.5 w-2.5 rounded-full bg-red-400"></span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                            <span class="h-2.5 w-2.5 rounded-full bg-green-400"></span>
+                            <span class="ml-3 hidden sm:block text-xs text-gray-400">thetradescheduler.com/accounting</span>
+                        </div>
+                        <div class="p-4 sm:p-5">
+                            <p class="font-bold text-gray-900 mb-4">Accounting</p>
+                            <div class="grid grid-cols-3 gap-3 mb-4">
+                                <div class="border border-gray-100 rounded-lg p-3 text-center">
+                                    <p class="text-gray-500 text-xs">Invoiced</p>
+                                    <p class="text-lg sm:text-xl font-bold text-blue-600">£9,875.00</p>
+                                </div>
+                                <div class="border border-gray-100 rounded-lg p-3 text-center">
+                                    <p class="text-gray-500 text-xs">Paid</p>
+                                    <p class="text-lg sm:text-xl font-bold text-green-600">£6,230.00</p>
+                                </div>
+                                <div class="border border-gray-100 rounded-lg p-3 text-center">
+                                    <p class="text-gray-500 text-xs">Owing</p>
+                                    <p class="text-lg sm:text-xl font-bold text-red-600">£3,645.00</p>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-0">
+                                    <thead>
+                                        <tr class="text-left text-xs text-gray-500 uppercase tracking-wide">
+                                            <th class="py-1.5 pr-2 font-semibold">Invoice</th>
+                                            <th class="py-1.5 pr-2 font-semibold">Client</th>
+                                            <th class="py-1.5 pr-2 text-right font-semibold">Amount</th>
+                                            <th class="py-1.5 text-right font-semibold">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-100">
+                                        <tr class="text-xs">
+                                            <td class="py-2 pr-2 font-semibold text-gray-800">INV-0009</td>
+                                            <td class="py-2 pr-2 text-gray-600">Pemberton</td>
+                                            <td class="py-2 pr-2 text-right font-semibold">£320.00</td>
+                                            <td class="py-2 text-right"><span class="px-2 py-0.5 rounded bg-red-100 text-red-700 font-semibold text-xs">OVERDUE</span></td>
+                                        </tr>
+                                        <tr class="text-xs">
+                                            <td class="py-2 pr-2 font-semibold text-gray-800">INV-0008</td>
+                                            <td class="py-2 pr-2 text-gray-600">Carter</td>
+                                            <td class="py-2 pr-2 text-right font-semibold">£1,240.00</td>
+                                            <td class="py-2 text-right"><span class="px-2 py-0.5 rounded bg-green-100 text-green-700 font-semibold text-xs">PAID</span></td>
+                                        </tr>
+                                        <tr class="text-xs">
+                                            <td class="py-2 pr-2 font-semibold text-gray-800">INV-0007</td>
+                                            <td class="py-2 pr-2 text-gray-600">Davies</td>
+                                            <td class="py-2 pr-2 text-right font-semibold">£175.00</td>
+                                            <td class="py-2 text-right"><span class="px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold text-xs">SENT</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <h3 class="font-bold text-gray-900 text-xl mb-2">Accounting</h3>
+                    <p class="text-gray-600">Know what you've been paid, what's still outstanding and what you're actually making — with VAT reports at the touch of a button.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── FROM JOB BOOKED TO PAID ────────────────────── -->
+    <section id="how-it-works" class="bg-white rounded-2xl shadow-sm p-6 sm:p-10 mb-16 ">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-2">From job booked to paid</h2>
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-10">TradeScheduler follows the whole job — from the first call to knowing what you earned.</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
+            <div class="relative">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white font-extrabold flex items-center justify-center mb-3">01</div>
+                <h3 class="font-bold text-gray-900 mb-1">Book the job</h3>
+                <p class="text-gray-600 text-sm">Add the client, date, address and price.</p>
+            </div>
+            <div class="relative">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white font-extrabold flex items-center justify-center mb-3">02</div>
+                <h3 class="font-bold text-gray-900 mb-1">Manage the work</h3>
+                <p class="text-gray-600 text-sm">Send a quote, track the job, mark it done.</p>
+            </div>
+            <div class="relative">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white font-extrabold flex items-center justify-center mb-3">03</div>
+                <h3 class="font-bold text-gray-900 mb-1">Send the invoice</h3>
+                <p class="text-gray-600 text-sm">Professional PDF invoice, done in minutes.</p>
+            </div>
+            <div class="relative">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white font-extrabold flex items-center justify-center mb-3">04</div>
+                <h3 class="font-bold text-gray-900 mb-1">Get paid</h3>
+                <p class="text-gray-600 text-sm">Payment link on the invoice, or record receipts.</p>
+            </div>
+            <div class="relative">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white font-extrabold flex items-center justify-center mb-3">05</div>
+                <h3 class="font-bold text-gray-900 mb-1">Track your business</h3>
+                <p class="text-gray-600 text-sm">See income, expenses and VAT.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── BUILT FOR UK TRADES ────────────────────────── -->
+    <section id="uk" class="mb-16">
+        <div class="grid lg:grid-cols-2 gap-10 items-center max-w-5xl mx-auto">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">Built for the way UK trades actually work</h2>
+                <p class="text-gray-600 mb-6">Whether you're on your own or run a small team, TradeScheduler is made to be used on site, in the van, or at the kitchen table in the evening.</p>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-blue-600 font-bold">✓</span>
+                        <span class="text-gray-700">Run your business from your phone</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-blue-600 font-bold">✓</span>
+                        <span class="text-gray-700">Installable like an app on your home screen</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-blue-600 font-bold">✓</span>
+                        <span class="text-gray-700">Works in English and Romanian</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-blue-600 font-bold">✓</span>
+                        <span class="text-gray-700">GBP, RON, EUR and USD</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-blue-600 font-bold">✓</span>
+                        <span class="text-gray-700">VAT reporting for self-employed and small businesses</span>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <p class="font-bold text-gray-900 mb-4">Used by trades like</p>
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Electricians</span>
+                    <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Plumbers</span>
+                    <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Builders</span>
+                    <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Roofers</span>
+                    <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Landscapers</span>
+                    <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Carpenters</span>
+                    <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Decorators</span>
+                    <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Heating engineers</span>
+                    <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Contractors</span>
+                </div>
+                <div class="bg-blue-50 border border-blue-100 rounded-xl p-5 text-sm text-blue-900">
+                    <p class="font-bold mb-1">Set up in minutes</p>
+                    <p>Add your business details, add your first job and send your first invoice — all before your tea goes cold.</p>
+                    <a href="{{ url_for('auth.register') }}" class="inline-block mt-3 font-bold text-blue-800 hover:underline">Start free</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── PRICING ────────────────────────────────────── -->
+    <section id="pricing" class="mb-16 ">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Simple pricing. One plan. Everything included.</h2>
+        <p class="text-gray-600 text-center max-w-xl mx-auto mb-10">Try it free for 14 days. If it works for your business, it's a flat £22.99 a month.</p>
+        <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 p-8 text-center">
+            <p class="text-gray-500 font-semibold mb-2">Pro</p>
+            <p class="text-4xl font-extrabold text-gray-900 mb-1">£22.99<span class="text-base font-semibold text-gray-500">/month</span></p>
+            <p class="text-gray-500 text-sm mb-6">After a 14-day free trial. Cancel anytime.</p>
+            <ul class="text-left space-y-2.5 mb-8">
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">Jobs, scheduling and customer management</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">Quotes, invoices and online payments</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">Payment reminders and expense tracking</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">P&amp;L overview and VAT reports</span>
+                </li>
+            </ul>
+            <a href="{{ url_for('auth.register') }}"
+                class="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-center px-6 py-3.5 rounded-xl">
+                Start your 14-day free trial
+            </a>
+            <p class="text-gray-500 text-xs mt-3">No credit card required.</p>
+            <p class="text-gray-400 text-xs mt-2">
+                Already convinced? <a href="{{ url_for('auth.register', upgrade=1) }}" class="text-blue-600 hover:underline">Start with Pro now</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- ─── FAQ ────────────────────────────────────────── -->
+    <section id="faq" class="max-w-3xl mx-auto mb-16 ">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-8">Questions, answered</h2>
+        <div class="space-y-3">
+            <details class="group bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Is there really a free trial?
+                    <span class="faq-chevron text-blue-600 transition">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes — 14 days, with every feature unlocked. You'll see how many days you have left in your account.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Do I need a credit card to start?
+                    <span class="faq-chevron text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">No. Create your account and use everything free for 14 days.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Is TradeScheduler built for UK tradespeople?
+                    <span class="faq-chevron text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes. Job management, quoting, invoicing, payments and VAT reporting for UK tradespeople and small trade businesses.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Can I use it on my phone?
+                    <span class="faq-chevron text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes — it's mobile-first, and you can install it like an app from your browser so it's always one tap away.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Can I send quotes and invoices?
+                    <span class="faq-chevron text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes. Create a quote from a job, and download professional PDF invoices with VAT and your business details.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Can customers pay me online?
+                    <span class="faq-chevron text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes. Add a payment link to your invoices so customers can pay online, or record payments received by bank transfer, cash or card.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Can I cancel anytime?
+                    <span class="faq-chevron text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes — cancel from your account whenever you like. No lock-in.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Does it support GBP and Romanian?
+                    <span class="faq-chevron text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes. TradeScheduler works in English and Romanian, and supports GBP, RON, EUR and USD.</p>
+            </details>
+        </div>
+    </section>
+
+    <!-- ─── FINAL CTA ──────────────────────────────────── -->
+    <section class="bg-gradient-to-br from-blue-700 to-blue-900 rounded-2xl px-6 py-14 md:py-16 md:px-12 text-center mb-6 relative overflow-hidden">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white max-w-2xl mx-auto leading-tight">
+            Spend less time managing the business. More time doing the work.
+        </h2>
+        <p class="text-blue-100 mt-4 max-w-xl mx-auto">Try TradeScheduler free for 14 days and see if it works for your business.</p>
+        <a href="{{ url_for('auth.register') }}"
+            class="inline-block mt-8 bg-amber-400 hover:bg-amber-300 text-blue-900 font-bold px-10 py-4 rounded-xl shadow-lg">
+            Start your 14-day free trial
+        </a>
+        <p class="text-blue-200 text-sm mt-4">No credit card required.</p>
+    </section>
+
+    <!-- ─── FOOTER ─────────────────────────────────────── -->
+    <footer class="pb-24 md:pb-8 pt-4 text-center">
+        <div class="flex items-center justify-center gap-2 font-extrabold text-gray-900 mb-2">
+            <span class="text-xl">🔨</span> TradeScheduler
+        </div>
+        <p class="text-gray-500 text-sm mb-4">Jobs, quotes, invoices and payments for UK tradespeople.</p>
+        <div class="flex items-center justify-center gap-6 text-sm text-gray-600 mb-4">
+            <a href="{{ url_for('auth.login') }}" class="hover:text-gray-900">Log in</a>
+            <a href="{{ url_for('auth.register') }}" class="hover:text-gray-900">Start free</a>
+        </div>
+        <p class="text-gray-400 text-xs">English &amp; Romanian · GBP, RON, EUR, USD · Mobile-friendly and installable as an app</p>
+    </footer>
+</div>
+
+<!-- Sticky mobile CTA (appears after the hero) -->
+<div id="mobile-cta" class="hidden fixed bottom-0 inset-x-0 z-40 md:hidden border-t border-gray-200 bg-white p-3 shadow-2xl">
+    <a href="{{ url_for('auth.register') }}"
+        class="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-center px-6 py-3 rounded-xl">
+        Start your 14-day free trial — no card needed
+    </a>
+</div>
+
+<script>
+    (function () {
+        var hero = document.getElementById('hero');
+        var cta = document.getElementById('mobile-cta');
+        if (!hero || !cta) return;
+        if ('IntersectionObserver' in window) {
+            var io = new IntersectionObserver(function (entries) {
+                cta.classList.toggle('hidden', entries[0].isIntersecting);
+            }, { threshold: 0 });
+            io.observe(hero);
+        }
+    })();
+</script>
 {% endblock %}
