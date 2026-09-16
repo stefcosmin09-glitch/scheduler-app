@@ -615,12 +615,13 @@ def create_payment_link(invoice_id):
                     'quantity': 1,
                 }],
                 metadata={'invoice_number': invoice.invoice_number},
+                managed_payments={'enabled': False},
             )
             invoice.payment_link = payment_link.url
             db.session.commit()
         except Exception as e:
             print(f">>> PaymentLink error: {e}")
-            flash(f"DEBUG: {type(e).__name__}: {e}")
+            flash(_('Could not create payment link.'))
             return redirect(url_for('main.invoices'))
 
     link = invoice.payment_link
