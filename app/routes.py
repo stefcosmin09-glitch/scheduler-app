@@ -678,6 +678,8 @@ def stripe_webhook():
 
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
+        if hasattr(session, 'to_dict'):
+            session = session.to_dict()
         inv_no = (session.get('metadata') or {}).get('invoice_number')
         if inv_no:
             invoice = Invoice.query.filter_by(invoice_number=inv_no).first()
@@ -708,6 +710,8 @@ def stripe_webhook():
                 print(f">>> User {user.username} upgraded to Pro (sub {sub_id})")
     elif event['type'] in ('customer.subscription.deleted', 'customer.subscription.updated'):
         sub = event['data']['object']
+        if hasattr(sub, 'to_dict'):
+            sub = sub.to_dict()
         status = sub.get('status')
         sub_id = sub.get('id')
         user = User.query.filter_by(stripe_subscription_id=sub_id).first()
