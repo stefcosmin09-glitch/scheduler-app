@@ -17,6 +17,10 @@ class User(UserMixin, db.Model):
     business = db.relationship('BusinessProfile', backref='user', uselist=False)
     invoices = db.relationship('Invoice', backref='user', lazy=True)
     currency = db.Column(db.String(10), nullable=False, server_default='GBP', default='GBP')
+    plan = db.Column(db.String(20), default='free')
+    stripe_customer_id = db.Column(db.String(100))
+    stripe_subscription_id = db.Column(db.String(100))
+    stripe_subscription_status = db.Column(db.String(50))
 
 class BusinessProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)

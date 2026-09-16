@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% if billing_configured and current_user.plan != 'pro' %}
+<div class="flex items-center justify-between bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-4 flex-wrap gap-2">
+    <span>🚀 {{ _('You are on the free plan.') }}</span>
+    <a href="{{ url_for('main.business_settings') }}"
+        class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+        {{ _('Upgrade to Pro') }}
+    </a>
+</div>
+{% endif %}
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-2xl font-bold text-gray-800">{{ _('My Jobs') }}</h2>
     <a href="{{ url_for('main.add_job') }}"

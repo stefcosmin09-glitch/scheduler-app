@@ -181,7 +181,8 @@ def dashboard():
                            filter_type=filter_type,
                            filter_status=filter_status,
                            weekly_total=weekly_total,
-                           monthly_total=monthly_total)
+                           monthly_total=monthly_total,
+                           billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')))
 
 
 @main.route('/job/add', methods=['GET', 'POST'])
@@ -518,7 +519,11 @@ def business_settings():
         flash(_('Business settings saved!'))
         return redirect(url_for('main.business_settings'))
 
-    return render_template('business_settings.html', business=business)
+    if request.args.get('billing') == 'success':
+        flash(_('Your Pro plan is now active. Welcome!'))
+
+    return render_template('business_settings.html', business=business,
+                           billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')))
 
 @main.route('/business-logo')
 @login_required
@@ -656,7 +661,85 @@ def stripe_webhook():
                 invoice.paid_at = datetime.utcnow()
                 db.session.commit()
                 print(f">>> Stripe payment recorded for {inv_no}")
+        else:
+            uid = (session.get('metadata') or {}).get('user_id') or session.get('client_reference_id')
+            sub_id = session.get('subscription')
+            user = None
+            if uid:
+                user = User.query.get(int(uid))
+            if user:
+                user.plan = 'pro'
+                if sub_id:
+                    user.stripe_subscription_id = sub_id
+                user.stripe_subscription_status = 'active'
+                db.session.commit()
+                print(f">>> User {user.username} upgraded to Pro (sub {sub_id})")
+    elif event['type'] in ('customer.subscription.deleted', 'customer.subscription.updated'):
+        sub = event['data']['object']
+        status = sub.get('status')
+        sub_id = sub.get('id')
+        user = User.query.filter_by(stripe_subscription_id=sub_id).first()
+        if user:
+            user.stripe_subscription_status = status
+            if status in ('canceled', 'unpaid', 'incomplete_expired'):
+                user.plan = 'free'
+            elif status == 'active':
+                user.plan = 'pro'
+            db.session.commit()
+            print(f">>> User {user.username} subscription status -> {status}")
     return Response('ok', status=200)
+
+@main.route('/billing/checkout', methods=['POST'])
+@login_required
+def billing_checkout():
+    import os
+    import stripe
+    if not os.getenv('STRIPE_API_KEY') or not os.getenv('STRIPE_PRO_PRICE_ID'):
+        flash(_('Billing is not configured yet.'))
+        return redirect(url_for('main.business_settings'))
+    stripe.api_key = os.getenv('STRIPE_API_KEY')
+    if not current_user.stripe_customer_id:
+        customer = stripe.Customer.create(
+            email=current_user.email,
+            name=current_user.username,
+        )
+        current_user.stripe_customer_id = customer.id
+        db.session.commit()
+    try:
+        session = stripe.checkout.Session.create(
+            customer=current_user.stripe_customer_id,
+            mode='subscription',
+            line_items=[{'price': os.getenv('STRIPE_PRO_PRICE_ID'), 'quantity': 1}],
+            metadata={'user_id': current_user.id, 'plan': 'pro'},
+            client_reference_id=str(current_user.id),
+            success_url=url_for('main.business_settings', _external=True) + '?billing=success',
+            cancel_url=url_for('main.business_settings', _external=True),
+        )
+    except Exception as e:
+        print(f">>>> Billing checkout error: {e}")
+        flash(_('Could not start checkout.'))
+        return redirect(url_for('main.business_settings'))
+    return redirect(session.url, code=303)
+
+@main.route('/billing/portal', methods=['POST'])
+@login_required
+def billing_portal():
+    import os
+    import stripe
+    if not os.getenv('STRIPE_API_KEY') or not current_user.stripe_customer_id:
+        flash(_('Billing is not configured yet.'))
+        return redirect(url_for('main.business_settings'))
+    stripe.api_key = os.getenv('STRIPE_API_KEY')
+    try:
+        session = stripe.billing_portal.Session.create(
+            customer=current_user.stripe_customer_id,
+            return_url=url_for('main.business_settings', _external=True),
+        )
+    except Exception as e:
+        print(f">>>> Billing portal error: {e}")
+        flash(_('Could not open billing portal.'))
+        return redirect(url_for('main.business_settings'))
+    return redirect(session.url, code=303)
 
 @main.route('/payments')
 @login_required
