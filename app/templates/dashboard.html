@@ -1,13 +1,20 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% if billing_configured and current_user.plan != 'pro' %}
-<div class="flex items-center justify-between bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-4 flex-wrap gap-2">
-    <span>🚀 {{ _('You are on the free plan.') }}</span>
+{% if current_user.plan != 'pro' %}
+<div class="flex items-center justify-between border px-4 py-3 rounded mb-4 flex-wrap gap-2
+    {% if trial_active %} bg-blue-50 border-blue-200 text-blue-800 {% else %} bg-red-50 border-red-200 text-red-800 {% endif %}">
+    {% if trial_active %}
+        <span>🚀 {{ _('Free trial: %(days)s days left.', days=trial_days) }}</span>
+    {% else %}
+        <span>⚠️ {{ _('Your free trial has ended — upgrade to keep adding jobs.') }}</span>
+    {% endif %}
+    {% if billing_configured %}
     <a href="{{ url_for('main.business_settings') }}"
         class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
         {{ _('Upgrade to Pro') }}
     </a>
+    {% endif %}
 </div>
 {% endif %}
 <div class="flex justify-between items-center mb-6">

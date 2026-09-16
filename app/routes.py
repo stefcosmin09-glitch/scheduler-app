@@ -13,6 +13,21 @@ from threading import Thread
 from app import db, format_money, csrf
 import os
 
+def trial_info(user):
+    if user.plan == 'pro':
+        return False, 0, None
+    if not user.trial_ends_at:
+        return False, 0, None
+    remaining = (user.trial_ends_at - datetime.utcnow()).total_seconds()
+    if remaining <= 0:
+        return False, 0, user.trial_ends_at
+    days = int(remaining // 86400) + 1
+    return True, days, user.trial_ends_at
+
+def can_add_jobs(user):
+    active, days, end = trial_info(user)
+    return user.plan == 'pro' or active
+
 auth = Blueprint('auth', __name__)
 main = Blueprint('main', __name__)
 
@@ -34,10 +49,13 @@ def register():
             flash(_('Email already used.'))
             return redirect(url_for('auth.register'))
 
+        from datetime import timedelta
         user = User(
             username=username,
             email=email,
-            password=generate_password_hash(password)
+            password=generate_password_hash(password),
+            plan='trial',
+            trial_ends_at=datetime.utcnow() + timedelta(days=14)
         )
         db.session.add(user)
         db.session.commit()
@@ -175,6 +193,8 @@ def dashboard():
     weekly_total = sum(j.price for j in weekly_jobs if j.price)
     monthly_total = sum(j.price for j in monthly_jobs if j.price)
 
+    trial_active, trial_days, trial_end = trial_info(current_user)
+
     return render_template('dashboard.html',
                            jobs=jobs,
                            activity_types=ACTIVITY_TYPES,
@@ -182,12 +202,17 @@ def dashboard():
                            filter_status=filter_status,
                            weekly_total=weekly_total,
                            monthly_total=monthly_total,
-                           billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')))
+                           billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')),
+                           trial_active=trial_active,
+                           trial_days=trial_days)
 
 
 @main.route('/job/add', methods=['GET', 'POST'])
 @login_required
 def add_job():
+    if not can_add_jobs(current_user):
+        flash(_('Your free trial has ended. Subscribe to add new jobs.'))
+        return redirect(url_for('main.dashboard'))
     if request.method == 'POST':
         currency = request.form.get('price_currency', 'GBP')
         job = Job(
@@ -523,7 +548,9 @@ def business_settings():
         flash(_('Your Pro plan is now active. Welcome!'))
 
     return render_template('business_settings.html', business=business,
-                           billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')))
+                           billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')),
+                           trial_active=trial_info(current_user)[0],
+                           trial_days=trial_info(current_user)[1])
 
 @main.route('/business-logo')
 @login_required
@@ -706,6 +733,10 @@ def billing_checkout():
         current_user.stripe_customer_id = customer.id
         db.session.commit()
     try:
+        session_kwargs = {}
+        trial_active, trial_days, _ = trial_info(current_user)
+        if trial_active:
+            session_kwargs['subscription_data'] = {'trial_period_days': max(int(trial_days), 1)}
         session = stripe.checkout.Session.create(
             customer=current_user.stripe_customer_id,
             mode='subscription',
@@ -714,6 +745,7 @@ def billing_checkout():
             client_reference_id=str(current_user.id),
             success_url=url_for('main.business_settings', _external=True) + '?billing=success',
             cancel_url=url_for('main.business_settings', _external=True),
+            **session_kwargs,
         )
     except Exception as e:
         print(f">>>> Billing checkout error: {e}")
