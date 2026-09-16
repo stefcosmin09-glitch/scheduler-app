@@ -332,6 +332,7 @@ def download_invoice(job_id):
     if job.client_email:
         try:
             from app.email_service import send_email_with_attachment
+            pay_url = business.payment_link_url if business else ''
             if current_user.language == 'ro':
                 subject = f'Factura {invoice.invoice_number}'
                 body = f"""Bună ziua {job.client_name},
@@ -341,7 +342,7 @@ Găsiți atașată factura pentru lucrările finalizate pe {job.date.strftime('%
 Număr factură: {invoice.invoice_number}
 Suma de plată: {format_money(invoice.total_amount, job.currency)}
 Scadența: {invoice.due_date.strftime('%d/%m/%Y') if invoice.due_date else '—'}""" + (f"""
-Plătește online: {invoice.payment_link}""" if invoice.payment_link else "") + f"""
+Plătește online: {pay_url}""" if pay_url else "") + f"""
 
 Vă mulțumim pentru colaborare!
 {business.trading_name or business.legal_name if business else current_user.username}"""
@@ -354,7 +355,7 @@ Please find attached your invoice for the work completed on {job.date.strftime('
 Invoice Number: {invoice.invoice_number}
 Amount Due: {format_money(invoice.total_amount, job.currency)}
 Due Date: {invoice.due_date.strftime('%d/%m/%Y') if invoice.due_date else '—'}""" + (f"""
-Pay online: {invoice.payment_link}""" if invoice.payment_link else "") + f"""
+Pay online: {pay_url}""" if pay_url else "") + f"""
 
 Thank you for your business!
 {business.trading_name or business.legal_name if business else current_user.username}"""
@@ -527,6 +528,7 @@ def business_settings():
         business.account_name = request.form.get('account_name')
         business.sort_code = request.form.get('sort_code')
         business.account_number = request.form.get('account_number')
+        business.payment_link_url = request.form.get('payment_link_url')
 
         logo_file = request.files.get('logo')
         if logo_file and logo_file.filename:
@@ -569,7 +571,7 @@ def business_logo():
 @main.route('/invoices')
 @login_required
 def invoices():
-    from app.models import Invoice
+    from app.models import Invoice, BusinessProfile
     from datetime import date
     from app.notifications import send_overdue_invoice_reminders
     send_overdue_invoice_reminders(current_app._get_current_object())
@@ -582,82 +584,11 @@ def invoices():
         if inv.status not in ('paid', 'cancelled', 'partially_paid') and inv.due_date and inv.due_date < today:
             inv.status = 'overdue'
     db.session.commit()
+
+    business = BusinessProfile.query.filter_by(user_id=current_user.id).first()
+    pay_url = business.payment_link_url if business else ''
     
-    return render_template('invoices.html', invoices=all_invoices, pay_links_enabled=bool(os.getenv('STRIPE_API_KEY')))
-
-@main.route('/invoices/<int:invoice_id>/pay-link', methods=['POST'])
-@login_required
-def create_payment_link(invoice_id):
-    import os
-    from app.models import Invoice
-    invoice = Invoice.query.get_or_404(invoice_id)
-    if invoice.user_id != current_user.id:
-        flash(_('You do not have permission.'))
-        return redirect(url_for('main.invoices'))
-    if invoice.status in ('paid', 'cancelled'):
-        flash(_('This invoice is already paid or cancelled.'))
-        return redirect(url_for('main.invoices'))
-    if not os.getenv('STRIPE_API_KEY'):
-        flash(_('Online payments are not configured yet.'))
-        return redirect(url_for('main.invoices'))
-
-    if not invoice.payment_link:
-        import stripe
-        stripe.api_key = os.getenv('STRIPE_API_KEY')
-        try:
-            payment_link = stripe.PaymentLink.create(
-                line_items=[{
-                    'price_data': {
-                        'currency': 'gbp',
-                        'unit_amount': int(round(float(invoice.total_amount) * 100)),
-                        'product_data': {'name': f'Invoice {invoice.invoice_number}'},
-                    },
-                    'quantity': 1,
-                }],
-                metadata={'invoice_number': invoice.invoice_number},
-                managed_payments={'enabled': False},
-            )
-            invoice.payment_link = payment_link.url
-            db.session.commit()
-        except Exception as e:
-            print(f">>> PaymentLink error: {e}")
-            flash(_('Could not create payment link.'))
-            return redirect(url_for('main.invoices'))
-
-    link = invoice.payment_link
-    # trimite clientului email cu linkul (si pdf-ul)
-    try:
-        from app.models import Job
-        from app.invoice import generate_invoice
-        import base64
-        job = invoice.job if invoice.job else Job.query.get(invoice.job_id)
-        pdf_bytes = generate_invoice(job, current_user, invoice=invoice).getvalue()
-        pdf_b64 = base64.b64encode(pdf_bytes).decode()
-        if current_user.language == 'ro':
-            subject = f'Factura {invoice.invoice_number} - plata online'
-            body = (f'Bună ziua {job.client_name},\n\n'
-                    f'Factura {invoice.invoice_number} (suma {format_money(invoice.total_amount, job.currency)}) '
-                    f'este disponibilă și online. O poți achita acum cu cardul:\n\n{link}\n\n'
-                    f'Vă mulțumim!')
-        else:
-            subject = f'Invoice {invoice.invoice_number} - pay online'
-            body = (f'Dear {job.client_name},\n\n'
-                    f'Invoice {invoice.invoice_number} (amount {format_money(invoice.total_amount, job.currency)}) '
-                    f'is now available to pay online with card:\n\n{link}\n\n'
-                    f'Thank you!')
-        from app.email_service import send_email_with_attachment
-        app_ctx = current_app._get_current_object()
-        def _send(to, s, b, pdf, filename):
-            with app_ctx.app_context():
-                send_email_with_attachment(to, s, b, pdf, filename)
-        Thread(target=_send, args=(job.client_email, subject, body, pdf_b64, f'{invoice.invoice_number}.pdf')).start()
-        if job.client_email:
-            flash(_('Payment link created and sent to client!'))
-        else:
-            flash(_('Payment link created (no client email set).'))
-    except Exception as e:
-        print(f">>> Paylink email error: {e}")
-    return redirect(url_for('main.invoices'))
+    return render_template('invoices.html', invoices=all_invoices, pay_url=pay_url)
 
 @main.route('/stripe/webhook', methods=['POST'])
 @csrf.exempt
