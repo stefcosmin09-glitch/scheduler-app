@@ -3,11 +3,12 @@ import os
 import base64
 
 resend.api_key = os.environ.get('RESEND_API_KEY')
+MAIL_FROM = os.environ.get('MAIL_DEFAULT_SENDER') or 'TradeScheduler <onboarding@resend.dev>'
 
 def send_email(to_email, subject, body):
     try:
         params = {
-            "from": "Scheduler App <onboarding@resend.dev>",
+            "from": MAIL_FROM,
             "to": [to_email],
             "subject": subject,
             "text": body,
@@ -36,7 +37,7 @@ def send_welcome(to_email):
 def send_email_with_attachment(to_email, subject, body, pdf_b64, filename):
     try:
         params = {
-            "from": "Scheduler App <onboarding@resend.dev>",
+            "from": MAIL_FROM,
             "to": [to_email],
             "subject": subject,
             "text": body,
