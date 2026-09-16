@@ -620,7 +620,7 @@ def create_payment_link(invoice_id):
             db.session.commit()
         except Exception as e:
             print(f">>> PaymentLink error: {e}")
-            flash(_('Could not create payment link.'))
+            flash(f"DEBUG: {type(e).__name__}: {e}")
             return redirect(url_for('main.invoices'))
 
     link = invoice.payment_link
