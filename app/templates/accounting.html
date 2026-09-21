@@ -1,85 +1,82 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="flex flex-wrap justify-between items-center gap-2 mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">{{ _('Accounting') }}</h2>
-    <div class="flex gap-3">
-        <a href="{{ url_for('main.vat_report', year=year) }}"
-            class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
-            🧾 {{ _('VAT Report') }}
-        </a>
-        <a href="{{ url_for('main.accounting_export', year=year, month=month) }}"
-            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-            {{ _('Export CSV') }}
-        </a>
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+        <h1 class="page-title">{{ _('Accounting') }}</h1>
+        <p class="page-sub">{{ month_name }}</p>
+    </div>
+    <div class="flex gap-2">
+        <a href="{{ url_for('main.vat_report', year=year) }}" class="btn btn-ghost">{{ _('VAT Report') }}</a>
+        <a href="{{ url_for('main.accounting_export', year=year, month=month) }}" class="btn btn-primary">{{ _('Export CSV') }}</a>
     </div>
 </div>
 
-<div class="flex flex-wrap justify-between items-center gap-2 bg-white rounded-lg shadow p-4 mb-6">
+<div class="card mb-6 flex items-center justify-between p-3" data-fade>
     <a href="{{ url_for('main.accounting', year=prev_year, month=prev_month) }}"
-        class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">{{ _('Previous') }}</a>
-    <h3 class="text-xl font-bold text-gray-800">{{ month_name }}</h3>
+        class="btn btn-ghost btn-sm">{{ _('Previous') }}</a>
+    <h3 class="text-lg font-bold text-gray-900">{{ month_name }}</h3>
     <a href="{{ url_for('main.accounting', year=next_year, month=next_month) }}"
-        class="bg-gray-100 px-4 py-2 rounded hover:bg-gray-200">{{ _('Next') }}</a>
+        class="btn btn-ghost btn-sm">{{ _('Next') }}</a>
 </div>
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow p-6 text-center">
-        <p class="text-gray-500 text-sm mb-1">{{ _('Total Invoiced') }}</p>
-        <p class="text-3xl font-bold text-blue-600">{{ total_invoiced|money }}</p>
-        <p class="text-gray-400 text-xs mt-1">{{ invoice_count }} {{ _('invoices') }}</p>
+<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" data-fade>
+    <div class="card card-hover p-5">
+        <p class="stat-label mb-1">{{ _('Total Invoiced') }}</p>
+        <p class="stat-value text-blue-600">{{ total_invoiced|money }}</p>
+        <p class="mt-1 text-xs text-gray-400">{{ invoice_count }} {{ _('invoices') }}</p>
     </div>
-    <div class="bg-white rounded-lg shadow p-6 text-center">
-        <p class="text-gray-500 text-sm mb-1">{{ _('Total Paid') }}</p>
-        <p class="text-3xl font-bold text-green-600">{{ total_paid|money }}</p>
-        <p class="text-gray-400 text-xs mt-1">{{ paid_count }} {{ _('paid') }}</p>
+    <div class="card card-hover p-5">
+        <p class="stat-label mb-1">{{ _('Total Paid') }}</p>
+        <p class="stat-value text-green-600">{{ total_paid|money }}</p>
+        <p class="mt-1 text-xs text-gray-400">{{ paid_count }} {{ _('paid') }}</p>
     </div>
-    <div class="bg-white rounded-lg shadow p-6 text-center">
-        <p class="text-gray-500 text-sm mb-1">{{ _('Outstanding') }}</p>
-        <p class="text-3xl font-bold text-red-600">{{ total_outstanding|money }}</p>
-        <p class="text-gray-400 text-xs mt-1">{{ outstanding_count }} {{ _('unpaid') }}</p>
+    <div class="card card-hover p-5">
+        <p class="stat-label mb-1">{{ _('Outstanding') }}</p>
+        <p class="stat-value text-red-600">{{ total_outstanding|money }}</p>
+        <p class="mt-1 text-xs text-gray-400">{{ outstanding_count }} {{ _('unpaid') }}</p>
     </div>
 </div>
 
-<div class="grid grid-cols-2 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow p-6 text-center">
-        <p class="text-gray-500 text-sm mb-1">{{ _('Expenses') }}</p>
-        <p class="text-3xl font-bold text-amber-600">{{ month_expenses|money }}</p>
-        <p class="text-gray-400 text-xs mt-1"><a href="{{ url_for('main.expenses', year=year, month=month) }}"
-            class="text-blue-600 hover:underline">{{ _('Manage expenses') }}</a></p>
+<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2" data-fade>
+    <div class="card card-hover p-5">
+        <p class="stat-label mb-1">{{ _('Expenses') }}</p>
+        <p class="stat-value text-yellow-600">{{ month_expenses|money }}</p>
+        <p class="mt-1 text-xs text-gray-400"><a href="{{ url_for('main.expenses', year=year, month=month) }}"
+            class="font-medium text-blue-600 hover:underline">{{ _('Manage expenses') }}</a></p>
     </div>
-    <div class="bg-white rounded-lg shadow p-6 text-center">
-        <p class="text-gray-500 text-sm mb-1">{{ _('Net (invoiced − expenses)') }}</p>
-        <p class="text-3xl font-bold text-indigo-600">{{ net_total|money }}</p>
-        <p class="text-gray-400 text-xs mt-1">{{ _('Rough profit — not tax-adjusted') }}</p>
+    <div class="card card-hover p-5">
+        <p class="stat-label mb-1">{{ _('Net (invoiced − expenses)') }}</p>
+        <p class="stat-value text-indigo-600">{{ net_total|money }}</p>
+        <p class="mt-1 text-xs text-gray-400">{{ _('Rough profit — not tax-adjusted') }}</p>
     </div>
 </div>
 
 {% if invoices %}
-<div class="bg-white rounded-lg shadow overflow-x-auto">
-    <table class="w-full min-w-[600px]">
-        <thead class="bg-gray-50">
+<div class="table-wrap" data-fade>
+    <table class="mini">
+        <thead>
             <tr>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">{{ _('Invoice') }}</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">{{ _('Client') }}</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">{{ _('Issued') }}</th>
-                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600">{{ _('Due') }}</th>
-                <th class="px-4 py-3 text-right text-xs font-semibold text-gray-600">{{ _('Amount') }}</th>
-                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600">{{ _('Status') }}</th>
-                <th class="px-4 py-3 text-center text-xs font-semibold text-gray-600">{{ _('Actions') }}</th>
+                <th>{{ _('Invoice') }}</th>
+                <th>{{ _('Client') }}</th>
+                <th>{{ _('Issued') }}</th>
+                <th>{{ _('Due') }}</th>
+                <th class="r">{{ _('Amount') }}</th>
+                <th class="r">{{ _('Status') }}</th>
+                <th class="r">{{ _('View') }}</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
             {% for inv in invoices %}
-            <tr class="hover:bg-gray-50">
-                <td class="px-4 py-3 font-semibold text-gray-800">{{ inv.invoice_number }}</td>
-                <td class="px-4 py-3 text-gray-600">{{ inv.job.client_name }}</td>
-                <td class="px-4 py-3 text-gray-600">{{ inv.issue_date.strftime('%d/%m/%Y') }}</td>
-                <td class="px-4 py-3 text-gray-600">{{ inv.due_date.strftime('%d/%m/%Y') if inv.due_date else _('N/A') }}</td>
-                <td class="px-4 py-3 text-right font-semibold">{{ inv.total_amount|money }}</td>
-                <td class="px-4 py-3 text-center">
+            <tr>
+                <td class="font-semibold text-gray-800">{{ inv.invoice_number }}</td>
+                <td class="text-gray-600">{{ inv.job.client_name }}</td>
+                <td class="text-gray-600">{{ inv.issue_date.strftime('%d/%m/%Y') }}</td>
+                <td class="text-gray-600">{{ inv.due_date.strftime('%d/%m/%Y') if inv.due_date else _('N/A') }}</td>
+                <td class="r font-semibold">{{ inv.total_amount|money }}</td>
+                <td class="r">
                     {% set status_labels = {'paid': _('Paid'), 'overdue': _('Overdue'), 'partially_paid': _('Partially Paid'), 'sent': _('Sent'), 'draft': _('Draft'), 'cancelled': _('Cancelled')} %}
-                    <span class="px-2 py-1 rounded text-xs font-semibold
+                    <span class="pill
                         {% if inv.status == 'paid' %}bg-green-100 text-green-700
                         {% elif inv.status == 'overdue' %}bg-red-100 text-red-700
                         {% elif inv.status == 'partially_paid' %}bg-yellow-100 text-yellow-700
@@ -88,9 +85,8 @@
                         {{ status_labels.get(inv.status, inv.status)|upper }}
                     </span>
                 </td>
-                <td class="px-4 py-3 text-center whitespace-nowrap">
-                    <a href="{{ url_for('main.view_invoice', invoice_id=inv.id) }}" target="_blank"
-                        class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">👁 {{ _('View') }}</a>
+                <td class="r">
+                    <a href="{{ url_for('main.view_invoice', invoice_id=inv.id) }}" target="_blank" class="btn btn-ghost btn-sm">{{ _('View') }}</a>
                 </td>
             </tr>
             {% endfor %}
@@ -98,8 +94,9 @@
     </table>
 </div>
 {% else %}
-<div class="bg-white rounded-lg shadow p-12 text-center">
-    <p class="text-gray-500 text-lg">{{ _('No invoices for') }} {{ month_name }}.</p>
+<div class="empty card">
+    <div class="empty-icon">📊</div>
+    <p class="text-lg text-gray-600">{{ _('No invoices for') }} {{ month_name }}.</p>
 </div>
 {% endif %}
 {% endblock %}

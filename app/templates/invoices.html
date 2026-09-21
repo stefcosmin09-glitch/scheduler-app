@@ -9,12 +9,26 @@
     'draft': _('Draft'),
     'cancelled': _('Cancelled')
 } %}
-<div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-800">{{ _('Invoices') }}</h2>
+<div class="mb-6">
+    <h1 class="page-title">{{ _('Invoices') }}</h1>
+    <p class="page-sub">{{ _('Sent, paid and outstanding invoices.') }}</p>
 </div>
 
 {% if invoices %}
-<div class="grid gap-4">
+<div class="card mb-4 flex flex-wrap items-center gap-3 p-3">
+    <div class="inline-flex rounded-lg bg-gray-100 p-1" data-invoice-tabs>
+        {% set statuses = ['all', 'sent', 'overdue', 'paid', 'draft'] %}
+        {% for s in statuses %}
+        <button type="button" data-tab-btn="{{ s }}"
+            class="rounded-md px-3 py-1.5 text-sm font-medium bg-white text-gray-900 shadow-sm">{{ status_labels.get(s, _('All')) if s != 'all' else _('All') }}</button>
+        {% endfor %}
+    </div>
+    <div class="ml-auto w-full sm:w-56">
+        <input type="search" placeholder="{{ _('Search invoice or client…') }}" class="input" data-filter-input="invoices">
+    </div>
+</div>
+
+<div class="grid gap-4" data-filter-list="invoices">
     {% for inv in invoices %}
     {% set total_paid = namespace(value=0) %}
     {% for p in inv.payments %}
@@ -22,12 +36,13 @@
     {% endfor %}
     {% set outstanding = inv.total_amount|float - total_paid.value %}
 
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex flex-wrap justify-between items-start gap-2">
+    <div class="card card-hover p-6"
+        data-filter-row data-status="{{ inv.status }}">
+        <div class="flex flex-wrap items-start justify-between gap-2">
             <div>
-                <div class="flex items-center gap-3 mb-2">
-                    <h3 class="text-lg font-bold text-gray-800">{{ inv.invoice_number }}</h3>
-                    <span class="px-2 py-1 rounded text-xs font-semibold
+                <div class="mb-2 flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-gray-900">{{ inv.invoice_number }}</h3>
+                    <span class="pill
                         {% if inv.status == 'paid' %}bg-green-100 text-green-700
                         {% elif inv.status == 'overdue' %}bg-red-100 text-red-700
                         {% elif inv.status == 'partially_paid' %}bg-yellow-100 text-yellow-700
@@ -37,63 +52,51 @@
                         {{ status_labels.get(inv.status, inv.status)|upper }}
                     </span>
                 </div>
-                <p class="text-gray-600">👤 {{ inv.job.client_name }}</p>
-                <p class="text-gray-600">📅 {{ _('Issued') }}: {{ inv.issue_date.strftime('%d/%m/%Y') }}</p>
-                <p class="text-gray-600">⏰ {{ _('Due') }}: {{ inv.due_date.strftime('%d/%m/%Y') if inv.due_date else _('N/A') }}</p>
+                <p class="text-sm text-gray-600">{{ inv.job.client_name }}</p>
+                <p class="text-sm text-gray-500">{{ _('Issued') }}: {{ inv.issue_date.strftime('%d/%m/%Y') }}</p>
+                <p class="text-sm text-gray-500">{{ _('Due') }}: {{ inv.due_date.strftime('%d/%m/%Y') if inv.due_date else _('N/A') }}</p>
                 {% if inv.payments %}
-                <p class="text-gray-600 mt-1">
-                    💳 {{ _('Paid') }}: {{ total_paid.value|money }}
+                <p class="mt-1 text-sm text-gray-600">
+                    {{ _('Paid') }}: {{ total_paid.value|money }}
                     / {{ _('Outstanding') }}: {{ outstanding|money }}
                 </p>
                 {% endif %}
             </div>
-            <div class="text-right">
-                <p class="text-2xl font-bold text-gray-800">{{ inv.total_amount|money }}</p>
-                {% if inv.status not in ['paid', 'cancelled'] %}
-                <button onclick="document.getElementById('pay-{{ inv.id }}').classList.toggle('hidden')"
-                    class="mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600">
-                    💰 {{ _('Record Payment') }}
-                </button>
-                {% endif %}
-                <div class="mt-2 flex justify-end gap-2">
-                    {% if pay_url and inv.status not in ['paid', 'cancelled'] %}
-                    <a href="{{ pay_url }}" target="_blank" rel="noopener"
-                        class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
-                        💳 {{ _('Pay Online') }}
-                    </a>
+            <div class="flex flex-col items-end gap-2">
+                <p class="text-2xl font-bold text-gray-900">{{ inv.total_amount|money }}</p>
+                <div class="flex flex-wrap justify-end gap-2">
+                    {% if inv.status not in ['paid', 'cancelled'] %}
+                    <button data-collapse-toggle data-collapse-target="#pay-{{ inv.id }}"
+                        class="btn btn-primary btn-sm">{{ _('Record Payment') }}</button>
                     {% endif %}
-                    <a href="{{ url_for('main.download_invoice_pdf', invoice_id=inv.id) }}"
-                        class="bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-200">
-                        ⬇ {{ _('Download') }}
-                    </a>
+                    {% if pay_url and inv.status not in ['paid', 'cancelled'] %}
+                    <a href="{{ pay_url }}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm">{{ _('Pay Online') }}</a>
+                    {% endif %}
+                    <a href="{{ url_for('main.download_invoice_pdf', invoice_id=inv.id) }}" class="btn btn-ghost btn-sm">{{ _('Download') }}</a>
+                    {% if inv.status not in ['paid', 'cancelled'] %}
+                    <form method="POST" action="{{ url_for('main.cancel_invoice', invoice_id=inv.id) }}"
+                        data-confirm="{{ _('Cancel this invoice?') }}"
+                        data-confirm-ok="{{ _('Void') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-danger btn-sm">{{ _('Void') }}</button>
+                    </form>
+                    {% endif %}
                 </div>
-                {% if inv.status not in ['paid', 'cancelled'] %}
-                <form method="POST" action="{{ url_for('main.cancel_invoice', invoice_id=inv.id) }}"
-                    onsubmit="return confirm('{{ _('Cancel this invoice?') }}')">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit"
-                        class="mt-2 bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200">
-                        ❌ {{ _('Void') }}
-                    </button>
-                </form>
-                {% endif %}
             </div>
         </div>
 
         {% if inv.status not in ['paid', 'cancelled'] %}
-        <div id="pay-{{ inv.id }}" class="hidden mt-4 border-t pt-4">
+        <div id="pay-{{ inv.id }}" class="mt-4 border-t border-gray-100 pt-4" hidden>
             <form method="POST" action="{{ url_for('main.mark_invoice_paid', invoice_id=inv.id) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid gap-3 sm:grid-cols-3">
                     <div>
-                        <label class="block text-gray-700 text-sm mb-1">{{ _('Amount') }} ({{ current_user.currency }})</label>
-                        <input type="number" name="amount" step="0.01"
-                            value="{{ outstanding }}"
-                            class="w-full border rounded px-3 py-2 text-sm">
+                        <label class="label">{{ _('Amount') }} ({{ current_user.currency }})</label>
+                        <input type="number" name="amount" step="0.01" value="{{ outstanding }}" class="input">
                     </div>
                     <div>
-                        <label class="block text-gray-700 text-sm mb-1">{{ _('Method') }}</label>
-                        <select name="payment_method" class="w-full border rounded px-3 py-2 text-sm">
+                        <label class="label">{{ _('Method') }}</label>
+                        <select name="payment_method" class="input">
                             <option value="bank_transfer">{{ _('Bank Transfer') }}</option>
                             <option value="cash">{{ _('Cash') }}</option>
                             <option value="card">{{ _('Card') }}</option>
@@ -101,26 +104,70 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-gray-700 text-sm mb-1">{{ _('Reference') }}</label>
-                        <input type="text" name="reference" placeholder="{{ _('Optional') }}"
-                            class="w-full border rounded px-3 py-2 text-sm">
+                        <label class="label">{{ _('Reference') }}</label>
+                        <input type="text" name="reference" placeholder="{{ _('Optional') }}" class="input">
                     </div>
                 </div>
-                <button type="submit"
-                    class="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
-                    {{ _('Save Payment') }}
-                </button>
+                <button type="submit" class="btn btn-primary mt-3">{{ _('Save Payment') }}</button>
             </form>
         </div>
         {% endif %}
     </div>
     {% endfor %}
+    <div class="empty card hidden" data-filter-empty>
+        <div class="empty-icon">⌕</div>
+        <p class="text-gray-600">{{ _('No invoices match your search.') }}</p>
+    </div>
 </div>
 
+<script>
+    /* Filter by status tabs + live search */
+    (function () {
+        var list = document.querySelector('[data-filter-list="invoices"]');
+        if (!list) return;
+        var rows = Array.prototype.slice.call(list.querySelectorAll('[data-filter-row]'));
+        var input = document.querySelector('[data-filter-input="invoices"]');
+        var empty = list.querySelector('[data-filter-empty]');
+        var activeStatus = 'all';
+        function apply() {
+            var q = (input && input.value || '').toLowerCase().trim();
+            var shown = 0;
+            rows.forEach(function (r) {
+                var statusMatch = activeStatus === 'all' || r.getAttribute('data-status') === activeStatus;
+                var hay = (r.getAttribute('data-search') || r.textContent).toLowerCase();
+                var searchMatch = q === '' || hay.indexOf(q) !== -1;
+                r.style.display = (statusMatch && searchMatch) ? '' : 'none';
+                if (statusMatch && searchMatch) shown++;
+            });
+            if (empty) empty.style.display = shown === 0 ? '' : 'none';
+        }
+        if (input) input.addEventListener('input', apply);
+        var wrap = document.querySelector('[data-invoice-tabs]');
+        if (wrap) {
+            Array.prototype.slice.call(wrap.querySelectorAll('[data-tab-btn]')).forEach(function (b) {
+                b.addEventListener('click', function () {
+                    activeStatus = b.getAttribute('data-tab-btn');
+                    Array.prototype.slice.call(wrap.querySelectorAll('[data-tab-btn]')).forEach(function (x) {
+                        var on = x === b;
+                        x.classList.toggle('bg-white', on);
+                        x.classList.toggle('text-gray-900', on);
+                        x.classList.toggle('shadow-sm', on);
+                        x.classList.toggle('bg-transparent', !on);
+                        x.classList.toggle('text-gray-600', !on);
+                    });
+                    apply();
+                });
+            });
+        }
+        apply();
+    })();
+</script>
+
 {% else %}
-<div class="bg-white rounded-lg shadow p-12 text-center">
-    <p class="text-gray-500 text-lg">{{ _('No invoices yet.') }}</p>
-    <p class="text-gray-400 mt-2">{{ _('Download an invoice from the dashboard to get started.') }}</p>
+<div class="empty card">
+    <div class="empty-icon">📄</div>
+    <p class="text-lg text-gray-600">{{ _('No invoices yet.') }}</p>
+    <p class="mt-1 text-sm text-gray-400">{{ _('Download an invoice from the dashboard to get started.') }}</p>
 </div>
 {% endif %}
 {% endblock %}

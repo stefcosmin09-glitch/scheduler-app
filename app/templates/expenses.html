@@ -1,127 +1,120 @@
 {% extends "base.html" %}
 {% block title %}{{ _('Expenses') }} — TradeScheduler{% endblock %}
 {% block content %}
-<div class="max-w-4xl mx-auto">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div>
+        <h1 class="page-title">{{ _('Expenses') }}</h1>
+        <p class="page-sub mt-1">{{ month_name }} — {{ _('track and classify what you spend on the business.') }}</p>
+    </div>
+    <a href="{{ url_for('main.expense_scan') }}" class="btn btn-outline">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><circle cx="12" cy="12" r="3"/></svg>
+        {{ _('Scan a receipt') }}
+    </a>
+</div>
+
+<div class="card grid grid-cols-3 md:grid-cols-2 gap-px mb-6">
+    <div class="p-5">
+        <p class="stat-label mb-1">{{ _('Expenses this month') }}</p>
+        <p class="stat-value text-yellow-600">{{ total_amount|money }}</p>
+    </div>
+    <div class="p-5 md:col-start-2">
+        <p class="stat-label mb-1">{{ _('Count') }}</p>
+        <p class="stat-value">{{ expenses|length }}</p>
+    </div>
+</div>
+
+<div class="mb-6 card flex flex-wrap items-center justify-between gap-3 p-4">
+    <a href="{{ url_for('main.expenses', year=prev_year, month=prev_month) }}"
+        class="btn btn-ghost btn-sm">← {{ _('Previous') }}</a>
+    <span class="text-sm font-semibold text-gray-700">{{ month_name }}</span>
+    <a href="{{ url_for('main.expenses', year=next_year, month=next_month) }}"
+        class="btn btn-ghost btn-sm">{{ _('Next') }} →</a>
+</div>
+
+{% if expenses %}
+<div class="card table-wrap">
+    <table class="mini">
+        <thead>
+            <tr>
+                <th>{{ _('Date') }}</th>
+                <th>{{ _('Merchant') }}</th>
+                <th class="hidden sm:table-cell">{{ _('Category') }}</th>
+                <th class="r">{{ _('Amount') }}</th>
+                <th class="r"></th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for e in expenses %}
+            <tr>
+                <td class="text-gray-600">{{ e.date.strftime('%d %b') }}</td>
+                <td>
+                    <span class="font-medium text-gray-800">{{ e.merchant or ('—' if not e.category) }}</span>
+                    {% if e.description %}<p class="text-xs text-gray-400">{{ e.description }}</p>{% endif %}
+                </td>
+                <td class="hidden text-gray-500 sm:table-cell">
+                    {% if e.category %}<span class="pill pill-gray">{{ e.category }}</span>{% endif %}
+                </td>
+                <td class="r font-semibold text-gray-800">{{ e.total|money }}</td>
+                <td class="r whitespace-nowrap">
+                    {% if e.receipt_image %}
+                    <a href="{{ url_for('main.expense_receipt', expense_id=e.id) }}" target="_blank" rel="noopener"
+                        class="btn btn-ghost btn-sm mr-1" title="{{ _('Receipt') }}">🧾</a>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('main.delete_expense', expense_id=e.id) }}" class="inline"
+                        data-confirm="{{ _('Delete this expense?') }}" data-confirm-ok="{{ _('Delete') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-ghost btn-sm text-red-500 hover:text-red-700">✕</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty card p-12 text-center" style="border-style:dashed">
+    <div class="text-3xl mb-2 opacity-60">🧾</div>
+    <p class="text-gray-600">{{ _('No expenses recorded for this month.') }}</p>
+    <p class="text-sm text-gray-400 mt-1">{{ _('Add one below or scan a receipt.') }}</p>
+</div>
+{% endif %}
+
+<div class="card p-6 mt-6">
+    <h2 class="text-lg font-bold text-gray-900 mb-1">{{ _('Add an expense') }}</h2>
+    <p class="text-xs text-gray-400 mb-4">{{ _('Or scan a receipt to fill this in for you.') }}</p>
+    <form method="POST" enctype="multipart/form-data" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">{{ _('Expenses') }}</h1>
-            <p class="text-sm text-gray-500">{{ month_name }}</p>
+            <label class="label">{{ _('Merchant') }}</label>
+            <input type="text" name="merchant" class="input">
         </div>
-        <div class="flex gap-2">
-            <a href="{{ url_for('main.expense_scan') }}"
-                class="bg-purple-600 text-white text-sm font-semibold px-4 py-2 rounded hover:bg-purple-700">
-                🧾 {{ _('Scan a receipt') }}
-            </a>
+        <div>
+            <label class="label">{{ _('Date') }}</label>
+            <input type="date" name="date" value="{{ now_str }}" class="input">
         </div>
-    </div>
-
-    <div class="grid grid-cols-3 gap-3 mb-6">
-        <div class="bg-white rounded-lg shadow p-4 col-span-2">
-            <p class="text-xs uppercase text-gray-500">{{ _('Expenses this month') }}</p>
-            <p class="text-2xl font-bold text-gray-900">£{{ '%.2f'|format(total_amount) }}</p>
+        <div>
+            <label class="label">{{ _('Amount (GBP)') }}</label>
+            <input type="number" name="total" min="0" step="0.01" required class="input">
         </div>
-        <div class="bg-white rounded-lg shadow p-4">
-            <p class="text-xs uppercase text-gray-500">{{ _('Count') }}</p>
-            <p class="text-2xl font-bold text-gray-900">{{ expenses|length }}</p>
+        <div>
+            <label class="label">{{ _('VAT amount') }} <span class="font-normal text-gray-400">({{ _('optional') }})</span></label>
+            <input type="number" name="vat_amount" min="0" step="0.01" class="input">
         </div>
-    </div>
-
-    <div class="flex items-center justify-between mb-4">
-        <a href="{{ url_for('main.expenses', year=prev_year, month=prev_month) }}"
-            class="text-blue-600 text-sm hover:underline">← {{ _('Previous') }}</a>
-        <span class="text-sm text-gray-500">{{ month_name }}</span>
-        <a href="{{ url_for('main.expenses', year=next_year, month=next_month) }}"
-            class="text-blue-600 text-sm hover:underline">{{ _('Next') }} →</a>
-    </div>
-
-    {% if not expenses %}
-    <div class="bg-white rounded-lg shadow p-8 text-center">
-        <p class="text-gray-400 mb-2">🧾</p>
-        <p class="text-gray-600">{{ _('No expenses recorded for this month.') }}</p>
-        <p class="text-sm text-gray-400 mt-1">{{ _('Add one below or scan a receipt.') }}</p>
-    </div>
-    {% else %}
-    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
-        <table class="w-full text-sm">
-            <thead>
-                <tr class="bg-gray-50 text-left text-gray-600">
-                    <th class="px-4 py-2">{{ _('Date') }}</th>
-                    <th class="px-4 py-2">{{ _('Merchant') }}</th>
-                    <th class="px-4 py-2 hidden sm:table-cell">{{ _('Category') }}</th>
-                    <th class="px-4 py-2 text-right">{{ _('Amount') }}</th>
-                    <th class="px-4 py-2"></th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for e in expenses %}
-                <tr class="border-t border-gray-100">
-                    <td class="px-4 py-2 text-gray-600">{{ e.date.strftime('%d %b') }}</td>
-                    <td class="px-4 py-2">
-                        <span class="font-medium text-gray-800">{{ e.merchant or ('—' if not e.category) }}</span>
-                        {% if e.description %}<p class="text-xs text-gray-400">{{ e.description }}</p>{% endif %}
-                    </td>
-                    <td class="px-4 py-2 hidden sm:table-cell text-gray-500">{{ e.category or 'Other' }}</td>
-                    <td class="px-4 py-2 text-right font-semibold text-gray-800">
-                        £{{ '%.2f'|format(e.total) }}
-                    </td>
-                    <td class="px-4 py-2 text-right whitespace-nowrap">
-                        {% if e.receipt_image %}
-                        <a href="{{ url_for('main.expense_receipt', expense_id=e.id) }}" target="_blank"
-                            class="text-blue-600 hover:underline text-xs mr-2">🧾</a>
-                        {% endif %}
-                        <form method="POST" action="{{ url_for('main.delete_expense', expense_id=e.id) }}" class="inline"
-                            onsubmit="return confirm('{{ _('Delete this expense?') }}')">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                            <button type="submit" class="text-red-500 hover:underline text-xs">✕</button>
-                        </form>
-                    </td>
-                </tr>
+        <div>
+            <label class="label">{{ _('Category') }}</label>
+            <select name="category" class="input">
+                {% for c in categories %}
+                <option value="{{ c }}">{{ c }}</option>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% endif %}
-
-    <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">{{ _('Add an expense') }}</h2>
-        <form method="POST" enctype="multipart/form-data" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <div>
-                <label class="block text-gray-700 mb-1 text-sm">{{ _('Merchant') }}</label>
-                <input type="text" name="merchant" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-                <label class="block text-gray-700 mb-1 text-sm">{{ _('Date') }}</label>
-                <input type="date" name="date" value="{{ now_str }}" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-                <label class="block text-gray-700 mb-1 text-sm">{{ _('Amount (GBP)') }}</label>
-                <input type="number" name="total" min="0" step="0.01" required
-                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-                <label class="block text-gray-700 mb-1 text-sm">{{ _('VAT amount') }} <span class="text-gray-400">({{ _('optional') }})</span></label>
-                <input type="number" name="vat_amount" min="0" step="0.01"
-                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-            </div>
-            <div>
-                <label class="block text-gray-700 mb-1 text-sm">{{ _('Category') }}</label>
-                <select name="category" class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white">
-                    {% for c in categories %}
-                    <option value="{{ c }}">{{ c }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label class="block text-gray-700 mb-1 text-sm">{{ _('Description') }} <span class="text-gray-400">({{ _('optional') }})</span></label>
-                <input type="text" name="description" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
-            </div>
-            <div class="sm:col-span-2">
-                <button type="submit" class="bg-blue-600 text-white text-sm font-semibold px-6 py-2 rounded hover:bg-blue-700">
-                    {{ _('Save expense') }}
-                </button>
-            </div>
-        </form>
-    </div>
+            </select>
+        </div>
+        <div>
+            <label class="label">{{ _('Description') }} <span class="font-normal text-gray-400">({{ _('optional') }})</span></label>
+            <input type="text" name="description" class="input">
+        </div>
+        <div class="sm:col-span-2">
+            <button type="submit" class="btn btn-primary">{{ _('Save expense') }}</button>
+        </div>
+    </form>
 </div>
 {% endblock %}
