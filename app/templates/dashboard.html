@@ -2,74 +2,69 @@
 
 {% block content %}
 {% if current_user.plan != 'pro' %}
-<div class="mb-6 flex items-center justify-between gap-3 rounded-xl border px-4 py-3
-    {% if trial_active %} border-blue-100 bg-blue-50 {% else %} border-red-100 bg-red-50 {% endif %}">
-    <p class="text-sm {% if trial_active %} text-blue-800 {% else %} text-red-800 {% endif %}">
-        {% if trial_active %}
-            {{ _('Free trial: %(days)s days left.', days=trial_days) }}
-        {% else %}
-            {{ _('Your free trial has ended — upgrade to keep adding jobs.') }}
-        {% endif %}
-    </p>
+<div class="flex items-center justify-between border px-4 py-3 rounded mb-4 flex-wrap gap-2
+    {% if trial_active %} bg-blue-50 border-blue-200 text-blue-800 {% else %} bg-red-50 border-red-200 text-red-800 {% endif %}">
+    {% if trial_active %}
+        <span>🚀 {{ _('Free trial: %(days)s days left.', days=trial_days) }}</span>
+    {% else %}
+        <span>⚠️ {{ _('Your free trial has ended — upgrade to keep adding jobs.') }}</span>
+    {% endif %}
     {% if billing_configured %}
-    <a href="{{ url_for('main.business_settings') }}" class="btn btn-primary btn-sm">
+    <a href="{{ url_for('main.business_settings') }}"
+        class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
         {{ _('Upgrade to Pro') }}
     </a>
     {% endif %}
 </div>
 {% endif %}
-
-<div class="mb-6 flex flex-wrap items-end justify-between gap-3">
-    <div>
-        <h1 class="page-title">{{ _('My Jobs') }}</h1>
-        <p class="page-sub">{{ _('Manage your jobs, quotes and invoices in one place.') }}</p>
-    </div>
-    <a href="{{ url_for('main.add_job') }}" class="btn btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        {{ _('New Job') }}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">{{ _('My Jobs') }}</h2>
+    <a href="{{ url_for('main.add_job') }}"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        + {{ _('New Job') }}
     </a>
 </div>
 
-<!-- Totals -->
-<div class="mb-6 grid grid-cols-2 gap-4" data-fade>
-    <div class="card card-hover p-5">
-        <p class="stat-label mb-1">{{ _('This Week') }}</p>
-        <p class="stat-value text-green-600">{{ weekly_total|money }}</p>
-        <p class="mt-1 text-xs text-gray-400">{{ _('completed jobs') }}</p>
+<!-- Total earned -->
+<div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+        <p class="text-gray-500 text-sm mb-1">{{ _('This Week') }}</p>
+        <p class="text-3xl font-bold text-green-600">{{ weekly_total|money }}</p>
+        <p class="text-gray-400 text-xs mt-1">{{ _('completed jobs') }}</p>
     </div>
-    <div class="card card-hover p-5">
-        <p class="stat-label mb-1">{{ _('This Month') }}</p>
-        <p class="stat-value text-blue-600">{{ monthly_total|money }}</p>
-        <p class="mt-1 text-xs text-gray-400">{{ _('completed jobs') }}</p>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+        <p class="text-gray-500 text-sm mb-1">{{ _('This Month') }}</p>
+        <p class="text-3xl font-bold text-blue-600">{{ monthly_total|money }}</p>
+        <p class="text-gray-400 text-xs mt-1">{{ _('completed jobs') }}</p>
     </div>
 </div>
 
 <!-- Money you're owed -->
 {% if money and money.total > 0 %}
-<section id="money-owed" class="card mb-6 p-6 scroll-mt-4" data-fade>
-    <div class="mb-5 flex flex-wrap items-end justify-between gap-2">
+<section id="money-owed" class="bg-white rounded-lg shadow p-6 mb-6 scroll-mt-4">
+    <div class="flex flex-wrap items-end justify-between gap-2 mb-1">
         <div>
-            <h2 class="page-title">{{ _('Money you\'re owed') }}</h2>
-            <p class="page-sub">{{ money_counts['overdue'] + money_counts['due_soon'] + money_counts['upcoming'] }} {{ _('outstanding invoices') }}</p>
+            <h2 class="text-xl font-bold text-gray-800">💰 {{ _('Money you\'re owed') }}</h2>
+            <p class="text-gray-500 text-sm">{{ money_counts['overdue'] + money_counts['due_soon'] + money_counts['upcoming'] }} {{ _('outstanding invoices') }}</p>
         </div>
-        <p class="stat-value">{{ money.total|money }}</p>
+        <p class="text-3xl font-extrabold text-gray-900">{{ money.total|money }}</p>
     </div>
 
-    <div class="mb-5 grid grid-cols-3 gap-3">
-        <div class="rounded-xl border border-red-100 bg-red-50 p-3">
-            <p class="stat-label text-red-600 mb-1">{{ _('Overdue') }}</p>
+    <div class="grid grid-cols-3 gap-3 mb-5 mt-4">
+        <div class="rounded-lg border border-red-200 bg-red-50 p-3">
+            <p class="text-xs font-bold text-red-700 uppercase tracking-wide">{{ _('Overdue') }}</p>
             <p class="text-lg font-bold text-red-700">{{ money.overdue|money }}</p>
-            <p class="text-xs text-red-500">{{ money_counts['overdue'] }} {{ _('invoices') }}</p>
+            <p class="text-xs text-red-600">{{ money_counts['overdue'] }} {{ _('invoices') }}</p>
         </div>
-        <div class="rounded-xl border border-yellow-100 bg-yellow-50 p-3">
-            <p class="stat-label text-yellow-600 mb-1">{{ _('Due soon') }}</p>
+        <div class="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
+            <p class="text-xs font-bold text-yellow-700 uppercase tracking-wide">{{ _('Due soon') }}</p>
             <p class="text-lg font-bold text-yellow-700">{{ money.due_soon|money }}</p>
-            <p class="text-xs text-yellow-500">{{ money_counts['due_soon'] }} {{ _('invoices') }}</p>
+            <p class="text-xs text-yellow-600">{{ money_counts['due_soon'] }} {{ _('invoices') }}</p>
         </div>
-        <div class="rounded-xl border border-blue-100 bg-blue-50 p-3">
-            <p class="stat-label text-blue-600 mb-1">{{ _('Upcoming') }}</p>
+        <div class="rounded-lg border border-blue-200 bg-blue-50 p-3">
+            <p class="text-xs font-bold text-blue-700 uppercase tracking-wide">{{ _('Upcoming') }}</p>
             <p class="text-lg font-bold text-blue-700">{{ money.upcoming|money }}</p>
-            <p class="text-xs text-blue-500">{{ money_counts['upcoming'] }} {{ _('invoices') }}</p>
+            <p class="text-xs text-blue-600">{{ money_counts['upcoming'] }} {{ _('invoices') }}</p>
         </div>
     </div>
 
@@ -78,12 +73,12 @@
         {% for row in money_rows %}
         {% set inv = row.invoice %}
         {% set d = row.days %}
-        <div class="rounded-xl border border-gray-100 p-4">
-            <div class="flex flex-wrap items-start justify-between gap-2">
+        <div class="border border-gray-100 rounded-lg p-4">
+            <div class="flex flex-wrap justify-between items-start gap-2">
                 <div class="min-w-0">
-                    <div class="mb-1 flex flex-wrap items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2 mb-1">
                         <p class="font-semibold text-gray-900">{{ inv.invoice_number }}</p>
-                        <span class="pill
+                        <span class="px-2 py-0.5 rounded text-xs font-semibold
                             {% if inv.status == 'paid' %}bg-green-100 text-green-700
                             {% elif inv.status == 'overdue' %}bg-red-100 text-red-700
                             {% elif inv.status == 'partially_paid' %}bg-yellow-100 text-yellow-700
@@ -92,170 +87,180 @@
                             {{ status_labels.get(inv.status, inv.status)|upper }}
                         </span>
                     </div>
-                    <p class="text-sm text-gray-600">{{ inv.job.client_name if inv.job else '' }}</p>
-                    <p class="text-xs text-gray-500">{{ _('Due') }}:
+                    <p class="text-gray-600 text-sm">👤 {{ inv.job.client_name if inv.job else '' }}</p>
+                    <p class="text-gray-500 text-xs">📅 {{ _('Due') }}:
                         {{ inv.due_date.strftime('%d/%m/%Y') if inv.due_date else _('N/A') }}
                         {% if d is not none and d < 0 %}
-                        <span class="font-semibold text-red-600">· {{ 0 - d }} {{ _('days overdue') }}</span>
+                        <span class="text-red-600 font-semibold">· {{ 0 - d }} {{ _('days overdue') }}</span>
                         {% elif d is not none and d == 0 %}
-                        <span class="font-semibold text-yellow-700">· {{ _('due today') }}</span>
+                        <span class="text-yellow-700 font-semibold">· {{ _('due today') }}</span>
                         {% elif d is not none %}
                         <span class="text-gray-500">· {{ _('in %(n)d days', n=d) }}</span>
                         {% endif %}
                     </p>
                 </div>
                 <div class="text-right">
-                    <p class="text-xl font-bold text-gray-900">{{ row.outstanding|money }}</p>
+                    <p class="text-xl font-bold text-gray-800">{{ row.outstanding|money }}</p>
                     {% if row.outstanding|float < inv.total_amount|float %}
                     <p class="text-xs text-gray-500">{{ _('of %(total)s', total=inv.total_amount|money) }}</p>
                     {% endif %}
                 </div>
             </div>
-            <div class="mt-3 flex flex-wrap gap-2">
+            <div class="flex flex-wrap gap-2 mt-3">
                 <a href="{{ url_for('main.view_invoice', invoice_id=inv.id) }}" target="_blank" rel="noopener"
-                    class="btn btn-ghost btn-sm">{{ _('View') }}</a>
-                <button data-collapse-toggle data-collapse-target="#owed-pay-{{ inv.id }}"
-                    class="btn btn-primary btn-sm">{{ _('Record Payment') }}</button>
+                    class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded hover:bg-blue-700">👁 {{ _('View') }}</a>
+                <button onclick="document.getElementById('owed-pay-{{ inv.id }}').classList.toggle('hidden')"
+                    class="bg-green-500 text-white text-xs px-3 py-1.5 rounded hover:bg-green-600">💰 {{ _('Record Payment') }}</button>
                 {% if inv.job and inv.job.client_email and inv.status not in ('paid', 'cancelled') %}
                 <form method="POST" action="{{ url_for('main.send_invoice_reminder', invoice_id=inv.id) }}" class="inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="next" value="{{ url_for('main.dashboard') }}#money-owed">
                     <button type="submit" onclick="if(window.gtag)gtag('event','invoice_reminder_clicked',{event_category:'billing'});"
-                        class="btn btn-ghost btn-sm">{{ _('Send Reminder') }}</button>
+                        class="bg-yellow-400 text-gray-900 text-xs px-3 py-1.5 rounded hover:bg-yellow-300">🔔 {{ _('Send Reminder') }}</button>
                 </form>
                 {% endif %}
             </div>
-            <div id="owed-pay-{{ inv.id }}" class="mt-3 border-t border-gray-100 pt-3" hidden>
+            <div id="owed-pay-{{ inv.id }}" class="hidden mt-3 border-t pt-3">
                 <form method="POST" action="{{ url_for('main.mark_invoice_paid', invoice_id=inv.id) }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="next" value="{{ url_for('main.dashboard') }}#money-owed">
-                    <div class="grid gap-2 sm:grid-cols-3">
-                        <input type="number" name="amount" step="0.01" value="{{ row.outstanding }}" class="input">
-                        <select name="payment_method" class="input">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <input type="number" name="amount" step="0.01" value="{{ row.outstanding }}"
+                            class="border border-gray-300 rounded px-3 py-2 text-sm">
+                        <select name="payment_method" class="border border-gray-300 rounded px-3 py-2 text-sm bg-white">
                             <option value="bank_transfer">{{ _('Bank Transfer') }}</option>
                             <option value="cash">{{ _('Cash') }}</option>
                             <option value="card">{{ _('Card') }}</option>
                             <option value="other">{{ _('Other') }}</option>
                         </select>
-                        <input type="text" name="reference" placeholder="{{ _('Reference (optional)') }}" class="input">
+                        <input type="text" name="reference" placeholder="{{ _('Reference (optional)') }}"
+                            class="border border-gray-300 rounded px-3 py-2 text-sm">
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm mt-2">{{ _('Save Payment') }}</button>
+                    <button type="submit" class="mt-2 bg-blue-600 text-white text-sm px-4 py-2 rounded hover:bg-blue-700">
+                        {{ _('Save Payment') }}
+                    </button>
                 </form>
             </div>
         </div>
         {% endfor %}
     </div>
     <p class="mt-4 text-right">
-        <a href="{{ url_for('main.invoices') }}" class="text-sm font-medium text-blue-600 hover:underline">{{ _('View all invoices') }} →</a>
+        <a href="{{ url_for('main.invoices') }}" class="text-sm text-blue-600 hover:underline">{{ _('View all invoices') }} →</a>
     </p>
 </section>
 {% else %}
-<section class="card mb-6 p-6" data-fade>
-    <h2 class="page-title">{{ _('Money you\'re owed') }}</h2>
-    <p class="page-sub mt-1">{{ _('No outstanding invoices at the moment. Nice!') }}</p>
+<section class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-800">💰 {{ _('Money you\'re owed') }}</h2>
+    <p class="text-gray-500 text-sm mt-1">{{ _('No outstanding invoices at the moment. Nice!') }}</p>
 </section>
 {% endif %}
 
 <!-- Filters -->
-<div class="card mb-6 flex flex-wrap items-center gap-3 p-3" data-fade>
-    <div class="inline-flex rounded-lg bg-gray-100 p-1">
+<div class="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap gap-3">
+    <div>
+        <span class="text-gray-600 text-sm mr-2">{{ _('Status') }}:</span>
         <a href="?status=active&type={{ filter_type }}"
-            class="rounded-md px-3 py-1.5 text-sm font-medium {{ 'bg-white text-gray-900 shadow-sm' if filter_status == 'active' else 'text-gray-600 hover:text-gray-900' }}">
+            class="px-3 py-1 rounded text-sm {{ 'bg-blue-600 text-white' if filter_status == 'active' else 'bg-gray-100 text-gray-700' }}">
             {{ _('Active') }}
         </a>
         <a href="?status=done&type={{ filter_type }}"
-            class="rounded-md px-3 py-1.5 text-sm font-medium {{ 'bg-white text-gray-900 shadow-sm' if filter_status == 'done' else 'text-gray-600 hover:text-gray-900' }}">
+            class="px-3 py-1 rounded text-sm {{ 'bg-green-600 text-white' if filter_status == 'done' else 'bg-gray-100 text-gray-700' }}">
             {{ _('Completed') }}
         </a>
         <a href="?status=all&type={{ filter_type }}"
-            class="rounded-md px-3 py-1.5 text-sm font-medium {{ 'bg-white text-gray-900 shadow-sm' if filter_status == 'all' else 'text-gray-600 hover:text-gray-900' }}">
+            class="px-3 py-1 rounded text-sm {{ 'bg-gray-600 text-white' if filter_status == 'all' else 'bg-gray-100 text-gray-700' }}">
             {{ _('All') }}
         </a>
     </div>
 
-    <div class="hidden flex-wrap items-center gap-1 sm:flex">
+    <div>
+        <span class="text-gray-600 text-sm mr-2">{{ _('Type') }}:</span>
         <a href="?status={{ filter_status }}&type=all"
-            class="rounded-md px-3 py-1.5 text-sm font-medium {{ 'bg-blue-600 text-white' if filter_type == 'all' else 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+            class="px-3 py-1 rounded text-sm {{ 'bg-blue-600 text-white' if filter_type == 'all' else 'bg-gray-100 text-gray-700' }}">
             {{ _('All') }}
         </a>
         {% for value, label in activity_types %}
         <a href="?status={{ filter_status }}&type={{ value }}"
-            class="rounded-md px-3 py-1.5 text-sm font-medium {{ 'bg-blue-600 text-white' if filter_type == value else 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+            class="px-3 py-1 rounded text-sm {{ 'bg-blue-600 text-white' if filter_type == value else 'bg-gray-100 text-gray-700' }}">
             {{ _(label) }}
         </a>
         {% endfor %}
     </div>
-
-    <div class="ml-auto w-full sm:w-56">
-        <input type="search" placeholder="{{ _('Search client or address…') }}" class="input"
-            data-filter-input="jobs">
-    </div>
 </div>
 
 {% if jobs %}
-<div class="grid gap-4" data-filter-list="jobs">
+<div class="grid gap-4">
     {% for job in jobs %}
-    <div class="card card-hover flex flex-wrap items-start justify-between gap-4 p-5" data-filter-row>
-        <div class="min-w-0 flex-1">
-            <div class="mb-1 flex flex-wrap items-center gap-2">
-                <h3 class="text-lg font-bold text-gray-900">{{ job.client_name }}</h3>
-                <span class="pill bg-blue-50 text-blue-700">
+    <div class="bg-white rounded-lg shadow p-6 flex justify-between items-start">
+        <div class="flex-1">
+            <div class="flex items-center gap-3 mb-1">
+                <h3 class="text-lg font-bold text-gray-800">{{ job.client_name }}</h3>
+                <span class="text-sm px-2 py-0.5 rounded bg-blue-50 text-blue-700">
                     {% for value, label in activity_types %}
                         {% if value == job.activity_type %}{{ _(label) }}{% endif %}
                     {% endfor %}
                 </span>
             </div>
-            <p class="text-sm text-gray-600">{{ job.address }}</p>
-            <p class="text-sm text-gray-600">{{ job.date.strftime('%d/%m/%Y %H:%M') }}</p>
+            <p class="text-gray-600">📍 {{ job.address }}</p>
+            <p class="text-gray-600">📅 {{ job.date.strftime('%d/%m/%Y %H:%M') }}</p>
             {% if job.price %}
-            <p class="mt-1 font-semibold text-green-700">{{ job.price|money }}</p>
+            <p class="text-green-700 font-semibold mt-1">💰 {{ job.price|money }}</p>
             {% endif %}
             {% if job.description %}
-            <p class="mt-2 text-sm text-gray-500">{{ job.description }}</p>
+            <p class="text-gray-500 mt-2 text-sm">{{ job.description }}</p>
             {% endif %}
         </div>
 
-        <div class="flex flex-col items-stretch gap-2">
+        <div class="flex flex-col gap-2 ml-4">
             {% if job.status == 'pending' %}
-            <a href="{{ url_for('main.send_quote', job_id=job.id) }}" class="btn btn-primary btn-sm">
-                {{ _('Quote') }}
+            
+            <a href="{{ url_for('main.send_quote', job_id=job.id) }}"
+        class="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600 text-center">
+                📤 {{ _('Quote') }}
             </a>
             {% if job.quote_status == 'accepted' %}
-            <span class="pill bg-green-100 text-green-700 justify-center">{{ _('Quote Accepted') }}</span>
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded text-sm text-center">
+                ✅ {{ _('Quote Accepted') }}
+            </span>
             {% elif job.quote_status == 'declined' %}
-            <span class="pill bg-red-100 text-red-700 justify-center">{{ _('Quote Declined') }}</span>
+            <span class="bg-red-100 text-red-700 px-3 py-1 rounded text-sm text-center">
+                ❌ {{ _('Quote Declined') }}
+            </span>
             {% elif job.quote_status == 'sent' %}
-            <span class="pill bg-yellow-100 text-yellow-700 justify-center">{{ _('Quote Sent') }}</span>
+            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded text-sm text-center">
+                ⏳ {{ _('Quote Sent') }}
+            </span>
             {% endif %}
-            <a href="{{ url_for('main.mark_done', job_id=job.id) }}" class="btn btn-primary btn-sm">
-                {{ _('Done') }}
+            <a href="{{ url_for('main.mark_done', job_id=job.id) }}"
+                 class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 text-center">
+                ✅ {{ _('Done') }}
             </a>
             {% else %}
-            <span class="pill bg-green-100 text-green-700 justify-center">{{ _('Completed') }}</span>
-            <a href="{{ url_for('main.download_invoice', job_id=job.id) }}" class="btn btn-ghost btn-sm">
-                {{ _('Invoice') }}
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded text-sm text-center">
+                ✅ {{ _('Completed') }}
+            </span>
+            <a href="{{ url_for('main.download_invoice', job_id=job.id) }}"
+                class="bg-blue-100 text-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-200 text-center">
+                📄 {{ _('Invoice') }}
             </a>
             {% endif %}
             <a href="{{ url_for('main.delete_job', job_id=job.id) }}"
-                data-confirm="{{ _('Delete this job?') }}"
-                data-confirm-ok="{{ _('Delete') }}"
-                class="btn btn-danger btn-sm">
-                {{ _('Delete') }}
+                onclick="return confirm('{{ _('Delete this job?') }}')"
+                class="bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200 text-center">
+                🗑️ {{ _('Delete') }}
             </a>
         </div>
     </div>
     {% endfor %}
-    <div class="empty card hidden" data-filter-empty>
-        <div class="empty-icon">⌕</div>
-        <p class="text-gray-600">{{ _('No jobs match your search.') }}</p>
-    </div>
 </div>
 
 {% else %}
-<div class="empty card" data-fade>
-    <div class="empty-icon">🗓</div>
-    <p class="text-lg text-gray-600">{{ _('No jobs in this category.') }}</p>
-    <a href="{{ url_for('main.add_job') }}" class="btn btn-primary mt-4">{{ _('Add your first job') }}</a>
+<div class="bg-white rounded-lg shadow p-12 text-center">
+    <p class="text-gray-500 text-lg">{{ _('No jobs in this category.') }}</p>
+    <a href="{{ url_for('main.add_job') }}"
+        class="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+        {{ _('Add your first job') }}
+    </a>
 </div>
 {% endif %}
 <script>if (window.gtag) gtag('event', 'money_owed_viewed', { 'event_category': 'engagement' });</script>
