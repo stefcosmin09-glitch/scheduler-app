@@ -75,8 +75,8 @@
         <a href="{{ url_for('main.invoices') }}" class="whitespace-nowrap hover:underline">📄 {{ _('Invoices') }}</a>
         <a href="{{ url_for('main.payments') }}" class="whitespace-nowrap hover:underline">💳 {{ _('Payments') }}</a>
         <div class="relative group">
-            <button type="button" class="inline-flex items-center gap-1 whitespace-nowrap hover:underline" aria-haspopup="true">☰ {{ _('More') }}</button>
-            <div class="hidden group-hover:block absolute right-0 top-full mt-2 w-56 rounded-lg bg-white text-gray-800 shadow-lg border border-gray-100 p-3 z-50">
+            <button type="button" id="more-toggle" class="inline-flex items-center gap-1 whitespace-nowrap hover:underline" aria-haspopup="true" aria-expanded="false">☰ {{ _('More') }}</button>
+            <div id="more-panel" class="hidden absolute right-0 top-full mt-2 w-56 rounded-lg bg-white text-gray-800 shadow-lg border border-gray-100 p-3 z-50">
                 {{ more_links() }}
             </div>
         </div>
@@ -130,12 +130,36 @@
 <script>
     (function () {
         var toggle = document.getElementById('menu-toggle');
-        var menu = document.getElementById('nav-menu');
-        if (toggle && menu) {
-            toggle.addEventListener('click', function () {
-                menu.classList.toggle('hidden');
-            });
-        }
+        var menu = document.getElementById('nav-menu');
+        if (toggle && menu) {
+            toggle.addEventListener('click', function () {
+                menu.classList.toggle('hidden');
+            });
+        }
+
+        var moreBtn = document.getElementById('more-toggle');
+        var morePanel = document.getElementById('more-panel');
+        if (moreBtn && morePanel) {
+            var closeMore = function () {
+                morePanel.classList.add('hidden');
+                moreBtn.setAttribute('aria-expanded', 'false');
+            };
+            moreBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var open = morePanel.classList.toggle('hidden');
+                moreBtn.setAttribute('aria-expanded', String(!open));
+            });
+            document.addEventListener('click', function (e) {
+                if (!morePanel.classList.contains('hidden')) {
+                    closeMore();
+                }
+            });
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && !morePanel.classList.contains('hidden')) {
+                    closeMore();
+                }
+            });
+        }
 
         var installBtns = Array.prototype.slice.call(document.querySelectorAll('.install-btn'));
         var deferredPrompt = null;
