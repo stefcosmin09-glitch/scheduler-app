@@ -4,19 +4,37 @@
 <div class="max-w-lg mx-auto bg-white rounded-lg shadow p-8">
     <h2 class="text-2xl font-bold mb-2 text-gray-800">{{ _('Send Quote') }}</h2>
     <p class="text-gray-500 mb-6">{{ _('Sending quote to') }} <strong>{{ job.client_name }}</strong></p>
+
+    <!-- AI draft helper (optional, editable — the manual form below is unchanged) -->
+    <div class="border border-purple-200 bg-purple-50 rounded-lg p-4 mb-6">
+        <p class="font-semibold text-purple-800 mb-1">🤖 {{ _('Generate with AI') }}</p>
+        <p class="text-xs text-purple-700 mb-3">{{ _('Describe the job to draft an editable quote. Review every price before sending.') }}</p>
+        <textarea id="ai-description" rows="2"
+            class="w-full border border-purple-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-purple-400"
+            placeholder="{{ _('e.g. Replace 6 downlights and install a new bathroom extractor.') }}"></textarea>
+        <div id="ai-status" class="hidden mt-2 text-sm"></div>
+        <div id="ai-result" class="hidden mt-3 bg-white rounded-lg p-3 text-sm space-y-1"></div>
+        <button type="button" id="ai-generate"
+            onclick="aiGenerate(this)"
+            class="mt-3 w-full bg-purple-500 text-white text-sm font-semibold px-4 py-2 rounded hover:bg-purple-600">
+            ✨ {{ _('Generate draft') }}
+        </button>
+    </div>
+
     <form method="POST">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="ai_used" id="ai-used" value="0">
         <div class="mb-4">
             <label class="block text-gray-700 mb-2">{{ _('Description of work') }}</label>
-            <textarea name="quote_description" rows="3" required
+            <textarea name="quote_description" id="quote-description" rows="3" required
                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500"
                 placeholder="e.g. Full electrical installation including wiring and fuse box"></textarea>
         </div>
 
                 <div class="mb-6">
-            <label class="block text-gray-700 mb-2">{{ _('Price') }}</label>
+            <label class="block text-gray-700 mb-2">{{ _('Price') }} <span class="text-gray-400 text-xs">({{ _('GBP') }})</span></label>
             <div class="flex gap-2">
-                <input type="number" name="quote_price" min="0" step="0.01" required
+                <input type="number" name="quote_price" id="quote-price" min="0" step="0.01" required
                     value="{{ job.price or '' }}"
                     class="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500">
                 <select name="price_currency"
@@ -30,7 +48,7 @@
         </div>
 
         <div class="flex gap-4">
-            <button type="submit"
+            <button type="submit" onclick="aiCreated(this)"
                 class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
             📤 {{ _('Send Quote') }}
             </button>
@@ -41,4 +59,65 @@
         </div>
     </form>
 </div>
+
+<script>
+    var pendingAi = false;
+    function aiGenerate(btn) {
+        var desc = document.getElementById('ai-description').value.trim();
+        var status = document.getElementById('ai-status');
+        var result = document.getElementById('ai-result');
+        if (!desc) { status.className = 'mt-2 text-sm text-red-600'; status.textContent = '{{ _('Please describe the job first.') }}'; status.classList.remove('hidden'); return; }
+        status.className = 'mt-2 text-sm text-gray-600';
+        status.textContent = '{{ _('Generating draft…') }}';
+        status.classList.remove('hidden');
+        result.classList.add('hidden');
+        btn.disabled = true;
+        if (window.gtag) gtag('event', 'ai_quote_started', { 'event_category': 'ai' });
+        var csrf = document.querySelector('input[name="csrf_token"]').value;
+        var fd = new FormData();
+        fd.append('csrf_token', csrf);
+        fd.append('description', desc);
+        fetch('{{ url_for("main.ai_generate_quote", job_id=job.id) }}', { method: 'POST', body: fd })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (res) {
+            if (!res.ok || !res.j.ok) {
+                status.className = 'mt-2 text-sm text-red-600';
+                status.textContent = res.j.error || '{{ _('Could not generate the quote.') }}';
+                return;
+            }
+            var d = res.j.data;
+            document.getElementById('quote-description').value = d.summary || desc;
+            if (d.total) { document.getElementById('quote-price').value = d.total; }
+            document.getElementById('ai-used').value = '1';
+            pendingAi = true;
+            var html = '<p class="font-semibold text-gray-800">' + '{{ _('Draft — review before sending') }}' + '</p>';
+            var lines = [];
+            if (d.labour !== null && d.labour !== undefined) lines.push('{{ _('Labour') }}: £' + d.labour.toFixed(2));
+            if (d.materials !== null && d.materials !== undefined) lines.push('{{ _('Materials') }}: £' + d.materials.toFixed(2));
+            (d.items || []).forEach(function (it) {
+                if (it.label && it.amount) lines.push('• ' + it.label + ' — £' + it.amount.toFixed(2));
+            });
+            html += '<p class="text-gray-600">' + lines.join('<br>') + '</p>';
+            if (d.total === null || d.total === undefined) {
+                html += '<p class="text-yellow-700 font-semibold mt-1">' + '{{ _('No price generated — enter your own price.') }}' + '</p>';
+            } else {
+                html += '<p class="font-bold text-gray-900 mt-1">' + '{{ _('Total') }}: £' + d.total.toFixed(2) + '</p>';
+            }
+            if (d.notes) html += '<p class="text-gray-500 text-xs italic mt-1">' + d.notes + '</p>';
+            result.innerHTML = html;
+            result.classList.remove('hidden');
+            status.classList.add('hidden');
+            if (window.gtag) gtag('event', 'ai_quote_generated', { 'event_category': 'ai' });
+        })
+        .catch(function () {
+            status.className = 'mt-2 text-sm text-red-600';
+            status.textContent = '{{ _('Could not generate the quote.') }}';
+        })
+        .finally(function () { btn.disabled = false; });
+    }
+    function aiCreated() {
+        if (pendingAi && window.gtag) gtag('event', 'ai_quote_created', { 'event_category': 'ai' });
+        pendingAi = false;
+    }
+</script>
 {% endblock %}

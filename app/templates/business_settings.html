@@ -20,11 +20,13 @@
             <div>
                 <h3 class="text-lg font-bold text-gray-800">{{ _('Your Plan') }}</h3>
                 {% if current_user.plan == 'pro' %}
-                    <p class="text-sm text-gray-600">{{ _('Pro plan') }} — £22.99/{{ _('month') }}</p>
+                    <p class="text-sm text-gray-600">{{ _('Pro plan') }} — {{ pro_price_text }}/{{ _('month') }}</p>
                 {% elif trial_active %}
                     <p class="text-sm text-gray-600">{{ _('Free trial: %(days)s days left.', days=trial_days) }}</p>
+                    <p class="text-xs text-gray-400">{{ pro_price_text }}/{{ _('month') }} {{ _('after your trial') }}</p>
                 {% else %}
                     <p class="text-sm text-gray-600">{{ _('Your free trial has ended.') }}</p>
+                    <p class="text-xs text-gray-400">{{ pro_price_text }}/{{ _('month') }} {{ _('to continue using Pro') }}</p>
                 {% endif %}
             </div>
             <div class="flex gap-2">
@@ -41,7 +43,7 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit"
                         class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                        🚀 {{ _('Upgrade to Pro — £22.99/month') }}
+                        🚀 {{ _('Upgrade to Pro') }} — {{ pro_price_text }}/{{ _('month') }}
                     </button>
                 </form>
                 {% else %}

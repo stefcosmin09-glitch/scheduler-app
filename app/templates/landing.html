@@ -633,11 +633,21 @@
     <!-- ─── PRICING ────────────────────────────────────── -->
     <section id="pricing" class="mb-16 ">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Simple pricing. One plan. Everything included.</h2>
-        <p class="text-gray-600 text-center max-w-xl mx-auto mb-10">Try it free for 14 days. If it works for your business, it's a flat £22.99 a month.</p>
+        <p class="text-gray-600 text-center max-w-xl mx-auto mb-2">Try it free for 14 days. If it works for your business, it's a flat <span id="price-strap">{{ pro_price_text }}</span> a month.</p>
+        <p id="price-locale" class="text-sm text-center text-gray-500 mb-6"></p>
         <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 p-8 text-center">
             <p class="text-gray-500 font-semibold mb-2">Pro</p>
-            <p class="text-4xl font-extrabold text-gray-900 mb-1">£22.99<span class="text-base font-semibold text-gray-500">/month</span></p>
-            <p class="text-gray-500 text-sm mb-6">After a 14-day free trial. Cancel anytime.</p>
+            <p class="text-4xl font-extrabold text-gray-900 mb-1"><span id="price-amount" data-prices='{{ PRO_PRICES|tojson }}'>{{ pro_price_text }}</span><span class="text-base font-semibold text-gray-500">/month</span></p>
+            <p class="text-gray-500 text-sm mb-2">After a 14-day free trial. Cancel anytime.</p>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-500 mb-6">
+                {{ _('Currency') }}:
+                <select id="price-currency" onchange="setPriceCurrency(this.value)"
+                    class="border border-gray-300 rounded px-2 py-1 bg-white text-gray-800">
+                    {% for c in PREFERRED_CURRENCIES %}
+                    <option value="{{ c }}">{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </label>
             <ul class="text-left space-y-2.5 mb-8">
                 <li class="flex items-start gap-3">
                     <span class="mt-0.5 text-green-600 font-bold">✓</span>
@@ -776,6 +786,55 @@
             }, { threshold: 0 });
             io.observe(hero);
         }
+    })();
+</script>
+
+<script>
+    (function () {
+        var PRICES_BY_CURRENCY = JSON.parse(document.getElementById('price-amount').getAttribute('data-prices'));
+        var LABELS = {
+            GBP: ['Great Britain', 'GBP'],
+            USD: ['the United States', 'USD'],
+            RON: ['Romania', 'RON']
+        };
+        function detectCurrency() {
+            var tz = '';
+            try { tz = Intl.DateTimeFormat && Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+            if (tz.indexOf('Europe/Bucharest') === 0) return 'RON';
+            if (tz.indexOf('America/') === 0) return 'USD';
+            if (tz.indexOf('Europe/London') === 0) return 'GBP';
+            var lang = (navigator.language || 'en').toLowerCase();
+            if (lang.indexOf('ro') === 0) return 'RON';
+            if (lang.indexOf('en-gb') === 0) return 'GBP';
+            if (/^en-(us|ca|au)/.test(lang)) return 'USD';
+            return 'GBP';
+        }
+        function getCookie(name) {
+            var m = document.cookie.split('; ').filter(function (c) { return c.indexOf(name + '=') === 0; });
+            return m.length ? m[0].split('=')[1] : null;
+        }
+        function setPriceCurrency(cur, manual) {
+            if (!PRICES_BY_CURRENCY[cur]) return;
+            document.getElementById('price-amount').textContent = PRICES_BY_CURRENCY[cur];
+            document.getElementById('price-strap').textContent = PRICES_BY_CURRENCY[cur];
+            var sel = document.getElementById('price-currency');
+            if (sel && sel.value !== cur) sel.value = cur;
+            var label = LABELS[cur];
+            var n = document.getElementById('price-locale');
+            if (label) {
+                n.textContent = 'We detected you\u0027re browsing from ' + label[0] + ' — showing prices in ' + label[1] + '.';
+                if (manual) n.textContent = 'Prices shown in ' + label[1] + '.';
+            }
+            var maxAge = 365 * 24 * 60 * 60;
+            document.cookie = 'ts_currency=' + cur + '; path=/; max-age=' + maxAge + '; samesite=Lax';
+        }
+        var current = getCookie('ts_currency');
+        setPriceCurrency(current && PRICES_BY_CURRENCY[current] ? current : detectCurrency(), false);
+        if (window.gtag) gtag('event', 'pricing_currency_shown', {
+            event_category: 'engagement',
+            event_label: document.getElementById('price-amount').textContent
+        });
+        window.setPriceCurrency = function (v) { setPriceCurrency(v, true); };
     })();
 </script>
 {% endblock %}

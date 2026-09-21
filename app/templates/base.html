@@ -49,7 +49,10 @@
         <a href="{{ url_for('main.add_job') }}" class="hover:underline">➕ {{ _('New Job') }}</a>
         <a href="{{ url_for('main.invoices') }}" class="hover:underline">📄 {{ _('Invoices') }}</a>
         <a href="{{ url_for('main.accounting') }}" class="hover:underline">📊 {{ _('Accounting') }}</a>
+        <a href="{{ url_for('main.expenses') }}" class="hover:underline">🧾 {{ _('Expenses') }}</a>
         <a href="{{ url_for('main.payments') }}" class="hover:underline">💳 {{ _('Payments') }}</a>
+        <a href="{{ url_for('main.ai_job') }}" class="hover:underline">🤖 {{ _('AI Inbox') }}</a>
+        <a href="{{ url_for('main.tools') }}" class="hover:underline">🧮 {{ _('Tools') }}</a>
         <a href="{{ url_for('main.business_settings') }}" class="hover:underline">⚙️ {{ _('Settings') }}</a>
         <button class="install-btn hidden bg-blue-600 text-white text-sm rounded px-2 py-1 whitespace-nowrap">📲 {{ _('Install app') }}</button>
         <a href="{{ url_for('auth.logout') }}" class="hover:underline">🚪 {{ _('Logout') }}</a>

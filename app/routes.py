@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, send_from_directory, Response, abort
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, send_from_directory, Response, abort, jsonify, make_response
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.currency import convert_to_base
 from itsdangerous import URLSafeTimedSerializer
-from app.models import User, Job, Invoice, Payment, ACTIVITY_TYPES
+from app.models import User, Job, Invoice, Payment, ACTIVITY_TYPES, EXPENSE_CATEGORIES
 from app.notifications import send_overdue_invoice_reminders
 from datetime import datetime
 from flask import current_app
@@ -57,6 +57,9 @@ def register():
             plan='trial',
             trial_ends_at=datetime.utcnow() + timedelta(days=14)
         )
+        detected = request.cookies.get('ts_currency')
+        if detected in ('GBP', 'USD', 'RON', 'EUR'):
+            user.currency = detected
         db.session.add(user)
         db.session.commit()
         from app.email_service import send_welcome
@@ -204,6 +207,42 @@ def dashboard():
 
     trial_active, trial_days, trial_end = trial_info(current_user)
 
+    # ── Money you're owed (real invoices, no mock data) ──
+    from app.models import Invoice
+    unpaid_invoices = Invoice.query.filter_by(user_id=current_user.id).filter(
+        Invoice.status.notin_(['paid', 'cancelled'])
+    ).all()
+    today = datetime.utcnow().date()
+    money = {'total': 0.0, 'overdue': 0.0, 'due_soon': 0.0, 'upcoming': 0.0}
+    counts = {'overdue': 0, 'due_soon': 0, 'upcoming': 0}
+    money_rows = []
+    bucket_order = {'overdue': 0, 'due_soon': 1, 'upcoming': 2}
+    for inv in unpaid_invoices:
+        paid = sum(float(p.amount) for p in inv.payments)
+        outstanding = float(inv.total_amount) - paid
+        if outstanding <= 0:
+            continue
+        due = inv.due_date.date() if inv.due_date else None
+        days = (due - today).days if due else None
+        if due is not None and due < today:
+            bucket = 'overdue'
+        elif due is not None and days <= 7:
+            bucket = 'due_soon'
+        else:
+            bucket = 'upcoming'
+        money[bucket] += outstanding
+        money['total'] += outstanding
+        counts[bucket] += 1
+        money_rows.append({
+            'invoice': inv,
+            'outstanding': outstanding,
+            'due_date': inv.due_date,
+            'days': days,
+            'bucket': bucket,
+        })
+    money_rows.sort(key=lambda r: (bucket_order[r['bucket']], r['days'] is None, r['days'] or 0))
+    money_counts = counts
+
     return render_template('dashboard.html',
                            jobs=jobs,
                            activity_types=ACTIVITY_TYPES,
@@ -213,7 +252,10 @@ def dashboard():
                            monthly_total=monthly_total,
                            billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')),
                            trial_active=trial_active,
-                           trial_days=trial_days)
+                           trial_days=trial_days,
+                           money=money,
+                           money_counts=money_counts,
+                           money_rows=money_rows)
 
 
 @main.route('/job/add', methods=['GET', 'POST'])
@@ -492,6 +534,24 @@ Thank you,
     return render_template('send_quote.html', job=job)
 
 
+@main.route('/quote/ai-generate/<int:job_id>', methods=['POST'])
+@login_required
+def ai_generate_quote(job_id):
+    from app.ai_service import generate_quote, AIServiceError, ai_configured
+    job = Job.query.get_or_404(job_id)
+    if job.user_id != current_user.id:
+        return jsonify({'error': _('You do not have permission.')}), 403
+    description = request.form.get('description', '')
+    if not ai_configured():
+        return jsonify({'error': _('AI is not configured. Set the AI_API_KEY environment variable.')}), 400
+    try:
+        result = generate_quote(current_user, description)
+        return jsonify({'ok': True, 'data': result})
+    except AIServiceError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception:
+        return jsonify({'error': _('Could not generate the quote. Please try again.')}), 400
+
 @main.route('/job/quote/<int:job_id>/response/<response>')
 def quote_response(job_id, response):
     job = Job.query.get_or_404(job_id)
@@ -661,6 +721,15 @@ def stripe_webhook():
             print(f">>> User {user.username} subscription status -> {status}")
     return Response('ok', status=200)
 
+@main.route('/visitor-currency', methods=['POST'])
+def visitor_currency():
+    currency = request.form.get('currency')
+    if currency not in ('GBP', 'USD', 'RON', 'EUR'):
+        currency = 'GBP'
+    resp = make_response(redirect(request.form.get('next') or url_for('main.dashboard')))
+    resp.set_cookie('ts_currency', currency, max_age=60 * 60 * 24 * 365, samesite='Lax')
+    return resp
+
 @main.route('/billing/checkout', methods=['GET', 'POST'])
 @login_required
 def billing_checkout():
@@ -670,6 +739,9 @@ def billing_checkout():
         flash(_('Billing is not configured yet.'))
         return redirect(url_for('main.business_settings'))
     stripe.api_key = os.getenv('STRIPE_API_KEY')
+    currency = (request.args.get('currency') or current_user.currency or 'GBP').upper()
+    price_env = {'GBP': 'STRIPE_PRO_PRICE_ID', 'USD': 'STRIPE_PRO_PRICE_ID_USD', 'RON': 'STRIPE_PRO_PRICE_ID_RON'}
+    price_id = os.getenv(price_env.get(currency, '')) or os.getenv('STRIPE_PRO_PRICE_ID')
     if not current_user.stripe_customer_id:
         customer = stripe.Customer.create(
             email=current_user.email,
@@ -685,7 +757,7 @@ def billing_checkout():
         session = stripe.checkout.Session.create(
             customer=current_user.stripe_customer_id,
             mode='subscription',
-            line_items=[{'price': os.getenv('STRIPE_PRO_PRICE_ID'), 'quantity': 1}],
+            line_items=[{'price': price_id, 'quantity': 1}],
             metadata={'user_id': current_user.id, 'plan': 'pro'},
             client_reference_id=str(current_user.id),
             success_url=url_for('main.business_settings', _external=True) + '?billing=success',
@@ -767,7 +839,7 @@ def mark_invoice_paid(invoice_id):
     
     db.session.commit()
     flash(_('Payment recorded!'))
-    return redirect(url_for('main.invoices'))
+    return redirect(request.form.get('next') or url_for('main.invoices'))
 
 @main.route('/invoice/<int:invoice_id>/cancel', methods=['POST'])
 @login_required
@@ -783,6 +855,299 @@ def cancel_invoice(invoice_id):
     db.session.commit()
     flash(_('Invoice cancelled.'))
     return redirect(url_for('main.invoices'))
+
+@main.route('/invoice/<int:invoice_id>/send-reminder', methods=['POST'])
+@login_required
+def send_invoice_reminder(invoice_id):
+    from app.models import BusinessProfile
+    from app.email_service import send_email
+    invoice = Invoice.query.get_or_404(invoice_id)
+    if invoice.user_id != current_user.id:
+        flash(_('You do not have permission.'))
+        return redirect(url_for('main.dashboard'))
+    job = invoice.job
+    if not job or not job.client_email:
+        flash(_('This invoice has no client email.'))
+        return redirect(url_for('main.dashboard'))
+    if invoice.status in ('paid', 'cancelled'):
+        flash(_('This invoice does not need a reminder.'))
+        return redirect(url_for('main.dashboard'))
+    business = BusinessProfile.query.filter_by(user_id=current_user.id).first()
+    amount = format_money(invoice.total_amount, current_user.currency)
+    due = invoice.due_date.strftime('%d/%m/%Y') if invoice.due_date else '—'
+    if current_user.language == 'ro':
+        subject = f'Reminder: factură scadentă {invoice.invoice_number}'
+        body = f"""Bună ziua {job.client_name},
+
+Vă anunțăm că factura {invoice.invoice_number}, în valoare de {amount}, are scadența pe {due}.
+
+Vă rugăm să efectuați plata cât mai curând posibil.
+
+Vă mulțumim!
+{business.trading_name or business.legal_name if business else current_user.username}"""
+    else:
+        subject = f'Reminder: invoice {invoice.invoice_number}'
+        body = f"""Hi {job.client_name},
+
+This is a reminder that invoice {invoice.invoice_number} for {amount} is due on {due}.
+
+Please make your payment as soon as possible.
+
+Thank you!
+{business.trading_name or business.legal_name if business else current_user.username}"""
+    ok = send_email(job.client_email, subject, body)
+    if ok:
+        invoice.reminder_sent = True
+        db.session.commit()
+        flash(_('Reminder sent to %(client)s.', client=job.client_name))
+    else:
+        flash(_('Could not send the reminder. Please try again.'))
+    return redirect(request.form.get('next') or url_for('main.dashboard'))
+
+@main.route('/ai/job', methods=['GET', 'POST'])
+@login_required
+def ai_job():
+    from app.ai_service import extract_job_from_message, ai_configured, AIServiceError
+    from sqlalchemy import func
+    if request.method == 'GET':
+        return render_template('ai_job.html', ai_available=ai_configured())
+    message = (request.form.get('message') or '').strip()
+    if not message:
+        flash(_('Paste the client message first.'))
+        return redirect(url_for('main.ai_job'))
+    if not ai_configured():
+        flash(_('AI is not configured. Set the AI_API_KEY environment variable.'))
+        return redirect(url_for('main.ai_job'))
+    try:
+        res = extract_job_from_message(current_user, message)
+    except AIServiceError as e:
+        flash(str(e))
+        return redirect(url_for('main.ai_job'))
+    except Exception:
+        flash(_('Could not read the message. Please try again.'))
+        return redirect(url_for('main.ai_job'))
+    if not isinstance(res, dict):
+        res = {'customer_name': None, 'customer_email': None, 'address': None,
+               'date': None, 'time': None, 'description': message[:500],
+               'activity_type': 'other', 'uncertain_fields': ['customer_name', 'address', 'date'],
+               'notes': None}
+    client = (res.get('customer_name') or '').strip()
+    match = None
+    if client:
+        existing = Job.query.filter(
+            func.lower(Job.client_name) == client.lower(),
+            Job.user_id == current_user.id
+        ).first()
+        if existing:
+            match = existing.client_name
+    return render_template('ai_review.html', data=res, match=match, message=message[:2000],
+                           activity_types=ACTIVITY_TYPES)
+
+@main.route('/ai/job/confirm', methods=['POST'])
+@login_required
+def ai_job_confirm():
+    if not can_add_jobs(current_user):
+        flash(_('Your free trial has ended. Subscribe to create jobs.'))
+        return redirect(url_for('main.dashboard'))
+    client = (request.form.get('client_name') or '').strip()
+    address = (request.form.get('address') or '').strip()
+    if not client or not address:
+        flash(_('Client name and address are required.'))
+        return redirect(url_for('main.ai_job'))
+    date_str = request.form.get('date') or ''
+    try:
+        job_date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
+    except (ValueError, TypeError):
+        try:
+            job_date = datetime.strptime(date_str, '%Y-%m-%d')
+        except (ValueError, TypeError):
+            flash(_('Please pick a date and time for the job.'))
+            return redirect(url_for('main.ai_job'))
+    activity = request.form.get('activity_type') or 'other'
+    if activity not in dict(ACTIVITY_TYPES):
+        activity = 'other'
+    currency = current_user.currency or 'GBP'
+    job = Job(
+        client_name=client,
+        client_email=(request.form.get('client_email') or '').strip() or None,
+        address=address,
+        date=job_date,
+        description=(request.form.get('description') or '').strip() or None,
+        activity_type=activity,
+        price=float(convert_to_base(request.form.get('price') or 0, currency)),
+        currency=currency,
+        user_id=current_user.id,
+    )
+    db.session.add(job)
+    db.session.commit()
+    flash(_('Job created from the message!'))
+    return redirect(url_for('main.dashboard'))
+
+@main.route('/tools')
+@login_required
+def tools():
+    from datetime import timedelta as _td
+    from app.models import Job
+    since = datetime.utcnow() - _td(days=365)
+    invoices_12m = Invoice.query.filter_by(user_id=current_user.id).filter(
+        Invoice.status != 'cancelled', Invoice.issue_date >= since
+    ).all()
+    invoiced_12m = sum(float(i.total_amount) for i in invoices_12m)
+    jobs_12m = len(invoices_12m)
+    return render_template('tools.html', invoiced_12m=invoiced_12m, jobs_12m=jobs_12m)
+
+@main.route('/expenses', methods=['GET', 'POST'])
+@login_required
+def expenses():
+    from app.models import Expense
+    from datetime import date
+    import calendar as cal
+    if request.method == 'POST':
+        merchant = (request.form.get('merchant') or '').strip() or None
+        description = (request.form.get('description') or '').strip() or None
+        date_str = request.form.get('date') or date.today().isoformat()
+        try:
+            d = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            d = date.today()
+        try:
+            total = float(request.form.get('total') or 0)
+        except (ValueError, TypeError):
+            total = 0
+        vat_raw = (request.form.get('vat_amount') or '').strip()
+        vat_val = None
+        if vat_raw:
+            try:
+                vat_val = float(vat_raw)
+            except ValueError:
+                vat_val = None
+        category = request.form.get('category') or 'Other'
+        if category not in EXPENSE_CATEGORIES:
+            category = 'Other'
+        currency = request.form.get('currency') or 'GBP'
+        if currency not in ('GBP', 'RON', 'EUR', 'USD'):
+            currency = 'GBP'
+        receipt_image = (request.form.get('receipt_image') or '').strip() or None
+        exp = Expense(user_id=current_user.id, merchant=merchant, description=description,
+                      date=d, total=total, vat_amount=vat_val, currency=currency,
+                      category=category, receipt_image=receipt_image)
+        db.session.add(exp)
+        db.session.commit()
+        flash(_('Expense saved!'))
+        return redirect(url_for('main.expenses'))
+
+    now = datetime.utcnow()
+    year = int(request.args.get('year', now.year))
+    month = int(request.args.get('month', now.month))
+    first_day = date(year, month, 1)
+    last_day = date(year, month, cal.monthrange(year, month)[1])
+    items = (Expense.query.filter_by(user_id=current_user.id)
+             .filter(Expense.date >= first_day, Expense.date <= last_day)
+             .order_by(Expense.date.desc()).all())
+    total_amount = sum(float(e.total) for e in items)
+    month_name = first_day.strftime('%B %Y')
+    if month == 1:
+        prev_month, prev_year = 12, year - 1
+    else:
+        prev_month, prev_year = month - 1, year
+    if month == 12:
+        next_month, next_year = 1, year + 1
+    else:
+        next_month, next_year = month + 1, year
+    return render_template('expenses.html',
+                           expenses=items, total_amount=total_amount, month_name=month_name,
+                           prev_month=prev_month, prev_year=prev_year,
+                           next_month=next_month, next_year=next_year,
+                           year=year, month=month, categories=EXPENSE_CATEGORIES,
+                           now_str=date.today().isoformat())
+
+@main.route('/expenses/<int:expense_id>/delete', methods=['POST'])
+@login_required
+def delete_expense(expense_id):
+    from app.models import Expense
+    e = Expense.query.get_or_404(expense_id)
+    if e.user_id != current_user.id:
+        flash(_('You do not have permission.'))
+        return redirect(url_for('main.expenses'))
+    if e.receipt_image:
+        try:
+            full = os.path.join(current_app.instance_path, 'uploads', e.receipt_image)
+            if os.path.exists(full):
+                os.remove(full)
+        except Exception:
+            pass
+    db.session.delete(e)
+    db.session.commit()
+    flash(_('Expense deleted.'))
+    return redirect(url_for('main.expenses'))
+
+@main.route('/expenses/<int:expense_id>/receipt')
+@login_required
+def expense_receipt(expense_id):
+    from app.models import Expense
+    e = Expense.query.get_or_404(expense_id)
+    if e.user_id != current_user.id:
+        abort(404)
+    if not e.receipt_image:
+        abort(404)
+    return send_from_directory(os.path.join(current_app.instance_path, 'uploads'), e.receipt_image)
+
+@main.route('/expenses/uploads/<path:path>')
+@login_required
+def expense_receipt_upload(path):
+    import posixpath
+    safe = path.replace('\\', '/')
+    if not safe.startswith('receipts/%d/' % current_user.id):
+        abort(404)
+    if '..' in safe.split('/'):
+        abort(404)
+    uploads = os.path.join(current_app.instance_path, 'uploads')
+    target = os.path.abspath(os.path.join(uploads, safe))
+    if not target.startswith(os.path.abspath(uploads) + os.sep):
+        abort(404)
+    if not os.path.exists(target):
+        abort(404)
+    return send_from_directory(uploads, safe)
+
+@main.route('/expenses/scan', methods=['GET', 'POST'])
+@login_required
+def expense_scan():
+    from app.ai_service import ai_configured, extract_receipt, AIServiceError
+    import uuid
+    if request.method == 'GET':
+        return render_template('expense_scan.html', ai_available=ai_configured())
+    file = request.files.get('receipt')
+    if not file or not file.filename:
+        flash(_('Please choose a receipt photo.'))
+        return redirect(url_for('main.expense_scan'))
+    mime = file.mimetype or 'image/jpeg'
+    if mime not in ('image/jpeg', 'image/png', 'image/webp'):
+        flash(_('Only JPEG, PNG or WEBP photos are supported.'))
+        return redirect(url_for('main.expense_scan'))
+    data = file.read()
+    if len(data) > 8 * 1024 * 1024:
+        flash(_('Photo too large — max 8MB.'))
+        return redirect(url_for('main.expense_scan'))
+    ext = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp'}[mime]
+    rel = 'receipts/%d/%s.%s' % (current_user.id, uuid.uuid4().hex, ext)
+    full = os.path.join(current_app.instance_path, 'uploads', rel)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    with open(full, 'wb') as fh:
+        fh.write(data)
+    extracted = None
+    scan_error = None
+    if ai_configured():
+        try:
+            extracted = extract_receipt(current_user, data, mime)
+        except AIServiceError as e:
+            scan_error = str(e)
+        except Exception:
+            scan_error = _('Could not scan the receipt. Please enter the details manually.')
+    return render_template('expense_review.html', receipt_image=rel, extracted=extracted,
+                           scan_error=scan_error, ai_available=ai_configured(),
+                           categories=EXPENSE_CATEGORIES,
+                           today=datetime.utcnow().date())
+
 
 @main.route('/accounting')
 @login_required
@@ -818,6 +1183,16 @@ def accounting():
     paid_count = sum(1 for inv in monthly_invoices if inv.status == 'paid')
     outstanding_count = sum(1 for inv in monthly_invoices if inv.status in ['sent', 'overdue', 'partially_paid'])
 
+    # Cheltuieli din luna (Expense)
+    from app.models import Expense
+    month_expenses = sum(
+        float(e.total)
+        for e in Expense.query.filter_by(user_id=current_user.id).filter(
+            Expense.date >= first_day.date(), Expense.date <= last_day.date()
+        ).all()
+    )
+    net_total = total_invoiced - month_expenses
+
     # Luna anterioara si urmatoare
     if month == 1:
         prev_month, prev_year = 12, year - 1
@@ -842,7 +1217,8 @@ def accounting():
         month_name=month_name,
         prev_month=prev_month, prev_year=prev_year,
         next_month=next_month, next_year=next_year,
-        year=year, month=month
+        year=year, month=month,
+        month_expenses=month_expenses, net_total=net_total
     )
 
 @main.route('/accounting/export')

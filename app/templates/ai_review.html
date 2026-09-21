@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Review job') }} — TradeScheduler{% endblock %}
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h1 class="text-xl font-bold text-gray-800 mb-1">{{ _('Review the job') }}</h1>
+        <p class="text-sm text-gray-500">{{ _('Check everything before saving. Edit anything that looks wrong.') }}</p>
+
+        <blockquote class="mt-4 border-l-4 border-gray-300 pl-3 text-sm text-gray-500 italic">{{ message }}</blockquote>
+
+        {% if data.uncertain_fields %}
+        <div class="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-lg p-3 mt-4">
+            ⚠️ {{ _('These details were unclear — please confirm them:') }}
+            {% for f in data.uncertain_fields %}
+                {% if f == 'customer_name' %}<strong>{{ _('name') }}</strong>
+                {% elif f == 'address' %}<strong>{{ _('address') }}</strong>
+                {% elif f == 'date' %}<strong>{{ _('date') }}</strong>
+                {% elif f == 'customer_email' %}<strong>{{ _('email') }}</strong>
+                {% else %}<strong>{{ f }}</strong>{% endif %}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if match %}
+        <div class="bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg p-3 mt-4">
+            ✅ {{ _('Existing client') }}: <strong>{{ match }}</strong>
+        </div>
+        {% endif %}
+        {% if data.notes %}
+        <div class="bg-gray-50 border border-gray-200 text-gray-600 text-xs rounded-lg p-3 mt-4">
+            ℹ️ {{ data.notes }}
+        </div>
+        {% endif %}
+    </div>
+
+    <form method="POST" action="{{ url_for('main.ai_job_confirm') }}"
+        class="bg-white rounded-lg shadow p-6 grid grid-cols-1 sm:grid-cols-2 gap-4"
+        onsubmit="if (window.gtag) gtag('event', 'ai_job_created', { 'event_category': 'ai' });">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div>
+            <label class="block text-gray-700 mb-1 text-sm">{{ _('Client name') }} *</label>
+            <input type="text" name="client_name" required value="{{ data.customer_name or '' }}"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+        </div>
+        <div>
+            <label class="block text-gray-700 mb-1 text-sm">{{ _('Client email') }}</label>
+            <input type="email" name="client_email" value="{{ data.customer_email or '' }}"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+        </div>
+        <div class="sm:col-span-2">
+            <label class="block text-gray-700 mb-1 text-sm">{{ _('Address') }} *</label>
+            <input type="text" name="address" required value="{{ data.address or '' }}"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+        </div>
+        <div>
+            <label class="block text-gray-700 mb-1 text-sm">{{ _('Date & time') }} *</label>
+            <input type="datetime-local" name="date" required
+                value="{{ data.date and (data.date + 'T' + (data.time or '09:00')) }}"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+        </div>
+        <div>
+            <label class="block text-gray-700 mb-1 text-sm">{{ _('Activity type') }}</label>
+            <select name="activity_type" class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white">
+                {% for value, label in activity_types %}
+                <option value="{{ value }}" {% if data.activity_type == value %}selected{% endif %}>{{ _(label) }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="sm:col-span-2">
+            <label class="block text-gray-700 mb-1 text-sm">{{ _('Description') }}</label>
+            <textarea name="description" rows="2"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">{{ data.description or '' }}</textarea>
+        </div>
+        <div class="sm:col-span-2">
+            <label class="block text-gray-700 mb-1 text-sm">{{ _('Price') }} <span class="text-gray-400">({{ _('optional') }})</span></label>
+            <input type="number" name="price" min="0" step="0.01" value="0"
+                class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+        </div>
+        <div class="sm:col-span-2 flex gap-4">
+            <button type="submit" class="flex-1 bg-blue-600 text-white text-sm font-semibold px-6 py-2 rounded hover:bg-blue-700">
+                ✔️ {{ _('Create job') }}
+            </button>
+            <a href="{{ url_for('main.ai_job') }}"
+                class="flex-1 text-center border border-gray-300 text-sm px-6 py-2 rounded hover:bg-gray-50">
+                {{ _('Cancel') }}
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

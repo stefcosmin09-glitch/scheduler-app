@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-16 05:27+0300\n"
+"POT-Creation-Date: 2026-09-21 22:17+0300\n"
 "PO-Revision-Date: 2026-09-11 18:22+0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ro\n"
@@ -27,116 +27,190 @@ msgstr "Înregistrările noi sunt momentan dezactivate."
 msgid "Email already used."
 msgstr "Email deja folosit."
 
-#: app/routes.py:72
+#: app/routes.py:75
 msgid "Account created successfully!"
 msgstr "Cont creat cu succes!"
 
-#: app/routes.py:86
+#: app/routes.py:89
 msgid "Wrong email or password."
 msgstr "Email sau parolă greșită."
 
-#: app/routes.py:139
+#: app/routes.py:142
 msgid "If that email exists, you will receive a reset link shortly."
 msgstr "Dacă acest email există, vei primi un link de resetare în curând."
 
-#: app/routes.py:151
+#: app/routes.py:154
 msgid "Invalid or expired link."
 msgstr "Link invalid sau expirat."
 
-#: app/routes.py:160
+#: app/routes.py:163
 msgid "Password changed successfully!"
 msgstr "Parola schimbată cu succes!"
 
-#: app/routes.py:219
+#: app/routes.py:265
 msgid "Your free trial has ended. Subscribe to add new jobs."
 msgstr "Perioada gratuită a expirat. Abonează-te pentru a adăuga joburi noi."
 
-#: app/routes.py:236
+#: app/routes.py:282
 msgid "Job added!"
 msgstr "Job adăugat!"
 
-#: app/routes.py:247 app/routes.py:280 app/routes.py:388 app/routes.py:408
-#: app/routes.py:427 app/routes.py:737 app/routes.py:773
+#: app/routes.py:293 app/routes.py:326 app/routes.py:434 app/routes.py:454
+#: app/routes.py:473 app/routes.py:543 app/routes.py:813 app/routes.py:849
+#: app/routes.py:866 app/routes.py:1070
 msgid "You do not have permission."
 msgstr "Nu ai permisiunea."
 
-#: app/routes.py:251
+#: app/routes.py:297
 msgid "Job marked as completed!"
 msgstr "Job marcat ca finalizat!"
 
-#: app/routes.py:260
+#: app/routes.py:306
 msgid "You do not have permission to delete this job."
 msgstr "Nu ai permisiunea să ștergi acest job."
 
-#: app/routes.py:263
+#: app/routes.py:309
 msgid "This job has an invoice and cannot be deleted."
 msgstr "Acest job are o factură emisă și nu poate fi șters."
 
-#: app/routes.py:267
+#: app/routes.py:313
 msgid "Job deleted."
 msgstr "Job șters."
 
-#: app/routes.py:368
+#: app/routes.py:414
 msgid "Invoice downloaded and sent to client!"
 msgstr "Factură descărcată și trimisă clientului!"
 
-#: app/routes.py:371
+#: app/routes.py:417
 msgid "Invoice downloaded."
 msgstr "Factură descărcată."
 
-#: app/routes.py:482
+#: app/routes.py:528
 msgid "Quote sent successfully!"
 msgstr "Ofertă trimisă cu succes!"
 
-#: app/routes.py:484
+#: app/routes.py:530
 msgid "No client email — quote saved but not sent."
 msgstr "Fără email client — oferta e salvată, dar n-a fost trimisă."
 
-#: app/routes.py:538
+#: app/routes.py:546 app/routes.py:919
+msgid "AI is not configured. Set the AI_API_KEY environment variable."
+msgstr ""
+
+#: app/routes.py:553
+msgid "Could not generate the quote. Please try again."
+msgstr "Nu am putut genera oferta. Încercați din nou."
+
+#: app/routes.py:602
 msgid "Logo too large. Max 1.5MB."
 msgstr "Logo prea mare. Max 1.5MB."
 
-#: app/routes.py:541
+#: app/routes.py:605
 msgid "Logo must be PNG or JPG."
 msgstr "Logo-ul trebuie să fie PNG sau JPG."
 
-#: app/routes.py:551
+#: app/routes.py:615
 msgid "Business settings saved!"
 msgstr "Setările business au fost salvate!"
 
-#: app/routes.py:555
+#: app/routes.py:619
 msgid "Your Pro plan is now active. Welcome!"
 msgstr "Planul tău Pro este activ. Bun venit!"
 
-#: app/routes.py:666 app/routes.py:703
+#: app/routes.py:739 app/routes.py:779
 msgid "Billing is not configured yet."
 msgstr "Plățile nu sunt încă configurate."
 
-#: app/routes.py:693
+#: app/routes.py:769
 msgid "Could not start checkout."
 msgstr "Nu s-a putut începe plata."
 
-#: app/routes.py:713
+#: app/routes.py:789
 msgid "Could not open billing portal."
 msgstr "Nu s-a putut deschide portalul de plăți."
 
-#: app/routes.py:740
+#: app/routes.py:816
 msgid "This invoice is already fully paid."
 msgstr "Această factură este deja plătită integral."
 
-#: app/routes.py:765
+#: app/routes.py:841
 msgid "Payment recorded!"
 msgstr "Plată înregistrată!"
 
-#: app/routes.py:776
+#: app/routes.py:852
 msgid "Cannot cancel an invoice that is already paid."
 msgstr "Nu poți anula o factură deja plătită."
 
-#: app/routes.py:780
+#: app/routes.py:856
 msgid "Invoice cancelled."
 msgstr "Factură anulată."
 
-#: app/templates/accounting.html:5 app/templates/base.html:41
+#: app/routes.py:870
+msgid "This invoice has no client email."
+msgstr "Această factură este deja plătită integral."
+
+#: app/routes.py:873
+msgid "This invoice does not need a reminder."
+msgstr "Această factură nu are nevoie de un memento."
+
+#: app/routes.py:902
+#, python-format
+msgid "Reminder sent to %(client)s."
+msgstr "Memento trimis către %(client)s."
+
+#: app/routes.py:904
+msgid "Could not send the reminder. Please try again."
+msgstr "Nu s-a putut trimite memento-ul. Încercați din nou."
+
+#: app/routes.py:916
+msgid "Paste the client message first."
+msgstr "Lipește mai întâi mesajul clientului."
+
+#: app/routes.py:927
+msgid "Could not read the message. Please try again."
+msgstr "Nu am putut citi mesajul. Încercați din nou."
+
+#: app/routes.py:950
+msgid "Your free trial has ended. Subscribe to create jobs."
+msgstr "Perioada gratuită a expirat. Abonează-te pentru a adăuga joburi noi."
+
+#: app/routes.py:955
+msgid "Client name and address are required."
+msgstr ""
+
+#: app/routes.py:964
+msgid "Please pick a date and time for the job."
+msgstr ""
+
+#: app/routes.py:983
+msgid "Job created from the message!"
+msgstr "Lucrare creată din mesaj!"
+
+#: app/routes.py:1036
+msgid "Expense saved!"
+msgstr "Cheltuială salvată!"
+
+#: app/routes.py:1081
+msgid "Expense deleted."
+msgstr "Job șters."
+
+#: app/routes.py:1121
+msgid "Please choose a receipt photo."
+msgstr "Alegeți o fotografie a chitanței."
+
+#: app/routes.py:1125
+msgid "Only JPEG, PNG or WEBP photos are supported."
+msgstr ""
+
+#: app/routes.py:1129
+msgid "Photo too large — max 8MB."
+msgstr "Logo prea mare. Max 1.5MB."
+
+#: app/routes.py:1145
+msgid "Could not scan the receipt. Please enter the details manually."
+msgstr "Nu am putut scana chitanța. Completați detaliile manual."
+
+#: app/templates/accounting.html:5 app/templates/base.html:51
 #: app/templates/vat_report.html:10
 msgid "Accounting"
 msgstr "Contabilitate"
@@ -149,11 +223,11 @@ msgstr "Raport TVA"
 msgid "Export CSV"
 msgstr "Exportă CSV"
 
-#: app/templates/accounting.html:20
+#: app/templates/accounting.html:20 app/templates/expenses.html:31
 msgid "Previous"
 msgstr "Anterior"
 
-#: app/templates/accounting.html:23
+#: app/templates/accounting.html:23 app/templates/expenses.html:34
 msgid "Next"
 msgstr "Următorul"
 
@@ -161,7 +235,9 @@ msgstr "Următorul"
 msgid "Total Invoiced"
 msgstr "Total facturat"
 
-#: app/templates/accounting.html:30 app/templates/vat_report.html:30
+#: app/templates/accounting.html:30 app/templates/dashboard.html:57
+#: app/templates/dashboard.html:62 app/templates/dashboard.html:67
+#: app/templates/vat_report.html:30
 msgid "invoices"
 msgstr "facturi"
 
@@ -181,76 +257,98 @@ msgstr "Rest de plată"
 msgid "unpaid"
 msgstr "neplătite"
 
-#: app/templates/accounting.html:49 app/templates/dashboard.html:128
+#: app/templates/accounting.html:46 app/templates/base.html:52
+#: app/templates/expenses.html:2 app/templates/expenses.html:7
+msgid "Expenses"
+msgstr "Cheltuieli"
+
+#: app/templates/accounting.html:49
+msgid "Manage expenses"
+msgstr "Gestionează cheltuielile"
+
+#: app/templates/accounting.html:52
+msgid "Net (invoiced − expenses)"
+msgstr "Următorul număr"
+
+#: app/templates/accounting.html:54
+msgid "Rough profit — not tax-adjusted"
+msgstr "Profit aproximativ — fără ajustări fiscale"
+
+#: app/templates/accounting.html:63 app/templates/dashboard.html:244
 #: app/templates/payments.html:18
 msgid "Invoice"
 msgstr "Factură"
 
-#: app/templates/accounting.html:50 app/templates/payments.html:19
+#: app/templates/accounting.html:64 app/templates/payments.html:19
 msgid "Client"
 msgstr "Client"
 
-#: app/templates/accounting.html:51 app/templates/invoices.html:41
+#: app/templates/accounting.html:65 app/templates/invoices.html:41
 msgid "Issued"
 msgstr "Emisă"
 
-#: app/templates/accounting.html:52 app/templates/invoices.html:42
+#: app/templates/accounting.html:66 app/templates/dashboard.html:91
+#: app/templates/invoices.html:42
 msgid "Due"
 msgstr "Scadență"
 
-#: app/templates/accounting.html:53 app/templates/invoices.html:89
-#: app/templates/payments.html:23
+#: app/templates/accounting.html:67 app/templates/expenses.html:51
+#: app/templates/invoices.html:89 app/templates/payments.html:23
 msgid "Amount"
 msgstr "Sumă"
 
-#: app/templates/accounting.html:54 app/templates/dashboard.html:45
+#: app/templates/accounting.html:68 app/templates/dashboard.html:161
 msgid "Status"
 msgstr "Status"
 
-#: app/templates/accounting.html:55
+#: app/templates/accounting.html:69
 msgid "Actions"
 msgstr "Acțiuni"
 
-#: app/templates/accounting.html:64 app/templates/invoices.html:42
+#: app/templates/accounting.html:78 app/templates/dashboard.html:92
+#: app/templates/invoices.html:42
 msgid "N/A"
 msgstr "N/A"
 
-#: app/templates/accounting.html:67 app/templates/invoices.html:5
-#: app/templates/invoices.html:45
-#, fuzzy
+#: app/templates/accounting.html:81 app/templates/dashboard.html:71
+#: app/templates/invoices.html:5 app/templates/invoices.html:45
 msgid "Paid"
 msgstr "plătite"
 
-#: app/templates/accounting.html:67 app/templates/invoices.html:6
-#, fuzzy
+#: app/templates/accounting.html:81 app/templates/dashboard.html:55
+#: app/templates/dashboard.html:71 app/templates/invoices.html:6
 msgid "Overdue"
 msgstr "Scadență"
 
-#: app/templates/accounting.html:67 app/templates/invoices.html:7
+#: app/templates/accounting.html:81 app/templates/dashboard.html:71
+#: app/templates/invoices.html:7
 msgid "Partially Paid"
 msgstr "Plătită parțial"
 
-#: app/templates/accounting.html:67 app/templates/invoices.html:8
+#: app/templates/accounting.html:81 app/templates/dashboard.html:71
+#: app/templates/invoices.html:8
 msgid "Sent"
 msgstr "Trimisă"
 
-#: app/templates/accounting.html:67 app/templates/invoices.html:9
+#: app/templates/accounting.html:81 app/templates/dashboard.html:71
+#: app/templates/invoices.html:9
 msgid "Draft"
 msgstr "Ciornă"
 
-#: app/templates/accounting.html:67 app/templates/invoices.html:10
+#: app/templates/accounting.html:81 app/templates/dashboard.html:71
+#: app/templates/invoices.html:10
 msgid "Cancelled"
 msgstr "Anulată"
 
-#: app/templates/accounting.html:79
+#: app/templates/accounting.html:93 app/templates/dashboard.html:111
 msgid "View"
 msgstr "Vezi"
 
-#: app/templates/accounting.html:88 app/templates/vat_report.html:74
+#: app/templates/accounting.html:102 app/templates/vat_report.html:74
 msgid "No invoices for"
 msgstr "Nicio factură pentru"
 
-#: app/templates/add_job.html:5 app/templates/base.html:39
+#: app/templates/add_job.html:5 app/templates/base.html:49
 #: app/templates/dashboard.html:24
 msgid "New Job"
 msgstr "Job nou"
@@ -263,7 +361,7 @@ msgstr "Nume client"
 msgid "Client Email"
 msgstr "Email client"
 
-#: app/templates/add_job.html:22
+#: app/templates/add_job.html:22 app/templates/ai_review.html:51
 msgid "Address"
 msgstr "Adresă"
 
@@ -271,7 +369,8 @@ msgstr "Adresă"
 msgid "Activity Type"
 msgstr "Tip activitate"
 
-#: app/templates/add_job.html:38 app/templates/send_quote.html:17
+#: app/templates/add_job.html:38 app/templates/ai_review.html:75
+#: app/templates/send_quote.html:35
 msgid "Price"
 msgstr "Preț"
 
@@ -279,7 +378,8 @@ msgstr "Preț"
 msgid "Date & Time"
 msgstr "Data și ora"
 
-#: app/templates/add_job.html:59
+#: app/templates/add_job.html:59 app/templates/ai_review.html:70
+#: app/templates/expense_review.html:66 app/templates/expenses.html:116
 msgid "Description"
 msgstr "Descriere"
 
@@ -287,32 +387,141 @@ msgstr "Descriere"
 msgid "Save Job"
 msgstr "Salvează job"
 
-#: app/templates/add_job.html:71 app/templates/send_quote.html:39
+#: app/templates/add_job.html:71 app/templates/ai_review.html:85
+#: app/templates/expense_review.html:76 app/templates/send_quote.html:57
 msgid "Cancel"
 msgstr "Anulează"
 
-#: app/templates/base.html:38
+#: app/templates/ai_job.html:2
+msgid "Turn a message into a job"
+msgstr "Transformă un mesaj în lucrare"
+
+#: app/templates/ai_job.html:6
+msgid "Turn a client message into a job"
+msgstr "Transformă un mesaj al clientului în lucrare"
+
+#: app/templates/ai_job.html:8
+msgid ""
+"Paste a message from WhatsApp, email or SMS and we'll draft the job for "
+"you to review before saving."
+msgstr ""
+
+#: app/templates/ai_job.html:13
+msgid ""
+"AI is not configured yet — set the AI_API_KEY environment variable to use"
+" this feature."
+msgstr ""
+
+#: app/templates/ai_job.html:20
+msgid "Client message"
+msgstr "Nume client"
+
+#: app/templates/ai_job.html:23
+msgid ""
+"e.g. Hi, can you come fix a leaking tap at 12 Acacia Ave next Friday? My "
+"name is John Smith."
+msgstr ""
+
+#: app/templates/ai_job.html:25
+msgid "Read message & draft job"
+msgstr "Citește mesajul și creează o ciornă"
+
+#: app/templates/ai_job.html:29
+msgid "Or add the job manually"
+msgstr ""
+
+#: app/templates/ai_review.html:2
+msgid "Review job"
+msgstr "Job nou"
+
+#: app/templates/ai_review.html:6
+msgid "Review the job"
+msgstr "Ștergi acest job?"
+
+#: app/templates/ai_review.html:7
+msgid "Check everything before saving. Edit anything that looks wrong."
+msgstr ""
+
+#: app/templates/ai_review.html:13
+msgid "These details were unclear — please confirm them:"
+msgstr ""
+
+#: app/templates/ai_review.html:15
+msgid "name"
+msgstr "Nume utilizator"
+
+#: app/templates/ai_review.html:16
+msgid "address"
+msgstr "Adresă"
+
+#: app/templates/ai_review.html:17
+msgid "date"
+msgstr "Data"
+
+#: app/templates/ai_review.html:18
+msgid "email"
+msgstr "Email"
+
+#: app/templates/ai_review.html:26
+msgid "Existing client"
+msgstr ""
+
+#: app/templates/ai_review.html:41
+msgid "Client name"
+msgstr "Nume client"
+
+#: app/templates/ai_review.html:46
+msgid "Client email"
+msgstr "Email client"
+
+#: app/templates/ai_review.html:56
+msgid "Date & time"
+msgstr "Data și ora"
+
+#: app/templates/ai_review.html:62
+msgid "Activity type"
+msgstr "Tip activitate"
+
+#: app/templates/ai_review.html:75 app/templates/expense_review.html:53
+#: app/templates/expense_review.html:66 app/templates/expenses.html:103
+#: app/templates/expenses.html:116
+msgid "optional"
+msgstr "Opțional"
+
+#: app/templates/ai_review.html:81
+msgid "Create job"
+msgstr "Salvează job"
+
+#: app/templates/base.html:48
 msgid "Dashboard"
 msgstr "Panou de control"
 
-#: app/templates/base.html:40 app/templates/invoices.html:13
+#: app/templates/base.html:50 app/templates/invoices.html:13
 #: app/templates/vat_report.html:44
 msgid "Invoices"
 msgstr "Facturi"
 
-#: app/templates/base.html:42
+#: app/templates/base.html:53
 msgid "Payments"
 msgstr "Plăți"
 
-#: app/templates/base.html:43
+#: app/templates/base.html:54
+msgid "AI Inbox"
+msgstr "Panou AI"
+
+#: app/templates/base.html:55
+msgid "Tools"
+msgstr "Subtotal"
+
+#: app/templates/base.html:56
 msgid "Settings"
 msgstr "Setări"
 
-#: app/templates/base.html:44
+#: app/templates/base.html:57
 msgid "Install app"
 msgstr "Instalează aplicația"
 
-#: app/templates/base.html:45
+#: app/templates/base.html:58
 msgid "Logout"
 msgstr "Deconectare"
 
@@ -329,6 +538,9 @@ msgid "Pro plan"
 msgstr "Plan Pro"
 
 #: app/templates/business_settings.html:23
+#: app/templates/business_settings.html:26
+#: app/templates/business_settings.html:29
+#: app/templates/business_settings.html:46
 msgid "month"
 msgstr "lună"
 
@@ -337,149 +549,154 @@ msgstr "lună"
 msgid "Free trial: %(days)s days left."
 msgstr "Perioada gratuită: mai ai %(days)s zile."
 
-#: app/templates/business_settings.html:27
+#: app/templates/business_settings.html:26
+msgid "after your trial"
+msgstr "după perioada de probă"
+
+#: app/templates/business_settings.html:28
 msgid "Your free trial has ended."
 msgstr "Perioada ta gratuită a expirat."
 
-#: app/templates/business_settings.html:36
+#: app/templates/business_settings.html:29
+msgid "to continue using Pro"
+msgstr "pentru a continua cu Pro"
+
+#: app/templates/business_settings.html:38
 msgid "Manage Subscription"
 msgstr "Gestionează abonamentul"
 
-#: app/templates/business_settings.html:44
-msgid "Upgrade to Pro — £22.99/month"
-msgstr "Upgrade la Pro — £22.99/lună"
+#: app/templates/business_settings.html:46 app/templates/dashboard.html:15
+msgid "Upgrade to Pro"
+msgstr "Upgrade la Pro"
 
-#: app/templates/business_settings.html:48
+#: app/templates/business_settings.html:50
 msgid "Billing coming soon"
 msgstr "Plățile vin în curând"
 
-#: app/templates/business_settings.html:58
+#: app/templates/business_settings.html:60
 msgid "Business Type"
 msgstr "Tip de business"
 
-#: app/templates/business_settings.html:77
+#: app/templates/business_settings.html:79
 msgid "Legal Name"
 msgstr "Denumire legală"
 
-#: app/templates/business_settings.html:83
+#: app/templates/business_settings.html:85
 msgid "Trading Name"
 msgstr "Denumire comercială"
 
-#: app/templates/business_settings.html:89
+#: app/templates/business_settings.html:91
 msgid "Business Address"
 msgstr "Adresa business"
 
-#: app/templates/business_settings.html:95
+#: app/templates/business_settings.html:97
 msgid "Phone"
 msgstr "Telefon"
 
-#: app/templates/business_settings.html:101
+#: app/templates/business_settings.html:103
 msgid "Business Email"
 msgstr "Email business"
 
-#: app/templates/business_settings.html:108
+#: app/templates/business_settings.html:110
 msgid "Company Registration Number"
 msgstr "Număr de înregistrare"
 
-#: app/templates/business_settings.html:115
+#: app/templates/business_settings.html:117
 msgid "Tax Country"
 msgstr "Țara de taxare"
 
-#: app/templates/business_settings.html:147
+#: app/templates/business_settings.html:149
 msgid "Invoice Settings"
 msgstr "Setări factură"
 
-#: app/templates/business_settings.html:150
+#: app/templates/business_settings.html:152
 msgid "Online Payment Link"
 msgstr "Link de plată online"
 
-#: app/templates/business_settings.html:154
+#: app/templates/business_settings.html:156
 msgid ""
 "Optional: your own payment page (PayPal.me, bank app link, etc.). Clients"
 " will see a “Pay online” button on invoices and in invoice emails."
 msgstr ""
-"Opțional: propria pagină de plată (PayPal.me, link aplicație bancară etc.). "
-"Clienții vor vedea un buton „Plătește online” pe facturi și în emailurile cu facturi."
+"Opțional: propria pagină de plată (PayPal.me, link aplicație bancară "
+"etc.). Clienții vor vedea un buton „Plătește online” pe facturi și în "
+"emailurile cu facturi."
 
-#: app/templates/business_settings.html:158
+#: app/templates/business_settings.html:160
 msgid "Invoice Prefix"
 msgstr "Prefix factură"
 
-#: app/templates/business_settings.html:164
+#: app/templates/business_settings.html:166
 msgid "Next Invoice Number"
 msgstr "Următorul număr"
 
-#: app/templates/business_settings.html:170
+#: app/templates/business_settings.html:172
 msgid "Payment Terms"
 msgstr "Termeni de plată"
 
-#: app/templates/business_settings.html:173
+#: app/templates/business_settings.html:175
 msgid "Due on receipt"
 msgstr "La primire"
 
-#: app/templates/business_settings.html:174
+#: app/templates/business_settings.html:176
 msgid "7 days"
 msgstr "7 zile"
 
-#: app/templates/business_settings.html:175
+#: app/templates/business_settings.html:177
 msgid "14 days"
 msgstr "14 zile"
 
-#: app/templates/business_settings.html:176
+#: app/templates/business_settings.html:178
 msgid "30 days"
 msgstr "30 de zile"
 
-#: app/templates/business_settings.html:183
+#: app/templates/business_settings.html:185
 msgid "Payment Details"
 msgstr "Detalii plată"
 
-#: app/templates/business_settings.html:187
+#: app/templates/business_settings.html:189
 msgid "Show bank details on invoices"
 msgstr "Arată datele bancare pe facturi"
 
-#: app/templates/business_settings.html:191
+#: app/templates/business_settings.html:193
 msgid "Account Name"
 msgstr "Numele contului"
 
-#: app/templates/business_settings.html:196
+#: app/templates/business_settings.html:198
 msgid "Sort Code"
 msgstr "Sort code"
 
-#: app/templates/business_settings.html:201
+#: app/templates/business_settings.html:203
 msgid "Account Number"
 msgstr "Număr cont"
 
-#: app/templates/business_settings.html:209
+#: app/templates/business_settings.html:211
 msgid "Business Logo"
 msgstr "Logo firmă"
 
-#: app/templates/business_settings.html:220
+#: app/templates/business_settings.html:222
 msgid "Max 1.5MB, PNG or JPG. Appears on invoice header."
 msgstr "Max 1.5MB, PNG sau JPG. Apare în antetul facturii."
 
-#: app/templates/business_settings.html:223
+#: app/templates/business_settings.html:225
 msgid "Remove logo"
 msgstr "Șterge logo"
 
-#: app/templates/business_settings.html:232
+#: app/templates/business_settings.html:234
 msgid "Save Settings"
 msgstr "Salvează setările"
 
-#: app/templates/business_settings.html:240
+#: app/templates/business_settings.html:242
 msgid "Language"
 msgstr ""
 
-#: app/templates/business_settings.html:251
+#: app/templates/business_settings.html:253 app/templates/landing.html:643
 msgid "Currency"
-msgstr ""
+msgstr "Moneda"
 
 #: app/templates/dashboard.html:10
 msgid "Your free trial has ended — upgrade to keep adding jobs."
 msgstr "Perioada gratuită a expirat — fă upgrade ca să poți adăuga joburi noi."
-
-#: app/templates/dashboard.html:15
-msgid "Upgrade to Pro"
-msgstr "Upgrade la Pro"
 
 #: app/templates/dashboard.html:21
 msgid "My Jobs"
@@ -497,57 +714,231 @@ msgstr "joburi finalizate"
 msgid "This Month"
 msgstr "Această lună"
 
+#: app/templates/dashboard.html:47 app/templates/dashboard.html:153
+msgid "Money you're owed"
+msgstr "Banii pe care îmi mai sunt datori"
+
 #: app/templates/dashboard.html:48
+msgid "outstanding invoices"
+msgstr "Rest de plată"
+
+#: app/templates/dashboard.html:60
+msgid "Due soon"
+msgstr ""
+
+#: app/templates/dashboard.html:65
+msgid "Upcoming"
+msgstr ""
+
+#: app/templates/dashboard.html:94
+msgid "days overdue"
+msgstr "Scadență"
+
+#: app/templates/dashboard.html:96
+msgid "due today"
+msgstr ""
+
+#: app/templates/dashboard.html:98
+#, python-format
+msgid "in %(n)d days"
+msgstr "în %(n)d zile"
+
+#: app/templates/dashboard.html:105
+#, python-format
+msgid "of %(total)s"
+msgstr ""
+
+#: app/templates/dashboard.html:113 app/templates/invoices.html:55
+msgid "Record Payment"
+msgstr "Înregistrează plata"
+
+#: app/templates/dashboard.html:119
+msgid "Send Reminder"
+msgstr "Trimite linkul"
+
+#: app/templates/dashboard.html:131 app/templates/invoices.html:97
+msgid "Bank Transfer"
+msgstr "Transfer bancar"
+
+#: app/templates/dashboard.html:132 app/templates/invoices.html:98
+msgid "Cash"
+msgstr "Numerar"
+
+#: app/templates/dashboard.html:133 app/templates/invoices.html:99
+msgid "Card"
+msgstr "Card"
+
+#: app/templates/dashboard.html:134 app/templates/invoices.html:100
+msgid "Other"
+msgstr "Altă metodă"
+
+#: app/templates/dashboard.html:136
+msgid "Reference (optional)"
+msgstr "Referință"
+
+#: app/templates/dashboard.html:140 app/templates/invoices.html:111
+msgid "Save Payment"
+msgstr "Salvează plata"
+
+#: app/templates/dashboard.html:148
+msgid "View all invoices"
+msgstr "Total facturat"
+
+#: app/templates/dashboard.html:154
+msgid "No outstanding invoices at the moment. Nice!"
+msgstr ""
+
+#: app/templates/dashboard.html:164
 msgid "Active"
 msgstr "Active"
 
-#: app/templates/dashboard.html:52 app/templates/dashboard.html:124
+#: app/templates/dashboard.html:168 app/templates/dashboard.html:240
 msgid "Completed"
 msgstr "Finalizat"
 
-#: app/templates/dashboard.html:56 app/templates/dashboard.html:64
+#: app/templates/dashboard.html:172 app/templates/dashboard.html:180
 msgid "All"
 msgstr "Toate"
 
-#: app/templates/dashboard.html:61
+#: app/templates/dashboard.html:177
 msgid "Type"
 msgstr "Tip"
 
-#: app/templates/dashboard.html:103
+#: app/templates/dashboard.html:219
 msgid "Quote"
 msgstr "Ofertă"
 
-#: app/templates/dashboard.html:107
+#: app/templates/dashboard.html:223
 msgid "Quote Accepted"
 msgstr "Ofertă acceptată"
 
-#: app/templates/dashboard.html:111
+#: app/templates/dashboard.html:227
 msgid "Quote Declined"
 msgstr "Ofertă refuzată"
 
-#: app/templates/dashboard.html:115
+#: app/templates/dashboard.html:231
 msgid "Quote Sent"
 msgstr "Ofertă trimisă"
 
-#: app/templates/dashboard.html:120
+#: app/templates/dashboard.html:236
 msgid "Done"
 msgstr "Finalizează"
 
-#: app/templates/dashboard.html:132
+#: app/templates/dashboard.html:248
 msgid "Delete this job?"
 msgstr "Ștergi acest job?"
 
-#: app/templates/dashboard.html:134
+#: app/templates/dashboard.html:250
 msgid "Delete"
 msgstr "Șterge"
 
-#: app/templates/dashboard.html:143
+#: app/templates/dashboard.html:259
 msgid "No jobs in this category."
 msgstr "Niciun job în această categorie."
 
-#: app/templates/dashboard.html:146
+#: app/templates/dashboard.html:262
 msgid "Add your first job"
 msgstr "Adaugă primul tău job"
+
+#: app/templates/expense_review.html:2
+msgid "Review receipt"
+msgstr "La primire"
+
+#: app/templates/expense_review.html:6
+msgid "Review your expense"
+msgstr "Verificați cheltuiala"
+
+#: app/templates/expense_review.html:8
+msgid "Check the details below and edit anything wrong before saving."
+msgstr ""
+
+#: app/templates/expense_review.html:20
+msgid "These details were unclear and still need checking:"
+msgstr ""
+
+#: app/templates/expense_review.html:38 app/templates/expenses.html:49
+#: app/templates/expenses.html:90
+msgid "Merchant"
+msgstr ""
+
+#: app/templates/expense_review.html:43 app/templates/expenses.html:48
+#: app/templates/expenses.html:94 app/templates/payments.html:20
+msgid "Date"
+msgstr "Data"
+
+#: app/templates/expense_review.html:48 app/templates/expenses.html:98
+msgid "Amount (GBP)"
+msgstr "Sumă"
+
+#: app/templates/expense_review.html:53 app/templates/expenses.html:103
+msgid "VAT amount"
+msgstr "Sumă"
+
+#: app/templates/expense_review.html:58 app/templates/expenses.html:50
+#: app/templates/expenses.html:108
+msgid "Category"
+msgstr ""
+
+#: app/templates/expense_review.html:72 app/templates/expenses.html:121
+msgid "Save expense"
+msgstr "Salveaz\\u0103 cheltuiala"
+
+#: app/templates/expense_scan.html:2 app/templates/expense_scan.html:6
+#: app/templates/expenses.html:13
+msgid "Scan a receipt"
+msgstr "Scaneaz\\u0103 o chitan\\u021b\\u0103"
+
+#: app/templates/expense_scan.html:7
+msgid ""
+"Take a photo of your receipt and we'll extract the details for you to "
+"review and save."
+msgstr ""
+
+#: app/templates/expense_scan.html:11
+msgid ""
+"AI scanning is not configured yet. You can still upload the photo — "
+"you'll enter the details from it manually."
+msgstr ""
+
+#: app/templates/expense_scan.html:18
+msgid "Receipt photo"
+msgstr "Fotografia chitanței"
+
+#: app/templates/expense_scan.html:21
+msgid "JPEG, PNG or WEBP, max 8MB."
+msgstr ""
+
+#: app/templates/expense_scan.html:23
+msgid "Upload & scan"
+msgstr "Încarcă și scanează"
+
+#: app/templates/expense_scan.html:27
+msgid "Back to expenses"
+msgstr "Înapoi la autentificare"
+
+#: app/templates/expenses.html:20
+msgid "Expenses this month"
+msgstr "Această lună"
+
+#: app/templates/expenses.html:24
+msgid "Count"
+msgstr "Sumă"
+
+#: app/templates/expenses.html:40
+msgid "No expenses recorded for this month."
+msgstr "Nicio plată înregistrată încă."
+
+#: app/templates/expenses.html:41
+msgid "Add one below or scan a receipt."
+msgstr "Adaugă una mai jos sau scanează o chitanță."
+
+#: app/templates/expenses.html:73
+msgid "Delete this expense?"
+msgstr "Ștergi acest job?"
+
+#: app/templates/expenses.html:86
+msgid "Add an expense"
+msgstr "Adaugă o cheltuială"
 
 #: app/templates/forgot_password.html:5
 msgid "Forgot Password"
@@ -570,10 +961,6 @@ msgstr "Trimite linkul"
 msgid "Back to Login"
 msgstr "Înapoi la autentificare"
 
-#: app/templates/invoices.html:55
-msgid "Record Payment"
-msgstr "Înregistrează plata"
-
 #: app/templates/invoices.html:62
 msgid "Pay Online"
 msgstr "Plătește Online"
@@ -594,22 +981,6 @@ msgstr "Anulează"
 msgid "Method"
 msgstr "Metodă"
 
-#: app/templates/invoices.html:97
-msgid "Bank Transfer"
-msgstr "Transfer bancar"
-
-#: app/templates/invoices.html:98
-msgid "Cash"
-msgstr "Numerar"
-
-#: app/templates/invoices.html:99
-msgid "Card"
-msgstr "Card"
-
-#: app/templates/invoices.html:100
-msgid "Other"
-msgstr "Altă metodă"
-
 #: app/templates/invoices.html:104 app/templates/payments.html:22
 msgid "Reference"
 msgstr "Referință"
@@ -617,10 +988,6 @@ msgstr "Referință"
 #: app/templates/invoices.html:105
 msgid "Optional"
 msgstr "Opțional"
-
-#: app/templates/invoices.html:111
-msgid "Save Payment"
-msgstr "Salvează plata"
 
 #: app/templates/invoices.html:122
 msgid "No invoices yet."
@@ -658,10 +1025,6 @@ msgstr "Jurnal de plăți"
 msgid "Total received"
 msgstr "Total încasat"
 
-#: app/templates/payments.html:20
-msgid "Date"
-msgstr "Data"
-
 #: app/templates/payments.html:42
 msgid "No payments recorded yet."
 msgstr "Nicio plată înregistrată încă."
@@ -690,7 +1053,7 @@ msgstr "Ai deja cont?"
 msgid "Log in"
 msgstr "Loghează-te"
 
-#: app/templates/send_quote.html:5 app/templates/send_quote.html:35
+#: app/templates/send_quote.html:5 app/templates/send_quote.html:53
 msgid "Send Quote"
 msgstr "Trimite oferta"
 
@@ -699,8 +1062,247 @@ msgid "Sending quote to"
 msgstr "Trimiți oferta către"
 
 #: app/templates/send_quote.html:10
+msgid "Generate with AI"
+msgstr "Generează cu AI"
+
+#: app/templates/send_quote.html:11
+msgid ""
+"Describe the job to draft an editable quote. Review every price before "
+"sending."
+msgstr ""
+
+#: app/templates/send_quote.html:14
+msgid "e.g. Replace 6 downlights and install a new bathroom extractor."
+msgstr ""
+
+#: app/templates/send_quote.html:20
+msgid "Generate draft"
+msgstr "Generează ciornă"
+
+#: app/templates/send_quote.html:28
 msgid "Description of work"
 msgstr "Descrierea lucrării"
+
+#: app/templates/send_quote.html:35
+msgid "GBP"
+msgstr ""
+
+#: app/templates/send_quote.html:69
+msgid "Please describe the job first."
+msgstr ""
+
+#: app/templates/send_quote.html:71
+msgid "Generating draft…"
+msgstr "Se generează ciorna…"
+
+#: app/templates/send_quote.html:85 app/templates/send_quote.html:114
+msgid "Could not generate the quote."
+msgstr "Nu s-a putut începe plata."
+
+#: app/templates/send_quote.html:93
+msgid "Draft — review before sending"
+msgstr "Ciornă — verificați înainte de trimitere"
+
+#: app/templates/send_quote.html:95
+msgid "Labour"
+msgstr "Manoperă"
+
+#: app/templates/send_quote.html:96
+msgid "Materials"
+msgstr "Materiale"
+
+#: app/templates/send_quote.html:102
+msgid "No price generated — enter your own price."
+msgstr "Nu a fost generat niciun preț — introduceți prețul dvs."
+
+#: app/templates/send_quote.html:104 app/templates/vat_report.html:47
+#: app/templates/vat_report.html:63
+msgid "Total"
+msgstr "Subtotal"
+
+#: app/templates/tools.html:2
+msgid "Business Tools"
+msgstr "Tip de business"
+
+#: app/templates/tools.html:6
+msgid "Business tools"
+msgstr "Tip de business"
+
+#: app/templates/tools.html:7
+msgid ""
+"Quick calculators. All figures are estimates — not professional financial"
+" advice."
+msgstr ""
+
+#: app/templates/tools.html:10
+msgid "Invoiced last 12 months"
+msgstr "Setări factură"
+
+#: app/templates/tools.html:13
+msgid "jobs"
+msgstr "Lucrările mele"
+
+#: app/templates/tools.html:22
+msgid "Hourly rate"
+msgstr "Tarif orar"
+
+#: app/templates/tools.html:23
+msgid "What to charge per hour to cover your target salary and overheads."
+msgstr ""
+"Cât să ceri pe oră pentru a acoperi salariul țintă și cheltuielile "
+"generale."
+
+#: app/templates/tools.html:25
+msgid "Target yearly earnings (£)"
+msgstr ""
+
+#: app/templates/tools.html:28
+msgid "Working weeks/year"
+msgstr "Săptămâni lucrătoare/an"
+
+#: app/templates/tools.html:30
+msgid "Hours/week"
+msgstr "Această săptămână"
+
+#: app/templates/tools.html:33
+msgid "Yearly overheads (£)"
+msgstr "Cheltuieli anuale (£)"
+
+#: app/templates/tools.html:37 app/templates/tools.html:52
+#: app/templates/tools.html:71 app/templates/tools.html:84
+#: app/templates/tools.html:103
+msgid "Calculate"
+msgstr ""
+
+#: app/templates/tools.html:43
+msgid "Job price from materials"
+msgstr "Preț lucrare din materiale"
+
+#: app/templates/tools.html:44
+msgid "Apply a markup to your material cost."
+msgstr "Aplică o marjă la costul materialelor."
+
+#: app/templates/tools.html:46
+msgid "Materials cost (£)"
+msgstr "Cost materiale (£)"
+
+#: app/templates/tools.html:48
+msgid "Markup"
+msgstr "Marja"
+
+#: app/templates/tools.html:58
+msgid "Fuel cost per job"
+msgstr "Cost combustibil per lucrare"
+
+#: app/templates/tools.html:59
+msgid "Estimate what travelling to a job costs you."
+msgstr ""
+
+#: app/templates/tools.html:61
+msgid "Total miles for the job"
+msgstr ""
+
+#: app/templates/tools.html:64
+msgid "Van mpg"
+msgstr "Consum van (mpg)"
+
+#: app/templates/tools.html:66
+msgid "Fuel £/litre"
+msgstr "Combustibil £/litru"
+
+#: app/templates/tools.html:77
+msgid "VAT calculator"
+msgstr "Calculator TVA"
+
+#: app/templates/tools.html:78
+msgid "Add UK VAT (20 percent) to a net price."
+msgstr "Adaugă TVA UK (20 la sută) la un preț net."
+
+#: app/templates/tools.html:80
+msgid "Net price (£)"
+msgstr "Preț net (£)"
+
+#: app/templates/tools.html:90
+msgid "Suggested quote (day rate build-up)"
+msgstr "Ofertă sugerată (bazată pe tariful zilnic)"
+
+#: app/templates/tools.html:91
+msgid "Estimate a fair price for a job before you send a quote."
+msgstr "Estimați un preț corect pentru o lucrare înainte de a trimite o ofertă."
+
+#: app/templates/tools.html:93
+msgid "Estimated days"
+msgstr "Zile estimate"
+
+#: app/templates/tools.html:95
+msgid "Day rate (£)"
+msgstr "Tarif pe zi (£)"
+
+#: app/templates/tools.html:97
+msgid "Materials (£)"
+msgstr "Materiale (£)"
+
+#: app/templates/tools.html:99
+msgid "Profit margin"
+msgstr "Marja de profit"
+
+#: app/templates/tools.html:109
+msgid ""
+"Calculators return gross estimates before tax, NIC or VAT registration "
+"status. Check with your accountant."
+msgstr ""
+
+#: app/templates/tools.html:128
+msgid "Enter working weeks and hours per week."
+msgstr "Introduceți săptămânile lucrătoare și orele pe săptămână."
+
+#: app/templates/tools.html:130
+msgid "Charge at least"
+msgstr "Cere minimum"
+
+#: app/templates/tools.html:130
+msgid "per hour, all year."
+msgstr "pe oră, tot anul."
+
+#: app/templates/tools.html:135
+msgid "Recommended price:"
+msgstr ""
+
+#: app/templates/tools.html:135
+msgid "markup"
+msgstr "marjă"
+
+#: app/templates/tools.html:140
+msgid "Enter your van mpg."
+msgstr "Introduceți consumul vehiculului."
+
+#: app/templates/tools.html:143
+msgid "Fuel cost:"
+msgstr "Cost combustibil:"
+
+#: app/templates/tools.html:148 app/templates/vat_report.html:46
+msgid "VAT"
+msgstr "TVA"
+
+#: app/templates/tools.html:148
+msgid "gross"
+msgstr "brut"
+
+#: app/templates/tools.html:153
+msgid "Enter days and day rate."
+msgstr "Introduceți zilele și tariful pe zi."
+
+#: app/templates/tools.html:157
+msgid "Labour:"
+msgstr "Manoperă:"
+
+#: app/templates/tools.html:157
+msgid "materials:"
+msgstr "materiale:"
+
+#: app/templates/tools.html:157
+msgid "suggested quote:"
+msgstr "Trimite oferta"
 
 #: app/templates/vat_report.html:28
 msgid "Total VAT"
@@ -716,15 +1318,6 @@ msgstr "Luna"
 
 #: app/templates/vat_report.html:45
 msgid "Subtotal"
-msgstr "Subtotal"
-
-#: app/templates/vat_report.html:46
-msgid "VAT"
-msgstr "TVA"
-
-#: app/templates/vat_report.html:47 app/templates/vat_report.html:63
-#, fuzzy
-msgid "Total"
 msgstr "Subtotal"
 
 #~ msgid "Client Name"
@@ -801,4 +1394,7 @@ msgstr "Subtotal"
 
 #~ msgid "Payment link created (no client email set)."
 #~ msgstr "Link de plată creat (clientul nu are email setat)."
+
+#~ msgid "Upgrade to Pro — £22.99/month"
+#~ msgstr "Upgrade la Pro — £22.99/lună"
 

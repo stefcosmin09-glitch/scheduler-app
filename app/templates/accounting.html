@@ -41,6 +41,20 @@
     </div>
 </div>
 
+<div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+        <p class="text-gray-500 text-sm mb-1">{{ _('Expenses') }}</p>
+        <p class="text-3xl font-bold text-amber-600">{{ month_expenses|money }}</p>
+        <p class="text-gray-400 text-xs mt-1"><a href="{{ url_for('main.expenses', year=year, month=month) }}"
+            class="text-blue-600 hover:underline">{{ _('Manage expenses') }}</a></p>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+        <p class="text-gray-500 text-sm mb-1">{{ _('Net (invoiced − expenses)') }}</p>
+        <p class="text-3xl font-bold text-indigo-600">{{ net_total|money }}</p>
+        <p class="text-gray-400 text-xs mt-1">{{ _('Rough profit — not tax-adjusted') }}</p>
+    </div>
+</div>
+
 {% if invoices %}
 <div class="bg-white rounded-lg shadow overflow-x-auto">
     <table class="w-full min-w-[600px]">

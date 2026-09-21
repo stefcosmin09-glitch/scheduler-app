@@ -66,6 +66,26 @@ def create_app():
     csrf.init_app(app)
     app.jinja_env.filters['money'] = format_money
 
+    @app.context_processor
+    def inject_pricing():
+        from flask import request
+        from app.pricing import PRO_MONTHLY, price_text, PREFERRED_CURRENCIES
+        currency = None
+        if current_user.is_authenticated and current_user.currency:
+            currency = current_user.currency
+        else:
+            c = request.cookies.get('ts_currency')
+            if c and c in PRO_MONTHLY:
+                currency = c
+        if currency not in PRO_MONTHLY:
+            currency = 'GBP'
+        return {
+            'display_currency': currency,
+            'pro_price_text': price_text(currency),
+            'PRO_PRICES': {k: price_text(k) for k in PRO_MONTHLY},
+            'PREFERRED_CURRENCIES': PREFERRED_CURRENCIES,
+        }
+
     from app.routes import auth, main
     app.register_blueprint(auth)
     app.register_blueprint(main)

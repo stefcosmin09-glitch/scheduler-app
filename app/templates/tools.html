@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Business Tools') }} — TradeScheduler{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">{{ _('Business tools') }}</h1>
+        <p class="text-sm text-gray-500">{{ _('Quick calculators. All figures are estimates — not professional financial advice.') }}</p>
+        {% if invoiced_12m > 0 %}
+        <div class="mt-3 inline-flex items-center gap-2 bg-white rounded-lg shadow px-4 py-2 text-sm">
+            <span class="text-gray-500">{{ _('Invoiced last 12 months') }}:</span>
+            <strong class="text-gray-800">£{{ '%.2f'|format(invoiced_12m) }}</strong>
+            <span class="text-gray-400">·</span>
+            <span class="text-gray-500">{{ _('jobs') }}:</span>
+            <strong class="text-gray-800">{{ jobs_12m }}</strong>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <div class="bg-white rounded-lg shadow p-6" data-calc="hourly">
+            <h2 class="font-semibold text-gray-800 mb-1">⏱ {{ _('Hourly rate') }}</h2>
+            <p class="text-xs text-gray-400 mb-4">{{ _('What to charge per hour to cover your target salary and overheads.') }}</p>
+            <div class="space-y-3 text-sm">
+                <div><label class="text-gray-600">{{ _('Target yearly earnings (£)') }}</label>
+                    <input id="hr-target" type="number" min="0" step="1" class="w-full border border-gray-300 rounded px-3 py-2" value="{{ invoiced_12m|int or '' }}"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-gray-600">{{ _('Working weeks/year') }}</label>
+                        <input id="hr-weeks" type="number" min="1" step="1" value="48" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+                    <div><label class="text-gray-600">{{ _('Hours/week') }}</label>
+                        <input id="hr-hours" type="number" min="1" step="1" value="40" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+                </div>
+                <div><label class="text-gray-600">{{ _('Yearly overheads (£)') }}</label>
+                    <input id="hr-over" type="number" min="0" step="1" value="0" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+            </div>
+            <button onclick="calcHourly(this)" class="mt-4 w-full bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded hover:bg-blue-700">
+                {{ _('Calculate') }}
+            </button>
+            <p class="mt-3 text-sm text-gray-700 hidden result"></p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6" data-calc="jobprice">
+            <h2 class="font-semibold text-gray-800 mb-1">🔧 {{ _('Job price from materials') }}</h2>
+            <p class="text-xs text-gray-400 mb-4">{{ _('Apply a markup to your material cost.') }}</p>
+            <div class="space-y-3 text-sm">
+                <div><label class="text-gray-600">{{ _('Materials cost (£)') }}</label>
+                    <input id="jp-cost" type="number" min="0" step="0.01" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+                <div><label class="text-gray-600">{{ _('Markup') }} (%)</label>
+                    <input id="jp-markup" type="number" min="0" step="1" value="20" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+            </div>
+            <button onclick="calcJobPrice(this)" class="mt-4 w-full bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded hover:bg-blue-700">
+                {{ _('Calculate') }}
+            </button>
+            <p class="mt-3 text-sm text-gray-700 hidden result"></p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6" data-calc="fuel">
+            <h2 class="font-semibold text-gray-800 mb-1">⛽ {{ _('Fuel cost per job') }}</h2>
+            <p class="text-xs text-gray-400 mb-4">{{ _('Estimate what travelling to a job costs you.') }}</p>
+            <div class="space-y-3 text-sm">
+                <div><label class="text-gray-600">{{ _('Total miles for the job') }}</label>
+                    <input id="fl-miles" type="number" min="0" step="1" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="text-gray-600">{{ _('Van mpg') }}</label>
+                        <input id="fl-mpg" type="number" min="1" step="1" value="30" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+                    <div><label class="text-gray-600">{{ _('Fuel £/litre') }}</label>
+                        <input id="fl-price" type="number" min="0" step="0.01" value="1.50" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+                </div>
+            </div>
+            <button onclick="calcFuel(this)" class="mt-4 w-full bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded hover:bg-blue-700">
+                {{ _('Calculate') }}
+            </button>
+            <p class="mt-3 text-sm text-gray-700 hidden result"></p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6" data-calc="vat">
+            <h2 class="font-semibold text-gray-800 mb-1">🧾 {{ _('VAT calculator') }}</h2>
+            <p class="text-xs text-gray-400 mb-4">{{ _('Add UK VAT (20 percent) to a net price.') }}</p>
+            <div class="space-y-3 text-sm">
+                <div><label class="text-gray-600">{{ _('Net price (£)') }}</label>
+                    <input id="vt-net" type="number" min="0" step="0.01" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+            </div>
+            <button onclick="calcVat(this)" class="mt-4 w-full bg-blue-600 text-white text-sm font-semibold px-4 py-2 rounded hover:bg-blue-700">
+                {{ _('Calculate') }}
+            </button>
+            <p class="mt-3 text-sm text-gray-700 hidden result"></p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow p-6 md:col-span-2" data-calc="quote">
+            <h2 class="font-semibold text-gray-800 mb-1">📋 {{ _('Suggested quote (day rate build-up)') }}</h2>
+            <p class="text-xs text-gray-400 mb-4">{{ _('Estimate a fair price for a job before you send a quote.') }}</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <div><label class="text-gray-600">{{ _('Estimated days') }}</label>
+                    <input id="q-days" type="number" min="0.25" step="0.25" value="1" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+                <div><label class="text-gray-600">{{ _('Day rate (£)') }}</label>
+                    <input id="q-dayrate" type="number" min="0" step="0.01" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+                <div><label class="text-gray-600">{{ _('Materials (£)') }}</label>
+                    <input id="q-materials" type="number" min="0" step="0.01" value="0" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+                <div><label class="text-gray-600">{{ _('Profit margin') }} (%)</label>
+                    <input id="q-margin" type="number" min="0" step="1" value="15" class="w-full border border-gray-300 rounded px-3 py-2"></div>
+            </div>
+            <button onclick="calcQuote(this)" class="mt-4 bg-blue-600 text-white text-sm font-semibold px-6 py-2 rounded hover:bg-blue-700">
+                {{ _('Calculate') }}
+            </button>
+            <p class="mt-3 text-sm text-gray-700 hidden result"></p>
+        </div>
+    </div>
+
+    <p class="text-xs text-gray-400 mt-6">{{ _('Calculators return gross estimates before tax, NIC or VAT registration status. Check with your accountant.') }}</p>
+</div>
+
+<script>
+    function money(n) {
+        return '£' + (isFinite(n) ? n.toFixed(2) : '0.00');
+    }
+    function showResult(btn, text) {
+        var p = btn.parentElement.querySelector('.result');
+        p.textContent = text;
+        p.classList.remove('hidden');
+    }
+    function track(calc) {
+        if (window.gtag) gtag('event', 'calculator_used', { 'event_category': 'tools', 'event_label': calc });
+    }
+    function num(id) { var v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; }
+    function calcHourly(btn) {
+        track('hourly');
+        var t = num('hr-target'), w = num('hr-weeks'), h = num('hr-hours'), o = num('hr-over');
+        if (w <= 0 || h <= 0) { showResult(btn, '{{ _('Enter working weeks and hours per week.') }}'); return; }
+        var rate = (t + o) / (w * h);
+        showResult(btn, '{{ _('Charge at least') }} ' + money(rate) + ' ' + '{{ _('per hour, all year.') }}');
+    }
+    function calcJobPrice(btn) {
+        track('jobprice');
+        var c = num('jp-cost'), m = num('jp-markup');
+        showResult(btn, '{{ _('Recommended price:') }} ' + money(c * (1 + m / 100)) + ' ' + '(materials + ' + m + '% ' + '{{ _('markup') }}).');
+    }
+    function calcFuel(btn) {
+        track('fuel');
+        var miles = num('fl-miles'), mpg = num('fl-mpg'), price = num('fl-price');
+        if (mpg <= 0) { showResult(btn, '{{ _('Enter your van mpg.') }}'); return; }
+        var litres = miles / mpg * 4.546;
+        var cost = litres * price;
+        showResult(btn, '{{ _('Fuel cost:') }} ' + money(cost) + ' (' + litres.toFixed(1) + ' l)');
+    }
+    function calcVat(btn) {
+        track('vat');
+        var net = num('vt-net');
+        showResult(btn, '{{ _('VAT') }} (20%): ' + money(net * 0.2) + ' — ' + '{{ _('gross') }}: ' + money(net * 1.2));
+    }
+    function calcQuote(btn) {
+        track('quote');
+        var days = num('q-days'), dr = num('q-dayrate'), mat = num('q-materials'), m = num('q-margin');
+        if (days <= 0 || dr <= 0) { showResult(btn, '{{ _('Enter days and day rate.') }}'); return; }
+        var labour = days * dr;
+        var subtotal = labour + mat;
+        var total = subtotal * (1 + m / 100);
+        showResult(btn, '{{ _('Labour:') }} ' + money(labour) + ' · ' + '{{ _('materials:') }} ' + money(mat) + ' → ' + '{{ _('suggested quote:') }} ' + money(total));
+    }
+</script>
+{% endblock %}

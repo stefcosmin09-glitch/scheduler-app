@@ -104,3 +104,32 @@ class Job(db.Model):
     quote_description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+EXPENSE_CATEGORIES = [
+    'Materials',
+    'Tools',
+    'Fuel / Vehicle',
+    'Subcontractors',
+    'Insurance',
+    'Accountancy',
+    'Marketing',
+    'Rent / Office',
+    'Phone / Internet',
+    'Trade body / Courses',
+    'Other',
+]
+
+class Expense(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    merchant = db.Column(db.String(200))
+    description = db.Column(db.Text)
+    date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    total = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    vat_amount = db.Column(db.Numeric(10, 2))
+    currency = db.Column(db.String(10), default='GBP', server_default='GBP')
+    category = db.Column(db.String(60), default='Other')
+    receipt_image = db.Column(db.String(300))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('User', backref='expenses')
