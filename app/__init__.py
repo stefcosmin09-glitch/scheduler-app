@@ -24,6 +24,7 @@ CURRENCY_SYMBOLS = {
     'RON': ('lei', True),
     'EUR': ('€', True),
     'USD': ('$', False),
+    'AUD': ('AU$', False),
 }
 
 def format_money(amount, currency=None):
