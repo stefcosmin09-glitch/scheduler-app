@@ -68,7 +68,7 @@ def generate_invoice(job, user, invoice=None):
 
     invoice_curr = job.currency or user.currency or 'GBP'
     tax_country = (business.tax_country if business else 'UK') or 'UK'
-    tax_labels = {'UK': 'VAT', 'USA': 'Sales Tax', 'RO': 'TVA'}
+    tax_labels = {'UK': 'VAT', 'USA': 'Sales Tax', 'RO': 'TVA', 'AU': 'GST'}
     tax_label = tax_labels.get(tax_country, 'VAT')
     tax_rate = float(business.vat_rate) if business and business.vat_rate else 0
 
@@ -122,7 +122,7 @@ def generate_invoice(job, user, invoice=None):
     # ---------- Header band ----------
     vat_note = ''
     if business and business.vat_registered and business.vat_number:
-        tax_no_labels = {'UK': 'VAT No', 'USA': 'Sales Tax ID', 'RO': 'Nr. TVA'}
+        tax_no_labels = {'UK': 'VAT No', 'USA': 'Sales Tax ID', 'RO': 'Nr. TVA', 'AU': 'ABN / GST No'}
         vat_note = f"{tax_no_labels.get(tax_country, 'VAT No')}: {esc(business.vat_number)}"
 
     biz_para = Paragraph(

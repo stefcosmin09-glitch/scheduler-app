@@ -1385,7 +1385,7 @@ def set_language():
 @login_required
 def set_currency():
     currency = request.form.get('currency')
-    if currency in ('GBP', 'RON', 'EUR', 'USD'):
+    if currency in ('GBP', 'RON', 'EUR', 'USD', 'AUD'):
         current_user.currency = currency
         db.session.commit()
     next_url = request.args.get('next') or url_for('main.dashboard')

@@ -119,6 +119,7 @@
                 class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-blue-500 mb-3">
                 <option value="UK" {{ 'selected' if not business or business.tax_country == 'UK' }}>🇬🇧 UK — VAT</option>
                 <option value="USA" {{ 'selected' if business and business.tax_country == 'USA' }}>🇺🇸 USA — Sales Tax</option>
+                <option value="AU" {{ 'selected' if business and business.tax_country == 'AU' else '' }}>🇦🇺 Australia — GST (10%)</option>
                 <option value="RO" {{ 'selected' if business and business.tax_country == 'RO' }}>🇷🇴 România — TVA</option>
             </select>
 
@@ -274,7 +275,8 @@ function toggleBusinessType(type) {
 const TAX_LABELS = {
     UK: { registered: 'VAT Registered', number: 'VAT Number', rate: 'VAT Rate (%)', defaultRate: '20.00' },
     USA: { registered: 'Collect Sales Tax', number: 'Sales Tax ID', rate: 'Sales Tax Rate (%)', defaultRate: '0.00' },
-    RO: { registered: 'Plătitor TVA', number: 'Număr TVA', rate: 'Cota TVA (%)', defaultRate: '19.00' }
+    RO: { registered: 'Plătitor TVA', number: 'Număr TVA', rate: 'Cota TVA (%)', defaultRate: '19.00' },
+    AU: { registered: 'GST Registered', number: 'ABN / GST Number', rate: 'GST Rate (%)', defaultRate: '10.00' }
 };
 
 function toggleTaxCountry(country) {
