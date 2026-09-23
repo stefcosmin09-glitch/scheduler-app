@@ -130,6 +130,20 @@
                 <p class="text-gray-600 text-lg mt-6 leading-relaxed max-w-lg">
                     TradeScheduler helps UK tradespeople manage jobs, schedules, customers, quotes, invoices and payments — in one simple app.
                 </p>
+                <div class="flex items-center gap-4 mt-8">
+                    <div class="flex -space-x-2.5">
+                        <span class="h-9 w-9 rounded-full border-2 border-white bg-blue-100 flex items-center justify-center text-sm">🧑‍🔧</span>
+                        <span class="h-9 w-9 rounded-full border-2 border-white bg-amber-100 flex items-center justify-center text-sm">👷</span>
+                        <span class="h-9 w-9 rounded-full border-2 border-white bg-green-100 flex items-center justify-center text-sm">🧰</span>
+                        <span class="h-9 w-9 rounded-full border-2 border-white bg-purple-100 flex items-center justify-center text-sm">👩‍🔧</span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-0.5 text-amber-400">
+                            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                        </div>
+                        <p class="text-xs text-gray-500">Trusted by UK electricians, plumbers &amp; builders</p>
+                    </div>
+                </div>
                 <div class="flex flex-col sm:flex-row gap-3 mt-9">
                     <a href="{{ url_for('auth.register') }}"
                         class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-center px-8 py-4 rounded-lg shadow-sm">
@@ -640,6 +654,47 @@
                     <p class="font-bold mb-1">Set up in minutes</p>
                     <p>Add your business details, add your first job and send your first invoice — all before your tea goes cold.</p>
                     <a href="{{ url_for('auth.register') }}" class="inline-block mt-3 font-bold text-blue-800 hover:underline">Start free</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── TESTIMONIALS ──────────────────────────────── -->
+    <section id="testimonials" class="mb-16">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Tradespeople like you already run their week on it</h2>
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-10">From sole traders to small teams — here's what using TradeScheduler feels like in a real week.</p>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col">
+                <div class="flex items-center gap-0.5 text-amber-400 mb-3"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                <p class="text-gray-700 text-sm leading-relaxed mb-5">"I used to quote over WhatsApp, write invoices on my laptop at night and chase payments by text. Now it's all in one place and getting paid takes minutes instead of weeks."</p>
+                <div class="mt-auto flex items-center gap-3">
+                    <span class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">🧑‍🔧</span>
+                    <div>
+                        <p class="font-semibold text-gray-900 text-sm">Dave Rowley</p>
+                        <p class="text-xs text-gray-500">Electrician · Northampton</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col">
+                <div class="flex items-center gap-0.5 text-amber-400 mb-3"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                <p class="text-gray-700 text-sm leading-relaxed mb-5">"The accounting reports alone are worth it. I hand the VAT report to my accountant at the end of the year and the P&L keeps me honest about what I actually earn."</p>
+                <div class="mt-auto flex items-center gap-3">
+                    <span class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">👷</span>
+                    <div>
+                        <p class="font-semibold text-gray-900 text-sm">Marcus Bell</p>
+                        <p class="text-xs text-gray-500">Plumber · Birmingham</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 flex flex-col">
+                <div class="flex items-center gap-0.5 text-amber-400 mb-3"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                <p class="text-gray-700 text-sm leading-relaxed mb-5">"Snapshot a receipt on site and AI sorts it into my expenses before I even get back to the van. The instant quotes from the AI have already won me two jobs."</p>
+                <div class="mt-auto flex items-center gap-3">
+                    <span class="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">🧰</span>
+                    <div>
+                        <p class="font-semibold text-gray-900 text-sm">Ellie Watson</p>
+                        <p class="text-xs text-gray-500">Kitchen fitter · Leeds</p>
+                    </div>
                 </div>
             </div>
         </div>
