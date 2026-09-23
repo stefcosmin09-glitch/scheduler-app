@@ -14,6 +14,18 @@
         {% endif %}
     {% endwith %}
 
+    {% if request.args.get('billing') == 'success' %}
+    {% set ads_session = request.args.get('session_id') or '' %}
+    <script>
+        if (window.gtag) {
+            gtag('event', 'conversion', {
+                'send_to': 'AW-18339646944/1kwnCPLb2YIdEOCbg6lE',
+                'transaction_id': '{{ ads_session | safe }}',
+            });
+        }
+    </script>
+    {% endif %}
+
     <!-- Plan -->
     <div class="mb-6 border-2 border-blue-200 rounded-lg p-5 bg-blue-50">
         <div class="flex items-center justify-between flex-wrap gap-3">

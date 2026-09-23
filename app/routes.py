@@ -760,7 +760,7 @@ def billing_checkout():
             line_items=[{'price': price_id, 'quantity': 1}],
             metadata={'user_id': current_user.id, 'plan': 'pro'},
             client_reference_id=str(current_user.id),
-            success_url=url_for('main.business_settings', _external=True) + '?billing=success',
+            success_url=url_for('main.business_settings', _external=True) + '?billing=success&session_id={CHECKOUT_SESSION_ID}',
             cancel_url=url_for('main.business_settings', _external=True),
             **session_kwargs,
         )
