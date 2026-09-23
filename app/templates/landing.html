@@ -795,18 +795,21 @@
         var LABELS = {
             GBP: ['Great Britain', 'GBP'],
             USD: ['the United States', 'USD'],
-            RON: ['Romania', 'RON']
+            RON: ['Romania', 'RON'],
+            AUD: ['Australia', 'AUD']
         };
         function detectCurrency() {
             var tz = '';
             try { tz = Intl.DateTimeFormat && Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
             if (tz.indexOf('Europe/Bucharest') === 0) return 'RON';
+            if (tz.indexOf('Australia/') === 0) return 'AUD';
             if (tz.indexOf('America/') === 0) return 'USD';
             if (tz.indexOf('Europe/London') === 0) return 'GBP';
             var lang = (navigator.language || 'en').toLowerCase();
             if (lang.indexOf('ro') === 0) return 'RON';
             if (lang.indexOf('en-gb') === 0) return 'GBP';
-            if (/^en-(us|ca|au)/.test(lang)) return 'USD';
+            if (lang.indexOf('en-au') === 0) return 'AUD';
+            if (/^en-(us|ca)/.test(lang)) return 'USD';
             return 'GBP';
         }
         function getCookie(name) {

@@ -1,15 +1,21 @@
+"""Landing-page currency localisation.
+
+PRO_MONTHLY drives every displayed/charged price.
+PREFERRED_CURRENCIES reflects the displayed, localised order on the landing page.
+"""
 from decimal import Decimal
 
 PRO_MONTHLY = {
     'GBP': Decimal('22.99'),
     'USD': Decimal('25.99'),
     'RON': Decimal('99'),
+    'AUD': Decimal('34.99'),
 }
 
 # PREFERRED_CURRENCIES reflects the displayed, localised order on the landing page
-PREFERRED_CURRENCIES = ['GBP', 'USD', 'RON']
+PREFERRED_CURRENCIES = ['GBP', 'USD', 'RON', 'AUD']
 
-_SYMBOL = {'GBP': '\u00a3', 'USD': '$', 'RON': 'lei', 'EUR': '\u20ac'}
+_SYMBOL = {'GBP': '\u00a3', 'USD': '$', 'RON': 'lei', 'EUR': '\u20ac', 'AUD': 'AU$'}
 
 
 def price_text(currency='GBP'):
