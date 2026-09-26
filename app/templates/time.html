@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+{% block title %}{{ _('Time tracking') }} — TradeScheduler{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto">
+
+    {# A timer left running on another page still needs to be stoppable. #}
+    {% if running %}
+    <div class="mb-6 rounded-lg border-2 border-emerald-500 bg-emerald-50 p-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wide text-emerald-700">{{ _('Timer running') }}</p>
+                <p class="text-lg font-bold text-gray-800">{{ running.job.client_name if running.job else _('Job') }}</p>
+                <p class="text-sm text-gray-500">
+                    {{ _('Started') }} {{ running.started_at.strftime('%d/%m/%Y %H:%M') }}
+                </p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="timer-live text-2xl font-bold tabular-nums text-emerald-700"
+                      data-started="{{ running.started_at.isoformat() }}">--:--</span>
+                <form method="POST" action="{{ url_for('main.stop_timer') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="note" value="">
+                    <button class="rounded-lg bg-emerald-600 px-5 py-2.5 font-semibold text-white hover:bg-emerald-700">
+                        {{ _('Stop') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">{{ _('Time tracking') }}</h1>
+            <p class="text-sm text-gray-500">{{ _('See where the hours actually went.') }}</p>
+        </div>
+        <button onclick="document.getElementById('manual-form').classList.toggle('hidden')"
+                class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+            {{ _('Add time manually') }}
+        </button>
+    </div>
+
+    {% if not running %}
+    <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+        <p class="text-sm text-gray-700">{{ _('No timer running. Start one from any job on your dashboard, or add a block of time you forgot to track.') }}</p>
+    </div>
+    {% endif %}
+
+    <div id="manual-form" class="mb-6 hidden rounded-lg bg-white p-6 shadow">
+        <h2 class="mb-4 font-semibold text-gray-800">{{ _('Add time manually') }}</h2>
+        <form method="POST" action="{{ url_for('main.add_time_manual') }}" class="space-y-4 text-sm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div>
+                <label class="text-gray-600">{{ _('Job') }}</label>
+                <select name="job_id" required
+                        class="w-full rounded border border-gray-300 px-3 py-2">
+                    {% for job in jobs %}
+                    <option value="{{ job.id }}">{{ job.client_name }} — {{ job.date.strftime('%d/%m/%Y') }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-gray-600">{{ _('Hours') }}</label>
+                    <input type="number" name="hours" min="0" max="24" step="0.25" value="0"
+                           class="w-full rounded border border-gray-300 px-3 py-2">
+                </div>
+                <div>
+                    <label class="text-gray-600">{{ _('Minutes') }}</label>
+                    <select name="minutes" class="w-full rounded border border-gray-300 px-3 py-2">
+                        {% for m in [0, 5, 10, 15, 20, 30, 45] %}
+                        <option value="{{ m }}">{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="text-gray-600">{{ _('What did you do? (optional)') }}</label>
+                <input type="text" name="note" maxlength="200"
+                       class="w-full rounded border border-gray-300 px-3 py-2">
+            </div>
+            <button class="rounded-lg bg-blue-600 px-5 py-2 font-semibold text-white hover:bg-blue-700">
+                {{ _('Save') }}
+            </button>
+        </form>
+    </div>
+
+    {% if pro %}
+    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="rounded-lg bg-white p-5 shadow">
+            <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ _('Last 7 days') }}</p>
+            <p class="mt-1 text-2xl font-bold text-gray-800">{{ '%.1f'|format(weekly_minutes / 60) }} h</p>
+        </div>
+        <div class="rounded-lg bg-white p-5 shadow">
+            <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">{{ _('Entries recorded') }}</p>
+            <p class="mt-1 text-2xl font-bold text-gray-800">{{ total_entries }}</p>
+        </div>
+    </div>
+
+    {% if totals_by_job %}
+    <div class="mb-6 rounded-lg bg-white p-6 shadow">
+        <h2 class="mb-4 font-semibold text-gray-800">{{ _('Hours per job') }}</h2>
+        <div class="space-y-2">
+            {% set top = totals_by_job[0]['minutes'] or 1 %}
+            {% for row in totals_by_job %}
+            <div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-700">{{ row['job'].client_name }}</span>
+                    <span class="font-semibold tabular-nums text-gray-800">{{ '%.1f'|format(row['minutes'] / 60) }} h</span>
+                </div>
+                <div class="mt-1 h-2 overflow-hidden rounded bg-gray-100">
+                    <div class="h-full rounded bg-blue-500" style="width: {{ (row['minutes'] / top * 100)|round(0, 'floor')|int }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <div class="rounded-lg bg-white p-6 shadow">
+        <h2 class="mb-4 font-semibold text-gray-800">{{ _('Recent entries') }}</h2>
+        {% if entries %}
+        <div class="space-y-3">
+            {% for entry in entries %}
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3 last:border-0">
+                <div class="min-w-0">
+                    <p class="truncate font-medium text-gray-800">{{ entry.job.client_name if entry.job else _('Deleted job') }}</p>
+                    <p class="text-xs text-gray-500">
+                        {{ (entry.started_at or entry.created_at).strftime('%d/%m/%Y %H:%M') }}
+                        {% if entry.note %} · {{ entry.note }}{% endif %}
+                    </p>
+                </div>
+                <div class="flex items-center gap-3">
+                    {% if entry.is_running %}
+                    <span class="rounded bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">{{ _('running') }}</span>
+                    {% else %}
+                    <span class="tabular-nums font-semibold text-gray-800">{{ '%.1f'|format(entry.duration_minutes / 60) }} h</span>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('main.delete_time_entry', entry_id=entry.id) }}"
+                          onsubmit="return confirm('{{ _('Delete this entry?') }}')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="text-xs text-red-600 hover:underline">{{ _('Delete') }}</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-500">{{ _('Nothing tracked yet. Start a timer from a job, or add time manually.') }}</p>
+        {% endif %}
+
+        {% if hidden > 0 %}
+        <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <p class="text-sm text-gray-700">
+                {{ _('%(hidden)d older entries are hidden on the free plan.', hidden=hidden) }}
+            </p>
+            <a href="{{ url_for('main.billing_checkout') }}" class="mt-2 inline-block text-sm font-semibold text-blue-700 hover:underline">
+                {{ _('See full history with Pro') }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if not pro %}
+    <div class="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-5">
+        <h3 class="font-semibold text-gray-800">{{ _('Pro adds') }}</h3>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-gray-600">
+            <li>{{ _('Your full time history, not just the last %(count)d entries', count=free_limit) }}</li>
+            <li>{{ _('Hours-per-job breakdown and weekly totals') }}</li>
+            <li>{{ _('Calendar feed that syncs your jobs to Google or Apple Calendar') }}</li>
+        </ul>
+        <a href="{{ url_for('main.billing_checkout') }}"
+           class="mt-3 inline-block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+            {{ _('See Pro') }}
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    // The elapsed time is computed from the start timestamp rather than counted
+    // up, so it stays correct if the page is left open or the phone sleeps.
+    (function () {
+        var nodes = document.querySelectorAll('.timer-live');
+        if (!nodes.length) return;
+        function pad(n) { return (n < 10 ? '0' : '') + n; }
+        function tick() {
+            nodes.forEach(function (node) {
+                var started = new Date(node.dataset.started);
+                if (isNaN(started.getTime())) { node.textContent = '--:--'; return; }
+                // The server sends naive UTC; mark it as UTC so the browser
+                // does not read it as local time.
+                var secs = Math.max(0, Math.floor((Date.now() - (started.getTime() - started.getTimezoneOffset() * 60000)) / 1000));
+                var h = Math.floor(secs / 3600), m = Math.floor((secs % 3600) / 60);
+                node.textContent = h > 0 ? (h + ':' + pad(m)) : (pad(m) + ' min');
+            });
+        }
+        tick();
+        setInterval(tick, 1000);
+    })();
+</script>
+{% endblock %}

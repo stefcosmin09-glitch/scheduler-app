@@ -24,6 +24,9 @@ class User(UserMixin, db.Model):
     stripe_customer_id = db.Column(db.String(100))
     stripe_subscription_id = db.Column(db.String(100))
     stripe_subscription_status = db.Column(db.String(50))
+    # Secret for the /calendar/<token>.ics subscription feed. Null until the
+    # user asks for a calendar link, so we never mint tokens nobody uses.
+    calendar_token = db.Column(db.String(64), unique=True)
 
 class AIUsage(db.Model):
     """Per-user AI call counters, bucketed by period.
@@ -122,8 +125,63 @@ class Job(db.Model):
     quote_token = db.Column(db.String(64))
     quote_price = db.Column(db.Numeric(10, 2), default=0.0)
     quote_description = db.Column(db.Text)
+    # Planned length in minutes, used for the end time in the calendar feed.
+    duration_minutes = db.Column(db.Integer, nullable=False, default=60,
+                                 server_default='60')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+class TimeEntry(db.Model):
+    """Time spent on a job, from a timer or typed in after the fact.
+
+    A running timer has started_at set and ended_at still null, which is why
+    ended_at has to stay nullable: that is what "still going" looks like in the
+    database. Once stopped, minutes is filled in from the two timestamps so
+    reports never have to do the arithmetic. A manual entry skips the
+    timestamps entirely and just carries minutes.
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    job_id = db.Column(db.Integer, db.ForeignKey('job.id', ondelete='CASCADE'),
+                       nullable=False)
+    started_at = db.Column(db.DateTime)
+    ended_at = db.Column(db.DateTime)
+    minutes = db.Column(db.Integer)
+    note = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Deleting the job has to take its time entries with it: the FK is NOT NULL,
+    # so leaving them behind would fail the delete outright on Postgres.
+    job = db.relationship(
+        'Job',
+        backref=db.backref('time_entries', cascade='all, delete-orphan'),
+    )
+
+    @property
+    def is_running(self):
+        return self.started_at is not None and self.ended_at is None
+
+    @property
+    def duration_minutes(self):
+        """Minutes to display, preferring the stored value.
+
+        A running entry has no minutes yet, so fall back to counting from the
+        start time while the user watches the clock tick.
+        """
+        if self.minutes is not None:
+            return self.minutes
+        if self.is_running:
+            elapsed = datetime.utcnow() - self.started_at
+            return max(0, int(elapsed.total_seconds() // 60))
+        return 0
+
+    @staticmethod
+    def running_for(user_id):
+        return TimeEntry.query.filter(
+            TimeEntry.user_id == user_id,
+            TimeEntry.started_at.isnot(None),
+            TimeEntry.ended_at.is_(None),
+        ).order_by(TimeEntry.started_at.desc()).first()
 
 EXPENSE_CATEGORIES = [
     'Materials',

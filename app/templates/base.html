@@ -98,6 +98,7 @@
         <a href="{{ url_for('main.dashboard') }}" class="block whitespace-nowrap rounded-lg border border-white/60 bg-white/10 px-3 py-2 mb-2 hover:bg-white/20 hover:underline">🏠 {{ _('Dashboard') }}</a>
 
         <a href="{{ url_for('main.add_job') }}" class="block whitespace-nowrap rounded-lg border border-white/60 bg-white/10 px-3 py-2 mb-2 hover:bg-white/20 hover:underline">➕ {{ _('New Job') }}</a>
+        <a href="{{ url_for('main.time_tracking') }}" class="block whitespace-nowrap rounded-lg border border-white/60 bg-white/10 px-3 py-2 mb-2 hover:bg-white/20 hover:underline">⏱ {{ _('Time') }}</a>
 
         <a href="{{ url_for('main.invoices') }}" class="block whitespace-nowrap rounded-lg border border-white/60 bg-white/10 px-3 py-2 mb-2 hover:bg-white/20 hover:underline">📄 {{ _('Invoices') }}</a>
 
@@ -136,6 +137,7 @@
     {% macro desktop_nav() %}
         <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center whitespace-nowrap rounded-lg border border-white/60 px-3 py-1.5 hover:bg-white/10 hover:underline">🏠 {{ _('Dashboard') }}</a>
         <a href="{{ url_for('main.add_job') }}" class="inline-flex items-center whitespace-nowrap rounded-lg border border-white/60 px-3 py-1.5 hover:bg-white/10 hover:underline">➕ {{ _('New Job') }}</a>
+        <a href="{{ url_for('main.time_tracking') }}" class="inline-flex items-center whitespace-nowrap rounded-lg border border-white/60 px-3 py-1.5 hover:bg-white/10 hover:underline">⏱ {{ _('Time') }}</a>
         <a href="{{ url_for('main.invoices') }}" class="inline-flex items-center whitespace-nowrap rounded-lg border border-white/60 px-3 py-1.5 hover:bg-white/10 hover:underline">📄 {{ _('Invoices') }}</a>
         <a href="{{ url_for('main.payments') }}" class="inline-flex items-center whitespace-nowrap rounded-lg border border-white/60 px-3 py-1.5 hover:bg-white/10 hover:underline">💳 {{ _('Payments') }}</a>
         <div class="relative group">

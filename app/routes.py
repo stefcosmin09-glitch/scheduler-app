@@ -3,18 +3,26 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.currency import convert_to_base
-from app.limits import (consume, dashboard_state, is_unmetered,
+from app.limits import (consume, dashboard_state, is_pro, is_unmetered,
                         new_customer_block, reached)
 from itsdangerous import URLSafeTimedSerializer
-from app.models import User, Job, Invoice, Payment, ACTIVITY_TYPES, EXPENSE_CATEGORIES
+from app.models import User, Job, Invoice, Payment, TimeEntry, ACTIVITY_TYPES, EXPENSE_CATEGORIES
+from app.ics import build_feed, jobs_in_window
 from app.notifications import send_overdue_invoice_reminders
-from datetime import datetime
+from datetime import datetime, timedelta
+from urllib.parse import urlparse
 from flask import current_app
 from flask_babel import _ 
 from threading import Thread
 from app import db, format_money, csrf
 from functools import wraps
+from sqlalchemy import func
 import os
+import secrets
+
+# How many tracked entries the free plan can see. Tracking itself is open to
+# everyone; this only limits the history behind the report.
+FREE_TIME_ENTRIES = 5
 
 def trial_info(user):
     if user.plan == 'pro':
@@ -260,6 +268,18 @@ def dashboard():
     money_rows.sort(key=lambda r: (bucket_order[r['bucket']], r['days'] is None, r['days'] or 0))
     money_counts = counts
 
+    # Timer state and tracked totals for the job cards. One aggregate query
+    # rather than a lookup per job.
+    running_entry = TimeEntry.running_for(current_user.id)
+    tracked = {}
+    if jobs:
+        rows = (db.session.query(TimeEntry.job_id,
+                                 func.coalesce(func.sum(TimeEntry.minutes), 0))
+                .filter(TimeEntry.user_id == current_user.id,
+                        TimeEntry.job_id.in_([j.id for j in jobs]))
+                .group_by(TimeEntry.job_id).all())
+        tracked = {row[0]: int(row[1] or 0) for row in rows}
+
     return render_template('dashboard.html',
                            jobs=jobs,
                            activity_types=ACTIVITY_TYPES,
@@ -273,7 +293,9 @@ def dashboard():
                            limits=dashboard_state(current_user),
                            money=money,
                            money_counts=money_counts,
-                           money_rows=money_rows)
+                           money_rows=money_rows,
+                           running_entry=running_entry,
+                           tracked=tracked)
 
 
 @main.route('/job/add', methods=['GET', 'POST'])
@@ -297,6 +319,7 @@ def add_job():
             activity_type=request.form.get('activity_type', 'altele'),
             price=float(convert_to_base(request.form.get('price') or 0, currency)),
             currency=currency,
+            duration_minutes=_parse_duration(request.form.get('duration_minutes')),
             user_id=current_user.id
         )
         db.session.add(job)
@@ -305,6 +328,242 @@ def add_job():
         return redirect(url_for('main.dashboard'))
 
     return render_template('add_job.html', activity_types=ACTIVITY_TYPES)
+
+
+def _parse_duration(raw):
+    """Minutes from a form field, falling back to a sane default."""
+    try:
+        minutes = int(raw)
+    except (TypeError, ValueError):
+        return 60
+    if minutes <= 0 or minutes > 24 * 60:
+        return 60
+    return minutes
+
+
+@main.route('/time')
+@login_required
+def time_tracking():
+    """Tracked time: a live timer, recent entries and per-job totals.
+
+    The free plan can track time but only sees its five most recent entries;
+    the totals and the calendar feed are Pro.
+    """
+    running = TimeEntry.running_for(current_user.id)
+    pro = is_pro(current_user)
+
+    recent_q = (TimeEntry.query.filter_by(user_id=current_user.id)
+                .order_by(TimeEntry.created_at.desc()))
+    if pro:
+        recent = recent_q.all()
+        visible = recent
+        hidden = 0
+        total_entries = len(recent)
+    else:
+        # Only fetch the rows we are going to show: a long history must not
+        # turn the free page into a full-table read.
+        visible = recent_q.limit(FREE_TIME_ENTRIES).all()
+        total_entries = recent_q.count()
+        hidden = max(0, total_entries - len(visible))
+
+    jobs = Job.query.filter_by(user_id=current_user.id).order_by(Job.date).all()
+
+    # Totals only mean something with the whole history behind them, so they
+    # are part of Pro rather than a teaser.
+    totals_by_job = []
+    weekly_minutes = 0
+    if pro:
+        per_job = {}
+        for entry in recent:
+            job = entry.job
+            if job is None:
+                continue
+            row = per_job.setdefault(job.id, {'job': job, 'minutes': 0})
+            row['minutes'] += entry.duration_minutes
+        totals_by_job = sorted(per_job.values(),
+                               key=lambda r: r['minutes'], reverse=True)
+        week_start = datetime.utcnow() - timedelta(days=7)
+        weekly_minutes = sum(e.duration_minutes for e in recent
+                             if e.created_at and e.created_at >= week_start)
+
+    return render_template('time.html',
+                           running=running,
+                           entries=visible,
+                           hidden=hidden,
+                           total_entries=total_entries,
+                           jobs=jobs,
+                           totals_by_job=totals_by_job,
+                           weekly_minutes=weekly_minutes,
+                           free_limit=FREE_TIME_ENTRIES,
+                           pro=pro)
+
+
+def _owned_job(job_id):
+    job = Job.query.get(job_id)
+    if job is None or job.user_id != current_user.id:
+        return None
+    return job
+
+
+def _back(default_endpoint):
+    """Return to the page a form was submitted from, but stay on this site.
+
+    The Referer header is supplied by the caller, so a cross-origin value would
+    turn these redirects into a way to bounce people off to another site.
+    """
+    target = request.referrer or ''
+    if target:
+        parsed = urlparse(target)
+        if not parsed.netloc or parsed.netloc == request.host:
+            return redirect(target)
+    return redirect(url_for(default_endpoint))
+
+
+@main.route('/time/start/<int:job_id>', methods=['POST'])
+@login_required
+def start_timer(job_id):
+    job = _owned_job(job_id)
+    if job is None:
+        flash(_('You do not have permission.'))
+        return redirect(url_for('main.dashboard'))
+
+    running = TimeEntry.running_for(current_user.id)
+    if running is not None:
+        # One timer at a time. A second start would orphan the first as an
+        # entry that never ends, so make them stop it first.
+        if running.job_id == job.id:
+            flash(_('The timer is already running for this job.'))
+        else:
+            flash(_('Stop the timer on the other job before starting a new one.'))
+        return redirect(url_for('main.time_tracking'))
+
+    db.session.add(TimeEntry(user_id=current_user.id, job_id=job.id,
+                             started_at=datetime.utcnow()))
+    db.session.commit()
+    flash(_('Timer started.'))
+    return _back('main.time_tracking')
+
+
+@main.route('/time/stop', methods=['POST'])
+@login_required
+def stop_timer():
+    running = TimeEntry.running_for(current_user.id)
+    if running is None:
+        flash(_('No timer is running.'))
+        return redirect(url_for('main.time_tracking'))
+
+    running.ended_at = datetime.utcnow()
+    minutes = int((running.ended_at - running.started_at).total_seconds() // 60)
+    # Rounding a few seconds up to a minute beats reporting zero for a task
+    # someone really did.
+    running.minutes = max(1, minutes)
+    note = (request.form.get('note') or '').strip()
+    if note:
+        running.note = note
+    db.session.commit()
+
+    hours = running.minutes // 60
+    rest = running.minutes % 60
+    length = ('%dh %02dm' % (hours, rest)) if hours else ('%d min' % running.minutes)
+    flash(_('Logged %(length)s on this job.', length=length))
+    return _back('main.time_tracking')
+
+
+@main.route('/time/manual', methods=['POST'])
+@login_required
+def add_time_manual():
+    job = _owned_job(request.form.get('job_id', type=int))
+    if job is None:
+        flash(_('You do not have permission.'))
+        return redirect(url_for('main.time_tracking'))
+
+    hours = request.form.get('hours', type=float) or 0
+    minutes = request.form.get('minutes', type=int) or 0
+    total = int(round(hours * 60)) + minutes
+    if total <= 0:
+        flash(_('Enter how much time you spent.'))
+        return redirect(url_for('main.time_tracking'))
+    if total > 24 * 60:
+        flash(_('That is more than a day. Check the hours.'))
+        return redirect(url_for('main.time_tracking'))
+
+    db.session.add(TimeEntry(user_id=current_user.id, job_id=job.id,
+                             minutes=total,
+                             note=(request.form.get('note') or '').strip() or None))
+    db.session.commit()
+    flash(_('Time added.'))
+    return redirect(url_for('main.time_tracking'))
+
+
+@main.route('/time/delete/<int:entry_id>', methods=['POST'])
+@login_required
+def delete_time_entry(entry_id):
+    entry = TimeEntry.query.get(entry_id)
+    if entry is None or entry.user_id != current_user.id:
+        flash(_('You do not have permission.'))
+        return redirect(url_for('main.time_tracking'))
+    db.session.delete(entry)
+    db.session.commit()
+    flash(_('Entry removed.'))
+    return redirect(url_for('main.time_tracking'))
+
+
+def _calendar_owner(token):
+    """The Pro user a calendar token belongs to, if it is still valid.
+
+    Checking the plan here means a subscription stops working on its own if
+    someone downgrades, without waiting for a token to expire.
+    """
+    if not token:
+        return None
+    user = User.query.filter_by(calendar_token=token).first()
+    if user is None or not is_pro(user):
+        return None
+    return user
+
+
+@main.route('/calendar/<token>.ics')
+def calendar_feed(token):
+    user = _calendar_owner(token)
+    if user is None:
+        return ('Not found', 404, {'Content-Type': 'text/plain; charset=utf-8'})
+
+    jobs = (Job.query.filter_by(user_id=user.id)
+            .order_by(Job.date).all())
+    name = 'TradeScheduler Jobs'
+    business = user.business
+    if business:
+        label = business.trading_name or business.legal_name
+        if label:
+            name = '%s Jobs' % label
+
+    feed = build_feed(jobs_in_window(jobs), name)
+    response = make_response(feed)
+    response.headers['Content-Type'] = 'text/calendar; charset=utf-8'
+    # No caching: the point of the feed is that a rescheduled job shows up.
+    response.headers['Cache-Control'] = 'no-cache, max-age=0'
+    return response
+
+
+@main.route('/calendar/link', methods=['POST'])
+@login_required
+@pro_required
+def create_calendar_link():
+    if not current_user.calendar_token:
+        current_user.calendar_token = secrets.token_urlsafe(24)
+        db.session.commit()
+    flash(_('Calendar link ready.'))
+    return _back('main.business_settings')
+
+
+@main.route('/calendar/link/reset', methods=['POST'])
+@login_required
+@pro_required
+def reset_calendar_link():
+    current_user.calendar_token = secrets.token_urlsafe(24)
+    db.session.commit()
+    flash(_('New calendar link created. The old one no longer works.'))
+    return redirect(url_for('main.business_settings'))
 
 
 @main.route('/job/done/<int:job_id>')
@@ -330,9 +589,14 @@ def delete_job(job_id):
     if Invoice.query.filter_by(job_id=job.id).first():
         flash(_('This job has an invoice and cannot be deleted.'))
         return redirect(url_for('main.dashboard'))
+    tracked = len(job.time_entries)
     db.session.delete(job)
     db.session.commit()
-    flash(_('Job deleted.'))
+    if tracked:
+        flash(_('Job deleted, along with %(count)d time entries.',
+               count=tracked))
+    else:
+        flash(_('Job deleted.'))
     return redirect(url_for('main.dashboard'))
 
 
@@ -644,6 +908,8 @@ def business_settings():
         flash(_('Your Pro plan is now active. Welcome!'))
 
     return render_template('business_settings.html', business=business,
+                           calendar_token=current_user.calendar_token,
+                           pro=is_pro(current_user),
                            billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')),
                            trial_active=trial_info(current_user)[0],
                            trial_days=trial_info(current_user)[1])
