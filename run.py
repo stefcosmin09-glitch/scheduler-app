@@ -1,10 +1,12 @@
 from app import create_app, db, scheduler
 from app.notifications import send_due_job_reminders
-from flask_migrate import upgrade
+from migrate import ensure_schema
 from dotenv import load_dotenv
+import logging
 import os
 
 load_dotenv()
+logging.basicConfig(level=logging.INFO)
 
 app = create_app()
 
@@ -55,8 +57,21 @@ def _try_acquire_lock():
     return True
 
 if _try_acquire_lock():
-    with app.app_context():
-        upgrade()
+    # ensure_schema(), not flask_migrate.upgrade(). This platform starts the
+    # app with its own gunicorn command and never runs the CMD in the
+    # Dockerfile, so this import is the only place migrations can be brought
+    # up to date. upgrade() raised "Can't locate revision identified by
+    # 'e5f6a7b8c9d0'" on a database that predates the migration squash, and
+    # because this runs at import it killed every worker as it booted, over
+    # and over, so the site did not come up at all.
+    #
+    # A failure here has to stop the worker. Booting against a schema that is
+    # not the one the code expects is how a wrong column turns into a 500 in
+    # the middle of a customer's day, and it fails quieter than this does.
+    if ensure_schema() != 0:
+        logging.error('migrate: schema nu a putut fi adusa la versiunea '
+                      'curenta; opresc workerul')
+        raise SystemExit(1)
     _start_scheduler()
 
 if __name__ == '__main__':

@@ -126,11 +126,29 @@ def clear_version_marker(engine):
 
 
 def flask(*args):
-    return subprocess.call([sys.executable, '-m', 'flask', 'db'] + list(args))
+    """Run a flask db command in a subprocess.
+
+    FLASK_APP is forced to the app package rather than left to the
+    environment. Deployments that set FLASK_APP=run.py are common, and this
+    subprocess would then import run.py, which calls ensure_schema() at import,
+    which runs this again, until something gave up. The app package is what
+    holds create_app either way, and loading it skips the import-time
+    migration entirely.
+    """
+    env = dict(os.environ, FLASK_APP='app')
+    return subprocess.call([sys.executable, '-m', 'flask', 'db'] + list(args),
+                           env=env)
 
 
-def main():
-    url = resolve_url()
+def ensure_schema(url=None):
+    """Bring the database to the current revision. Returns an exit code.
+
+    Callable, because the deploy target does not run this script. The platform
+    starts the app with its own gunicorn command and ignores the CMD in the
+    Dockerfile, so run.py calls this at import instead. Keeping the logic in
+    one place means every way of starting the app gets the same treatment.
+    """
+    url = url or resolve_url()
     print('migrate: %s' % url.split('//')[0] + '//...')
 
     try:
@@ -151,7 +169,13 @@ def main():
         print('migrate: baza goala, aplic migrarile')
         return flask('upgrade')
 
-    if stamped and stamped not in known:
+    # No marker but tables present is the same situation as an unknown marker,
+    # and it is what a crash between clearing the marker and stamping it looks
+    # like. Treating it as current would make alembic run every migration from
+    # the base against tables that already exist, so it is handled the same
+    # way: stamp the root, then upgrade.
+    unknown = not stamped or stamped not in known
+    if unknown:
         if not tables:
             print('migrate: revizia %s nu exista si nu exista tabele, '
                   'aplic migrarile' % stamped)
@@ -163,8 +187,12 @@ def main():
             print('migrate: nu pot stabili inceputul istoricului comprimat '
                   '(%d migrari fara parinte). Nu ating baza.' % len(revisions))
             return 1
-        print('migrate: baza are deja schema, dar revizia %s a fost '
-              'comprimata; fac stamp la %s' % (stamped, root))
+        if stamped:
+            print('migrate: baza are deja schema, dar revizia %s a fost '
+                  'comprimata; fac stamp la %s' % (stamped, root))
+        else:
+            print('migrate: baza are schema, dar fara revizie (stamp '
+                  'intrerupt); refac de la %s' % root)
         clear_version_marker(engine)
         code = flask('stamp', root)
         if code:
@@ -174,6 +202,10 @@ def main():
 
     print('migrate: aplic migrarile')
     return flask('upgrade')
+
+
+def main():
+    return ensure_schema()
 
 
 if __name__ == '__main__':
