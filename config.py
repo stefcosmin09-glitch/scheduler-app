@@ -1,8 +1,19 @@
 import os
 
+def _database_uri():
+    raw = os.environ.get('DATABASE_URL') or 'sqlite:///scheduler.db'
+    # SQLAlchemy 2.1 flipped the default PostgreSQL driver to psycopg 3, but we
+    # ship psycopg2-binary. Pin the driver so a rebuild cannot swap it underneath
+    # us and take the whole app down at import time.
+    if '+' not in raw.split('://', 1)[0]:
+        for scheme in ('postgres://', 'postgresql://'):
+            if raw.startswith(scheme):
+                return 'postgresql+psycopg2://' + raw[len(scheme):]
+    return raw
+
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-schimba-in-productie'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///scheduler.db'
+    SQLALCHEMY_DATABASE_URI = _database_uri()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Receipt photos are base64-encoded before reaching the AI, so cap the whole
