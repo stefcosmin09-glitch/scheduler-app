@@ -21,6 +21,11 @@ if ROOT not in sys.path:
 _SCRATCH = tempfile.mkdtemp(prefix='tradescheduler-tests-')
 _DB_PATH = os.path.join(_SCRATCH, 'test.db').replace('\\', '/')
 os.environ['DATABASE_URL'] = 'sqlite:///' + _DB_PATH
+# The app refuses to start without a key, and the suite must not depend on a
+# SECRET_KEY happening to be in the developer's .env, or in CI where there is
+# no .env at all. A fixed value is correct here: every session in the run is
+# thrown away with the scratch directory.
+os.environ['SECRET_KEY'] = 'test-key-not-used-outside-this-scratch-directory'
 # The welcome email would otherwise block on a DNS timeout per registration.
 os.environ['MAIL_SUPPRESS_SEND'] = '1'
 os.environ['MAIL_DEFAULT_SENDER'] = 'tests@example.invalid'

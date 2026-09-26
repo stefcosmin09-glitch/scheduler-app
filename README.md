@@ -53,6 +53,25 @@ pytest
 ```
 
 The suite builds its own SQLite database in a temporary directory and never
+touches `instance/`. It sets its own `SECRET_KEY` and `DATABASE_URL`, so it
+does not need a `.env` either, which is what lets it run in CI.
+
+Tests also run on every push to `main` and on every pull request
+(`.github/workflows/tests.yml`), on Python 3.11 to match the Dockerfile. Beyond
+the suite, the workflow builds a database from nothing with `migrate.py` and
+checks that `requirements.txt` is still fully pinned. The build step is the one
+that matters most: the migration history was broken for a long time and only a
+fresh checkout could show it, because every developer already had a database.
+
+`SECRET_KEY` has no default. The app exits with an error rather than start
+without one, because a committed key would sign every session and CSRF token
+with a value published on GitHub. Generate one with:
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+The suite builds its own SQLite database in a temporary directory and never
 touches `instance/`, so it is safe to run against a real checkout.
 
 | File | Covers |
@@ -65,6 +84,7 @@ touches `instance/`, so it is safe to run against a real checkout.
 | `test_migrations.py` | A fresh database builds, matches the models, survives a downgrade, and the deploy entrypoint moves an old one over |
 | `test_encoding.py` | Sources stay valid UTF-8, no mojibake |
 | `test_no_secrets.py` | No credential-shaped literals are committed |
+| `test_secret_key.py` | The app refuses to start without `SECRET_KEY`, and no default is committed |
 
 ## Migrations
 

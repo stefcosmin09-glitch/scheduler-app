@@ -31,16 +31,24 @@ from sqlalchemy import create_engine, inspect, text
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VERSIONS = os.path.join(ROOT, 'migrations', 'versions')
 INITIAL = '0001_initial_schema'
+# The app refuses to start without one, and the deploy provides it, so every
+# subprocess here needs it too.
+TEST_ENV = {'SECRET_KEY': 'test-key-not-used-outside-this-scratch-directory'}
 
 
 def _db_url(path):
     return 'sqlite:///' + path.replace('\\', '/')
 
 
+def _env(db_path):
+    return dict(os.environ, DATABASE_URL=_db_url(db_path), **TEST_ENV)
+
+
 def _flask_db(db_path, *args):
-    env = dict(os.environ, DATABASE_URL=_db_url(db_path))
-    return subprocess.run([sys.executable, '-m', 'flask', 'db'] + list(args),
-                          cwd=ROOT, env=env, capture_output=True, text=True)
+    result = subprocess.run([sys.executable, '-m', 'flask', 'db'] + list(args),
+                            cwd=ROOT, env=_env(db_path),
+                            capture_output=True, text=True)
+    return result
 
 
 @pytest.fixture
@@ -278,7 +286,7 @@ def test_no_drift_between_models_and_migrations(built):
 
 def test_entrypoint_builds_an_empty_database(tmp_path):
     path = str(tmp_path / 'deploy-empty.db')
-    env = dict(os.environ, DATABASE_URL=_db_url(path))
+    env = _env(path)
     result = subprocess.run([sys.executable, 'migrate.py'], cwd=ROOT, env=env,
                             capture_output=True, text=True)
     assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-2000:]
@@ -287,7 +295,7 @@ def test_entrypoint_builds_an_empty_database(tmp_path):
 
 
 def test_entrypoint_is_idempotent(built):
-    env = dict(os.environ, DATABASE_URL=_db_url(built))
+    env = _env(built)
     result = subprocess.run([sys.executable, 'migrate.py'], cwd=ROOT, env=env,
                             capture_output=True, text=True)
     assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-2000:]
@@ -314,7 +322,7 @@ def test_entrypoint_stamps_a_squashed_revision(tmp_path):
     assert plain.returncode != 0, \
         'expected plain upgrade to fail on an unknown revision'
 
-    env = dict(os.environ, DATABASE_URL=_db_url(path))
+    env = _env(path)
     result = subprocess.run([sys.executable, 'migrate.py'], cwd=ROOT, env=env,
                             capture_output=True, text=True)
     assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-2000:]

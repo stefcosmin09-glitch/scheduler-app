@@ -1,0 +1,82 @@
+name: Tests
+
+# There was no CI, so nothing ran on a push except a Railway deploy, and a
+# Railway deploy is a bad place to find out that the migrations no longer
+# build a database from scratch. That is not hypothetical: the history was
+# broken for a long time and only a fresh checkout exposes it, because every
+# developer already had a database.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    # Matches the Dockerfile, so CI cannot pass on an interpreter the
+    # container does not use.
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+
+      # The suite sets its own SECRET_KEY and DATABASE_URL before importing
+      # the app, so nothing here depends on a .env or a stray instance/ file.
+      # There is deliberately no env: block. A secret injected here would be
+      # the one thing that could make a run pass that fails on a real
+      # checkout.
+      - name: Run the test suite
+        run: pytest -p no:warnings -q
+
+      # Separated from the suite above because this is the check that a
+      # developer cannot do by accident, and the one that has to keep holding:
+      # the migrations must build a database on their own. instance/ is absent
+      # in CI, which is the point.
+      - name: Build a database from nothing
+        run: |
+          export DATABASE_URL="sqlite:///$PWD/ci-build.db"
+          export SECRET_KEY="ci-only-not-a-real-key"
+          python migrate.py
+          python - <<'PY'
+          import os, sqlite3
+          db = sqlite3.connect('ci-build.db')
+          tables = {r[0] for r in db.execute(
+              "select name from sqlite_master where type='table'")}
+          expected = {'user', 'job', 'invoice', 'payment', 'business_profile',
+                      'time_entry', 'expense', 'ai_usage', 'alembic_version'}
+          missing = expected - tables
+          assert not missing, 'missing tables: %s' % sorted(missing)
+          revision = db.execute('select version_num from alembic_version').fetchone()[0]
+          assert revision == '0001_initial_schema', revision
+          print('built from nothing, stamped at', revision)
+          PY
+          rm -f ci-build.db
+
+      - name: Check requirements are pinned
+        run: |
+          # An unpinned requirements.txt is what took the app down once: a
+          # rebuild pulled SQLAlchemy 2.1 and changed the default PostgreSQL
+          # driver underneath a psycopg2 deployment.
+          if grep -vE '^\s*(#|$)' requirements.txt | grep -vE '=='; then
+            echo "::error::requirements.txt has an unpinned dependency"
+            exit 1
+          fi
