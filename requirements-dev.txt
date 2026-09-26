@@ -1,0 +1,7 @@
+# Test-only dependencies. Pinned to exact versions for the same reason as
+# requirements.txt: the suite asserts SQLAlchemy and Flask behaviour, so a
+# silent major bump should fail loudly rather than quietly change the results.
+#
+#   pip install -r requirements-dev.txt
+#   pytest
+pytest==8.4.2

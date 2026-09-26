@@ -44,3 +44,29 @@ DATABASE_URL=
 RESEND_API_KEY=
 MAIL_DEFAULT_SENDER=
 ```
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+The suite builds its own SQLite database in a temporary directory and never
+touches `instance/`, so it is safe to run against a real checkout.
+
+| File | Covers |
+| --- | --- |
+| `test_time_tracking.py` | End-to-end: manual entries, timers, plan limits, ownership, CSRF, calendar feed |
+| `test_calendar_ics.py` | The iCalendar generator against RFC 5545 |
+| `test_pages.py` | Every page touched by the feature still renders |
+| `test_dashboard_actions.py` | Job actions render as forms, not GET links |
+| `test_fk_cascade.py` | `ON DELETE CASCADE` behaves the way Postgres will |
+| `test_migrations.py` | Migration DDL, data preservation, reversibility |
+| `test_encoding.py` | Sources stay valid UTF-8, no mojibake |
+| `test_no_secrets.py` | No credential-shaped literals are committed |
+
+The four round-trip migration tests need `instance/scheduler.db` as a
+pre-feature baseline and skip without it, with the reason printed. A fresh
+database cannot be built from scratch today because the first migration in the
+chain creates a foreign key to a table it never creates.
