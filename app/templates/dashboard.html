@@ -265,10 +265,12 @@
                 ⏳ {{ _('Quote Sent') }}
             </span>
             {% endif %}
-            <a href="{{ url_for('main.mark_done', job_id=job.id) }}"
-                 class="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 text-center">
-                ✅ {{ _('Done') }}
-            </a>
+            <form method="POST" action="{{ url_for('main.mark_done', job_id=job.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="w-full bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600 text-center">
+                    ✅ {{ _('Done') }}
+                </button>
+            </form>
             {% else %}
             <span class="bg-green-100 text-green-700 px-3 py-1 rounded text-sm text-center">
                 ✅ {{ _('Completed') }}
@@ -278,11 +280,13 @@
                 📄 {{ _('Invoice') }}
             </a>
             {% endif %}
-            <a href="{{ url_for('main.delete_job', job_id=job.id) }}"
-                onclick="return confirm('{{ _('Delete this job?') }}')"
-                class="bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200 text-center">
-                🗑️ {{ _('Delete') }}
-            </a>
+            <form method="POST" action="{{ url_for('main.delete_job', job_id=job.id) }}"
+                  onsubmit="return confirm('{{ _('Delete this job?') }}')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="w-full bg-red-100 text-red-600 px-3 py-1 rounded text-sm hover:bg-red-200 text-center">
+                    🗑️ {{ _('Delete') }}
+                </button>
+            </form>
         </div>
     </div>
     {% endfor %}

@@ -566,7 +566,10 @@ def reset_calendar_link():
     return redirect(url_for('main.business_settings'))
 
 
-@main.route('/job/done/<int:job_id>')
+# POST, not GET: a destructive action reachable by GET can be fired from any
+# <img src> or link on any page, with the victim's session attached and no
+# token to forge.
+@main.route('/job/done/<int:job_id>', methods=['POST'])
 @login_required
 def mark_done(job_id):
     job = Job.query.get_or_404(job_id)
@@ -579,7 +582,7 @@ def mark_done(job_id):
     return redirect(url_for('main.dashboard'))
 
 
-@main.route('/job/delete/<int:job_id>')
+@main.route('/job/delete/<int:job_id>', methods=['POST'])
 @login_required
 def delete_job(job_id):
     job = Job.query.get_or_404(job_id)
