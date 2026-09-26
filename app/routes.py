@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.currency import convert_to_base
+from app.limits import consume, dashboard_state, new_customer_block, reached
 from itsdangerous import URLSafeTimedSerializer
 from app.models import User, Job, Invoice, Payment, ACTIVITY_TYPES, EXPENSE_CATEGORIES
 from app.notifications import send_overdue_invoice_reminders
@@ -11,6 +12,7 @@ from flask import current_app
 from flask_babel import _ 
 from threading import Thread
 from app import db, format_money, csrf
+from functools import wraps
 import os
 
 def trial_info(user):
@@ -25,8 +27,25 @@ def trial_info(user):
     return True, days, user.trial_ends_at
 
 def can_add_jobs(user):
+    if user.plan == 'pro':
+        return True
     active, days, end = trial_info(user)
-    return user.plan == 'pro' or active
+    if active:
+        return True
+    # Trial over: fall through to the permanent free plan, which allows jobs
+    # until the monthly cap is hit.
+    return not reached(user, 'jobs')
+
+def pro_required(view):
+    """Gate a feature behind Pro. On the free plan, send the user to billing."""
+    @wraps(view)
+    @login_required
+    def wrapped(*args, **kwargs):
+        if current_user.plan == 'pro':
+            return view(*args, **kwargs)
+        flash(_('This is a Pro feature. Upgrade to unlock it.'))
+        return redirect(url_for('main.business_settings'))
+    return wrapped
 
 auth = Blueprint('auth', __name__)
 main = Blueprint('main', __name__)
@@ -253,6 +272,7 @@ def dashboard():
                            billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')),
                            trial_active=trial_active,
                            trial_days=trial_days,
+                           limits=dashboard_state(current_user),
                            money=money,
                            money_counts=money_counts,
                            money_rows=money_rows)
@@ -262,9 +282,13 @@ def dashboard():
 @login_required
 def add_job():
     if not can_add_jobs(current_user):
-        flash(_('Your free trial has ended. Subscribe to add new jobs.'))
+        flash(_('You have reached the free plan limit. Subscribe to add new jobs.'))
         return redirect(url_for('main.dashboard'))
     if request.method == 'POST':
+        blocked = new_customer_block(current_user, request.form.get('client_name'))
+        if blocked:
+            flash(blocked)
+            return redirect(url_for('main.add_job'))
         currency = request.form.get('price_currency', 'GBP')
         job = Job(
             client_name=request.form.get('client_name'),
@@ -544,6 +568,9 @@ def ai_generate_quote(job_id):
     description = request.form.get('description', '')
     if not ai_configured():
         return jsonify({'error': _('AI is not configured. Set the AI_API_KEY environment variable.')}), 400
+    blocked = consume(current_user, 'ai_quote')
+    if blocked:
+        return jsonify({'error': blocked, 'upgrade': True}), 402
     try:
         result = generate_quote(current_user, description)
         return jsonify({'ok': True, 'data': result})
@@ -918,6 +945,10 @@ def ai_job():
     if not ai_configured():
         flash(_('AI is not configured. Set the AI_API_KEY environment variable.'))
         return redirect(url_for('main.ai_job'))
+    blocked = consume(current_user, 'ai_message')
+    if blocked:
+        flash(blocked)
+        return redirect(url_for('main.ai_job'))
     try:
         res = extract_job_from_message(current_user, message)
     except AIServiceError as e:
@@ -947,12 +978,16 @@ def ai_job():
 @login_required
 def ai_job_confirm():
     if not can_add_jobs(current_user):
-        flash(_('Your free trial has ended. Subscribe to create jobs.'))
+        flash(_('You have reached the free plan limit. Subscribe to create jobs.'))
         return redirect(url_for('main.dashboard'))
     client = (request.form.get('client_name') or '').strip()
     address = (request.form.get('address') or '').strip()
     if not client or not address:
         flash(_('Client name and address are required.'))
+        return redirect(url_for('main.ai_job'))
+    blocked = new_customer_block(current_user, client)
+    if blocked:
+        flash(blocked)
         return redirect(url_for('main.ai_job'))
     date_str = request.form.get('date') or ''
     try:
@@ -1137,12 +1172,18 @@ def expense_scan():
     extracted = None
     scan_error = None
     if ai_configured():
-        try:
-            extracted = extract_receipt(current_user, data, mime)
-        except AIServiceError as e:
-            scan_error = str(e)
-        except Exception:
-            scan_error = _('Could not scan the receipt. Please enter the details manually.')
+        # The photo is already stored, so a free user who has run out of scans
+        # still gets the manual form instead of a dead end.
+        blocked = consume(current_user, 'ai_receipt')
+        if blocked:
+            scan_error = blocked
+        else:
+            try:
+                extracted = extract_receipt(current_user, data, mime)
+            except AIServiceError as e:
+                scan_error = str(e)
+            except Exception:
+                scan_error = _('Could not scan the receipt. Please enter the details manually.')
     return render_template('expense_review.html', receipt_image=rel, extracted=extracted,
                            scan_error=scan_error, ai_available=ai_configured(),
                            categories=EXPENSE_CATEGORIES,
@@ -1321,7 +1362,7 @@ def vat_report():
         rows=rows, totals=totals)
 
 @main.route('/accounting/vat-report/export')
-@login_required
+@pro_required
 def vat_report_export():
     from app.models import Invoice
     import calendar

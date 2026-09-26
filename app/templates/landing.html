@@ -8,7 +8,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="TradeScheduler">
 <meta property="og:title" content="TradeScheduler – Job Management &amp; Invoice Software for UK Tradespeople">
-<meta property="og:description" content="Manage jobs, schedules, customers, quotes, invoices and payments in one simple app. Try TradeScheduler free for 14 days.">
+<meta property="og:description" content="Manage jobs, schedules, customers, quotes, invoices and payments in one simple app. Free forever for up to 20 jobs a month.">
 <meta property="og:url" content="https://thetradescheduler.com/">
 <meta property="og:image" content="{{ url_for('static', filename='icons/icon-512.png', _external=True) }}">
 <meta name="twitter:card" content="summary">
@@ -32,11 +32,21 @@
   "description": "Job management, scheduling, quotes, invoices and payments for UK tradespeople.",
   "url": "https://thetradescheduler.com/",
   "inLanguage": ["en", "ro"],
-  "offers": {
-    "@type": "Offer",
-    "price": "22.99",
-    "priceCurrency": "GBP"
-  }
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Starter",
+      "price": "0",
+      "priceCurrency": "GBP",
+      "description": "Free forever: 20 jobs a month, 5 new customers a month, monthly AI allowances."
+    },
+    {
+      "@type": "Offer",
+      "name": "Pro",
+      "price": "22.99",
+      "priceCurrency": "GBP"
+    }
+  ]
 }
 </script>
 <script type="application/ld+json">
@@ -46,8 +56,8 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is there really a free trial?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes — 14 days with every feature unlocked. You'll see the remaining days in your account." }
+      "name": "Is TradeScheduler really free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes, two ways. You get 14 days with every feature unlocked. If you don't upgrade, your account drops to the free Starter plan — 20 jobs a month, 5 new customers a month, and monthly AI allowances — and it never expires." }
     },
     {
       "@type": "Question",
@@ -662,48 +672,86 @@
 
     <!-- ─── PRICING ────────────────────────────────────── -->
     <section id="pricing" class="mb-16 ">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Simple pricing. One plan. Everything included.</h2>
-        <p class="text-gray-600 text-center max-w-xl mx-auto mb-2">Try it free for 14 days. If it works for your business, it's a flat <span id="price-strap">{{ pro_price_text }}</span> a month.</p>
-        <p id="price-locale" class="text-sm text-center text-gray-500 mb-6"></p>
-        <div class="max-w-md mx-auto bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 p-8 text-center">
-            <p class="text-gray-500 font-semibold mb-2">Pro</p>
-            <p class="text-4xl font-extrabold text-gray-900 mb-1"><span id="price-amount" data-prices='{{ PRO_PRICES|tojson }}'>{{ pro_price_text }}</span><span class="text-base font-semibold text-gray-500">/month</span></p>
-            <p class="text-gray-500 text-sm mb-2">After a 14-day free trial. Cancel anytime.</p>
-            <label class="inline-flex items-center gap-2 text-sm text-gray-500 mb-6">
-                {{ _('Currency') }}:
-                <select id="price-currency" onchange="setPriceCurrency(this.value)"
-                    class="border border-gray-300 rounded px-2 py-1 bg-white text-gray-800">
-                    {% for c in PREFERRED_CURRENCIES %}
-                    <option value="{{ c }}">{{ c }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <ul class="text-left space-y-2.5 mb-8">
-                <li class="flex items-start gap-3">
-                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
-                    <span class="text-gray-700 text-sm">Jobs, scheduling and customer management</span>
-                </li>
-                <li class="flex items-start gap-3">
-                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
-                    <span class="text-gray-700 text-sm">Quotes, invoices and online payments</span>
-                </li>
-                <li class="flex items-start gap-3">
-                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
-                    <span class="text-gray-700 text-sm">Payment reminders and expense tracking</span>
-                </li>
-                <li class="flex items-start gap-3">
-                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
-                    <span class="text-gray-700 text-sm">P&amp;L overview and VAT reports</span>
-                </li>
-            </ul>
-            <a href="{{ url_for('auth.register') }}"
-                class="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-center px-6 py-3.5 rounded-xl">
-                Start your 14-day free trial
-            </a>
-            <p class="text-gray-500 text-xs mt-3">No credit card required.</p>
-            <p class="text-gray-400 text-xs mt-2">
-                Already convinced? <a href="{{ url_for('auth.register', upgrade=1) }}" class="text-blue-600 hover:underline">Start with Pro now</a>
-            </p>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Start free. Upgrade only if you need more.</h2>
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-2">14 days with every feature unlocked. After that stay free forever, or go Pro at <span id="price-strap">{{ pro_price_text }}</span> a month and cancel whenever you like.</p>
+        <p id="price-locale" class="text-sm text-center text-gray-500 mb-8"></p>
+        <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-6 items-start">
+
+            <div class="bg-white rounded-2xl shadow border-t-4 border-gray-300 p-8 flex flex-col h-full">
+                <p class="text-gray-500 font-semibold mb-2">Starter</p>
+                <p class="text-4xl font-extrabold text-gray-900 mb-1">£0<span class="text-base font-semibold text-gray-500">/forever</span></p>
+                <p class="text-gray-500 text-sm mb-6">No card. No expiry. Enough to run a small job list.</p>
+                <ul class="text-left space-y-2.5 mb-8 flex-1">
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                        <span class="text-gray-700 text-sm">Up to 20 jobs a month</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                        <span class="text-gray-700 text-sm">5 new customers a month — the ones you already have are unlimited</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                        <span class="text-gray-700 text-sm">25 AI quotes, 10 receipt scans, 25 message reads a month</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                        <span class="text-gray-700 text-sm">Invoicing, online payments, expenses and P&amp;L</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                        <span class="text-gray-700 text-sm">1 user</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-gray-400 font-bold">✕</span>
+                        <span class="text-gray-500 text-sm">VAT report export and branded invoice PDFs are Pro</span>
+                    </li>
+                </ul>
+                <a href="{{ url_for('auth.register') }}"
+                    class="block bg-gray-800 hover:bg-gray-900 text-white font-bold text-center px-6 py-3.5 rounded-xl">
+                    Create a free account
+                </a>
+                <p class="text-gray-500 text-xs mt-3 text-center">No credit card required.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 p-8 flex flex-col h-full relative">
+                <span class="absolute -top-3 right-8 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">14-day trial</span>
+                <p class="text-blue-600 font-semibold mb-2">Pro</p>
+                <p class="text-4xl font-extrabold text-gray-900 mb-1"><span id="price-amount" data-prices='{{ PRO_PRICES|tojson }}'>{{ pro_price_text }}</span><span class="text-base font-semibold text-gray-500">/month</span></p>
+                <p class="text-gray-500 text-sm mb-2">Unlimited use. Cancel anytime.</p>
+                <label class="inline-flex items-center gap-2 text-sm text-gray-500 mb-6">
+                    {{ _('Currency') }}:
+                    <select id="price-currency" onchange="setPriceCurrency(this.value)"
+                        class="border border-gray-300 rounded px-2 py-1 bg-white text-gray-800">
+                        {% for c in PREFERRED_CURRENCIES %}
+                        <option value="{{ c }}">{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <ul class="text-left space-y-2.5 mb-8 flex-1">
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                        <span class="text-gray-700 text-sm">Unlimited jobs and customers</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                        <span class="text-gray-700 text-sm">Unlimited AI quotes, receipt scans and message reads</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                        <span class="text-gray-700 text-sm">Everything in Starter, plus VAT report export</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                        <span class="text-gray-700 text-sm">Invoices without the TradeScheduler footer</span>
+                    </li>
+                </ul>
+                <a href="{{ url_for('auth.register', upgrade=1) }}"
+                    class="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-center px-6 py-3.5 rounded-xl">
+                    Start your 14-day free trial
+                </a>
+                <p class="text-gray-500 text-xs mt-3 text-center">No credit card required.</p>
+            </div>
         </div>
     </section>
 
@@ -713,17 +761,24 @@
         <div class="space-y-3">
             <details class="group bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
-                    Is there really a free trial?
+                    Is TradeScheduler really free?
                     <span class="faq-chevron text-blue-600 transition">▾</span>
                 </summary>
-                <p class="px-5 pb-5 text-gray-600 text-sm">Yes — 14 days, with every feature unlocked. You'll see how many days you have left in your account.</p>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes, two ways. You get 14 days with every feature unlocked. If you don't upgrade, your account drops to the free Starter plan — 20 jobs a month, 5 new customers a month, and monthly AI allowances — and it never expires. Customers you have already added stay unlimited. You can upgrade to Pro whenever you need more.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    What happens when I run out of the free allowance?
+                    <span class="faq-chevron text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Jobs and customers reset at the start of each month. If you hit the monthly AI allowance you can still enter everything by hand — nothing is locked away. You'll always see exactly where you stand at the top of your dashboard.</p>
             </details>
             <details class="bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
                     Do I need a credit card to start?
                     <span class="faq-chevron text-blue-600">▾</span>
                 </summary>
-                <p class="px-5 pb-5 text-gray-600 text-sm">No. Create your account and use everything free for 14 days.</p>
+                <p class="px-5 pb-5 text-gray-600 text-sm">No. Create your account and use everything free for 14 days, then decide.</p>
             </details>
             <details class="bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">

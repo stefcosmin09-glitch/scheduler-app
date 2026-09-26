@@ -284,7 +284,9 @@ def generate_invoice(job, user, invoice=None):
         canvas.setFillColor(MUTED)
         canvas.drawString(doc.leftMargin, 1.0*cm, L['thank_you'])
         canvas.drawRightString(A4[0] - doc.rightMargin, 1.0*cm, f"Page {doc.page}")
-        canvas.drawCentredString(A4[0]/2, 1.0*cm, 'TradeScheduler')
+        # Branded footer is a Pro perk; the free plan ships unbranded PDFs.
+        if user.plan == 'pro':
+            canvas.drawCentredString(A4[0]/2, 1.0*cm, 'TradeScheduler')
         canvas.restoreState()
 
     doc.build(elements, onFirstPage=footer, onLaterPages=footer)
