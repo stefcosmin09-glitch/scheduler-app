@@ -1,17 +1,42 @@
-﻿flask
-flask-sqlalchemy
-flask-login
-flask-mail
-flask-migrate
-flask-wtf
-stripe
-werkzeug
-gunicorn
-psycopg2-binary
-apscheduler
-python-dotenv
-reportlab
-pillow
-itsdangerous
-resend
-flask-babel 
+﻿# Pinned on purpose.
+#
+# An unpinned requirements.txt cost us an outage: a rebuild pulled
+# SQLAlchemy 2.1, which changed the default PostgreSQL driver to psycopg 3
+# while we ship psycopg2-binary, so every gunicorn worker died at import and
+# the app stopped responding. config.py now pins the driver too, but the real
+# fix is not letting a rebuild silently change the stack.
+#
+# These are the exact versions the app is running in production today.
+# When bumping one, bump deliberately and re-run the test suite.
+
+flask==3.1.3
+werkzeug==3.1.8
+jinja2==3.1.6
+itsdangerous==2.2.0
+click==8.5.0
+blinker==1.9.0
+markupsafe==3.0.3
+
+flask-sqlalchemy==3.1.1
+# Transitive via flask-sqlalchemy, but it is the package that broke us, so it
+# gets an explicit pin rather than inheriting whatever flask-sqlalchemy allows.
+sqlalchemy==2.1.1
+alembic==1.20.0
+flask-migrate==4.1.0
+flask-login==0.6.3
+flask-wtf==1.3.0
+flask-mail==0.10.0
+flask-babel==4.0.0
+
+# The driver config.py selects explicitly. Do not switch to psycopg 3 without
+# testing bytea and server-side parameter binding first.
+psycopg2-binary==2.9.13
+
+gunicorn==26.2.0
+apscheduler==3.11.3
+python-dotenv==1.2.3
+
+stripe==15.6.1
+resend==2.48.0
+reportlab==5.0.1
+pillow==12.3.0
