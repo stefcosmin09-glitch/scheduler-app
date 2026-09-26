@@ -10,11 +10,16 @@ The parts of RFC 5545 that actually bite:
     folding on character count produces invalid UTF-8 halfway through a name.
   * TEXT values escape backslash, semicolon and comma, and turn newlines into
     a literal \n.
-  * DTSTART/DTEND are UTC with a trailing Z. Job dates are naive UTC already
-    (the app uses datetime.utcnow throughout), so they are labelled, not
-    converted, and no VTIMEZONE is needed.
+  * DTSTART/DTEND are floating local times, with neither a trailing Z nor a
+    TZID. Job times come from a datetime-local form field, so the stored value
+    is the wall-clock time the user typed rather than an instant; stamping it
+    as UTC would shift every event by the reader's offset. DTSTAMP stays UTC
+    because RFC 5545 requires it. No VTIMEZONE is needed for floating times.
 
-Times are stamped in UTC so the feed is correct for a user in any timezone.
+A consequence worth knowing: a job set for 10:00 shows at 10:00 in the
+reader's timezone, so it moves if they travel far enough. For one tradesperson
+reading their own job list that is the behaviour you want, and it avoids
+storing a timezone we would then have to ask everyone to set.
 """
 from datetime import datetime, timedelta
 
@@ -59,7 +64,21 @@ def fold(line):
 
 
 def format_utc(value):
+    """RFC 5545 UTC form. Only valid where the spec demands UTC, i.e. DTSTAMP."""
     return value.strftime('%Y%m%dT%H%M%SZ')
+
+
+def format_wall(value):
+    """Floating local form: no trailing Z and no TZID.
+
+    Job times come from a datetime-local input, so what is stored is the
+    wall-clock time the user typed, not an instant. Labelling it with a Z
+    would claim it is UTC and every client would shift it by its own offset,
+    putting a 10:00 job at 13:00 for anyone east of Greenwich. Floating time
+    is read in the viewer's own timezone instead, so the event lands at the
+    hour that was typed.
+    """
+    return value.strftime('%Y%m%dT%H%M%S')
 
 
 def event_lines(job, stamp):
@@ -79,9 +98,11 @@ def event_lines(job, stamp):
         # Stable across edits so a client updates the existing event instead of
         # duplicating it on every refresh.
         'UID:job-%d@tradescheduler' % job.id,
+        # DTSTAMP has to be UTC per the spec, but DTSTART/DTEND are floating:
+        # see format_wall for why the job time is not an instant.
         'DTSTAMP:%s' % format_utc(stamp),
-        'DTSTART:%s' % format_utc(start),
-        'DTEND:%s' % format_utc(end),
+        'DTSTART:%s' % format_wall(start),
+        'DTEND:%s' % format_wall(end),
         'SUMMARY:%s' % escape_text(summary),
     ]
     if job.address:
