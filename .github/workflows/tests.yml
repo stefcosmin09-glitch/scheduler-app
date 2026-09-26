@@ -57,16 +57,32 @@ jobs:
           export SECRET_KEY="ci-only-not-a-real-key"
           python migrate.py
           python - <<'PY'
-          import os, sqlite3
+          import sqlite3
           db = sqlite3.connect('ci-build.db')
           tables = {r[0] for r in db.execute(
               "select name from sqlite_master where type='table'")}
           expected = {'user', 'job', 'invoice', 'payment', 'business_profile',
-                      'time_entry', 'expense', 'ai_usage', 'alembic_version'}
+                      'time_entry', 'expense', 'ai_usage', 'login_attempt',
+                      'alembic_version'}
           missing = expected - tables
           assert not missing, 'missing tables: %s' % sorted(missing)
           revision = db.execute('select version_num from alembic_version').fetchone()[0]
-          assert revision == '0001_initial_schema', revision
+          # Not hardcoded to a literal that has to be edited every time a
+          # migration is added. Compared against the script directory, so this
+          # keeps working instead of quietly checking a stale id.
+          import os, re
+          heads = set()
+          for name in os.listdir('migrations/versions'):
+              if not name.endswith('.py'):
+                  continue
+              text = open(os.path.join('migrations/versions', name)).read()
+              rev = re.search(r"^revision = '([^']+)'", text, re.M)
+              down = re.search(r"^down_revision = (.+)$", text, re.M)
+              if rev and down and down.group(1).strip() not in ('None',):
+                  heads.add(rev.group(1))
+          assert heads == {revision}, (
+              'built to %r but the script directory has heads %s'
+              % (revision, sorted(heads)))
           print('built from nothing, stamped at', revision)
           PY
           rm -f ci-build.db

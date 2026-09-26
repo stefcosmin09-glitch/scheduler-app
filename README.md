@@ -85,6 +85,7 @@ touches `instance/`, so it is safe to run against a real checkout.
 | `test_encoding.py` | Sources stay valid UTF-8, no mojibake |
 | `test_no_secrets.py` | No credential-shaped literals are committed |
 | `test_secret_key.py` | The app refuses to start without `SECRET_KEY`, and no default is committed |
+| `test_login_throttle.py` | Sign-in stops answering after repeated failures, and cannot be used to list who has an account |
 
 ## Migrations
 
@@ -106,6 +107,38 @@ gets the migrations, a database carrying a squashed revision gets re-stamped,
 and anything else gets a normal upgrade. An existing database is never altered,
 because its schema is already correct.
 
+A squashed database is stamped to the **root** of the history and then upgraded,
+not stamped to head. Stamping head would write the newest id onto a database
+that never ran the newer migrations, and the tables they create would be missing
+from then on. This is why `0002_login_throttle`, the first migration added after
+the squash, works on the production database.
+
 The Dockerfile runs it in place of `flask db upgrade` for that reason. Do not
 change it back.
+
+## Sign-in throttling
+
+Repeated failures are counted in the `login_attempt` table, on two separate
+counters, and both have to be under their limit:
+
+| counter | limit | catches |
+| --- | --- | --- |
+| per email | 5 in 15 minutes | one account sprayed from many addresses |
+| per address | 20 in 15 minutes | one address spraying many accounts |
+
+The per-address limit is much looser on purpose. Offices and mobile carriers put
+many unrelated people behind one address, and a tight limit there locks out
+honest users over somebody else's typos. The first lockout is one minute and
+doubles with every further failure up to four hours, so waiting is not a
+workaround.
+
+The counters are in the database, not in the worker, because gunicorn runs one
+worker today but Railway can scale the service out and `--workers` is one flag
+away. An in-process counter would hand every caller N times the allowance while
+still looking like protection.
+
+Two things depend on `ProxyFix` in `create_app()`. Without it `request.remote_addr`
+is the address of the proxy in front of the app, every caller counts as one, and
+a single attacker locks out the entire user base. The same fix also stops
+externally generated links from saying `http`.
 

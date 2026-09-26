@@ -31,6 +31,7 @@ from sqlalchemy import create_engine, inspect, text
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VERSIONS = os.path.join(ROOT, 'migrations', 'versions')
 INITIAL = '0001_initial_schema'
+HEAD = '0002_login_throttle'
 # The app refuses to start without one, and the deploy provides it, so every
 # subprocess here needs it too.
 TEST_ENV = {'SECRET_KEY': 'test-key-not-used-outside-this-scratch-directory'}
@@ -88,16 +89,65 @@ def _indexes(path):
 
 # --- the history itself ----------------------------------------------------
 
-def test_single_initial_revision():
-    files = [f for f in os.listdir(VERSIONS) if f.endswith('.py')]
-    assert len(files) == 1, 'expected one migration, found %s' % files
+def _chain():
+    """revision -> down_revision, parsed the way migrate.py parses it."""
+    found = {}
+    for name in sorted(os.listdir(VERSIONS)):
+        if not name.endswith('.py'):
+            continue
+        revision = parent = None
+        with open(os.path.join(VERSIONS, name), encoding='utf-8') as handle:
+            for line in handle:
+                stripped = line.strip()
+                for attribute in ('revision', 'down_revision'):
+                    if not stripped.startswith(attribute + ' '):
+                        continue
+                    _, _, value = stripped.partition('=')
+                    value = value.strip().strip('\'"')
+                    if value and value != 'None':
+                        if attribute == 'revision':
+                            revision = value
+                        else:
+                            parent = value
+        found[revision] = parent
+    return found
 
 
-def test_initial_is_the_only_head():
-    """More than one head would make `stamp head` ambiguous."""
+def test_the_chain_is_linear():
+    """Branching or a missing parent would make `stamp head` ambiguous, and
+    `flask db upgrade` would either skip a migration or run one twice.
+    """
+    chain = _chain()
+    for revision, parent in chain.items():
+        if parent is not None:
+            assert parent in chain, \
+                '%s descends from %s, which is not in the directory' % (
+                    revision, parent)
+    children = [rev for rev, parent in chain.items() if parent is not None]
+    for parent in {parent for parent in chain.values() if parent is not None}:
+        following = [rev for rev, par in chain.items() if par == parent]
+        assert len(following) == 1, \
+            '%s has %d successors, so the history branches: %s' % (
+                parent, len(following), following)
+    assert len(children) == len(chain) - 1, \
+        'expected every revision except the root to have a parent, got %s' % chain
+
+
+def test_exactly_one_head():
     result = _flask_db(os.path.join(ROOT, 'instance', 'scheduler.db'), 'heads')
-    assert '0001_initial_schema' in result.stdout, result.stdout
-    assert result.stdout.count('(head)') <= 1, result.stdout
+    assert result.stdout.count('(head)') == 1, result.stdout
+    assert HEAD in result.stdout, result.stdout
+
+
+def test_exactly_one_squash_root():
+    """migrate.py stamps a squashed database to the root and then upgrades.
+    If there were two roots it could not tell which one the database matched,
+    so it refuses to touch the database at all.
+    """
+    chain = _chain()
+    roots = [rev for rev, parent in chain.items() if parent is None]
+    assert roots == [INITIAL], \
+        'expected %s to be the only root, found %s' % (INITIAL, roots)
 
 
 def test_initial_has_no_parent():
@@ -112,15 +162,16 @@ def test_initial_has_no_parent():
 def test_empty_database_upgrades(built):
     assert 'user' in _tables(built)
     for table in ('user', 'job', 'invoice', 'payment', 'business_profile',
-                  'time_entry', 'expense', 'ai_usage'):
+                  'time_entry', 'expense', 'ai_usage', 'login_attempt'):
         assert table in _tables(built), '%s missing' % table
 
 
 def test_stamped_at_head(built):
     conn = sqlite3.connect(built)
     try:
-        assert conn.execute(
-            'select version_num from alembic_version').fetchone()[0] == INITIAL
+        stamped = conn.execute(
+            'select version_num from alembic_version').fetchone()[0]
+        assert stamped == HEAD, 'stamped %r, expected %r' % (stamped, HEAD)
     finally:
         conn.close()
 
@@ -306,6 +357,12 @@ def test_entrypoint_stamps_a_squashed_revision(tmp_path):
     """A database created before the squash carries a revision id the script
     directory no longer has. Plain `flask db upgrade` fails on it, so the
     entrypoint has to re-stamp instead.
+
+    It stamps the root and then upgrades, rather than stamping head. Stamping
+    head would write the newest id onto a database that never ran the newer
+    migrations, and the tables they create would be missing for good. That is
+    not hypothetical: the production database is still on a squashed revision
+    and 0002 is the first migration added after the squash.
     """
     path = str(tmp_path / 'legacy.db')
     engine = create_engine(_db_url(path))
@@ -316,6 +373,8 @@ def test_entrypoint_stamps_a_squashed_revision(tmp_path):
                           '(version_num varchar(32) primary key)'))
         conn.execute(text("insert into alembic_version values "
                           "('e5f6a7b8c9d0')"))
+        conn.execute(text("insert into user (username, email) values "
+                          "('a', 'a@example.test')"))
     engine.dispose()
 
     plain = _flask_db(path, 'upgrade')
@@ -326,13 +385,51 @@ def test_entrypoint_stamps_a_squashed_revision(tmp_path):
     result = subprocess.run([sys.executable, 'migrate.py'], cwd=ROOT, env=env,
                             capture_output=True, text=True)
     assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-2000:]
-    assert 'stamp' in result.stdout, result.stdout
+    assert 'stamp la %s' % INITIAL in result.stdout, result.stdout
+
+    tables = _tables(path)
+    conn = sqlite3.connect(path)
+    try:
+        stamped = conn.execute(
+            'select version_num from alembic_version').fetchone()[0]
+        assert stamped == HEAD, \
+            'expected the entrypoint to upgrade past the root, got %r' % stamped
+        # The whole point: the migration added after the squash really ran.
+        assert 'login_attempt' in tables, \
+            'the database is marked as up to date but login_attempt was never ' \
+            'created, which is the failure this ordering avoids'
+        assert conn.execute('select count(*) from user').fetchone()[0] == 1, \
+            'the existing rows were disturbed'
+    finally:
+        conn.close()
+
+
+def test_entrypoint_does_not_touch_a_current_database(tmp_path):
+    """A database already on the root takes the normal upgrade path, so a
+    migration added afterwards still runs on it.
+    """
+    path = str(tmp_path / 'at-root.db')
+    built = _flask_db(path, 'upgrade')
+    assert built.returncode == 0, built.stdout[-2000:] + built.stderr[-2000:]
+    with sqlite3.connect(path) as conn:
+        conn.execute("insert into user (username, email, password) "
+                     "values ('a', 'a@example.test', 'h')")
+        # Rewind to the state the root migration leaves behind, table included,
+        # so that the upgrade has something real to do.
+        conn.execute('drop table login_attempt')
+        conn.execute('delete from alembic_version')
+        conn.execute("insert into alembic_version values ('%s')" % INITIAL)
+
+    env = _env(path)
+    result = subprocess.run([sys.executable, 'migrate.py'], cwd=ROOT, env=env,
+                            capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-2000:]
 
     conn = sqlite3.connect(path)
     try:
-        assert conn.execute('select version_num from alembic_version'
-                            ).fetchone()[0] == INITIAL
-        assert conn.execute('select count(*) from user').fetchone()[0] == 0, \
-            'the existing tables were disturbed'
+        assert conn.execute(
+            'select version_num from alembic_version').fetchone()[0] == HEAD
+        assert 'login_attempt' in _tables(path)
+        assert conn.execute('select count(*) from user').fetchone()[0] == 1
     finally:
         conn.close()

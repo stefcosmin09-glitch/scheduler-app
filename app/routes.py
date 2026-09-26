@@ -24,6 +24,12 @@ import secrets
 # everyone; this only limits the history behind the report.
 FREE_TIME_ENTRIES = 5
 
+# Verified against when the submitted address matches nobody, so that a missing
+# account and a wrong password take the same time and the form stops being a way
+# to find out who has one. Generated once at import; the value is never a real
+# password and is only ever compared against.
+_DUMMY_HASH = generate_password_hash(secrets.token_urlsafe(32))
+
 def trial_info(user):
     if user.plan == 'pro':
         return False, 0, None
@@ -106,14 +112,32 @@ def register():
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        from app import login_throttle
         email = request.form.get('email')
         password = request.form.get('password')
-        user = User.query.filter_by(email=email).first()
+        address = login_throttle.address_key()
 
-        if not user or not check_password_hash(user.password, password):
+        if login_throttle.locked_until(email, address):
+            # The password is still checked, so a locked address cannot tell a
+            # known address from an unknown one by how quickly it is answered.
+            check_password_hash(_DUMMY_HASH, password or '')
+            flash(_(login_throttle.waiting_message(
+                login_throttle.seconds_remaining(email, address))))
+            return redirect(url_for('auth.login'))
+
+        user = User.query.filter_by(email=email).first()
+        if user is None:
+            # check_password_hash is deliberately slow, so returning early for an
+            # unknown address answered in a fraction of the time and turned the
+            # form into a way to list who has an account. Burn the same time.
+            check_password_hash(_DUMMY_HASH, password or '')
+
+        if not user or not check_password_hash(user.password, password or ''):
+            login_throttle.record_failure(email, address)
             flash(_('Wrong email or password.'))
             return redirect(url_for('auth.login'))
 
+        login_throttle.clear(email)
         login_user(user)
         return redirect(url_for('main.dashboard'))
 

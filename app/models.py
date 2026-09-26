@@ -54,6 +54,41 @@ class AIUsage(db.Model):
         UniqueConstraint('user_id', 'feature', 'period', name='uq_ai_usage_user_feature_period'),
     )
 
+class LoginAttempt(db.Model):
+    """Failed sign-in counters, one row per scope and key.
+
+    Kept in the database rather than in a dict in the worker because gunicorn
+    runs one worker today but Railway can scale the service out, and --workers
+    is a single flag away. An in-process counter would quietly hand every
+    caller N times the allowance, which is worse than no throttle because it
+    still looks like protection.
+
+    Two scopes are counted separately, and both have to be under their limit:
+
+      'email' one account cannot be sprayed from many addresses
+      'ip'    one address cannot spray many accounts
+
+    They are separate rows rather than one row per (email, ip) pair, because a
+    pair-keyed counter resets the moment the caller changes address, which is
+    the one thing a spray does.
+    """
+    __tablename__ = 'login_attempt'
+    id = db.Column(db.Integer, primary_key=True)
+    scope = db.Column(db.String(10), nullable=False)
+    key = db.Column(db.String(255), nullable=False)
+    failed_count = db.Column(db.Integer, nullable=False, default=0)
+    window_started_at = db.Column(db.DateTime, nullable=False,
+                                 default=datetime.utcnow)
+    locked_until = db.Column(db.DateTime)
+    last_attempt_at = db.Column(db.DateTime, nullable=False,
+                                default=datetime.utcnow)
+
+    __table_args__ = (
+        # Doubles as the lookup index: every read is "this scope and key".
+        UniqueConstraint('scope', 'key', name='uq_login_attempt_scope_key'),
+    )
+
+
 class BusinessProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

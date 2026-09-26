@@ -48,24 +48,51 @@ def resolve_url():
     return url
 
 
-def known_revisions():
-    """Revision ids the script directory can actually resolve."""
-    found = set()
+def script_revisions():
+    """revision id -> down_revision, for every migration on disk.
+
+    Both halves are needed. Knowing which ids exist is what tells a squashed
+    database apart from a current one; knowing which one has no parent is what
+    says where the squash actually started.
+    """
+    found = {}
     if not os.path.isdir(VERSIONS_DIR):
         return found
-    for name in os.listdir(VERSIONS_DIR):
+    for name in sorted(os.listdir(VERSIONS_DIR)):
         if not name.endswith('.py'):
             continue
+        revision = parent = None
         with open(os.path.join(VERSIONS_DIR, name), encoding='utf-8') as handle:
             for line in handle:
                 stripped = line.strip()
-                if stripped.startswith('revision'):
+                for attribute in ('revision', 'down_revision'):
+                    if not stripped.startswith(attribute + ' '):
+                        continue
                     _, _, value = stripped.partition('=')
                     value = value.strip().strip('\'"')
                     if value and value != 'None':
-                        found.add(value)
-                    break
+                        if attribute == 'revision':
+                            revision = value
+                        else:
+                            parent = value
+        if revision:
+            found[revision] = parent
     return found
+
+
+def squash_root(revisions):
+    """The revision that starts the squashed history, or None if unclear.
+
+    A database predating the squash has the schema that this revision builds,
+    so it is stamped here and then upgraded normally. That is what makes a
+    migration added after the squash actually run: stamping straight to head
+    would write the newer id onto a database that never had that migration
+    applied, and the table it creates would be missing forever after.
+    """
+    roots = [rev for rev, parent in revisions.items() if parent is None]
+    if len(roots) == 1:
+        return roots[0]
+    return None
 
 
 def current_revision(engine):
@@ -115,7 +142,8 @@ def main():
               % error)
         return flask('upgrade')
 
-    known = known_revisions()
+    revisions = script_revisions()
+    known = set(revisions)
     print('migrate: revizia din baza = %s, cunoscute = %s'
           % (stamped or '(niciuna)', ', '.join(sorted(known)) or '(niciuna)'))
 
@@ -128,10 +156,21 @@ def main():
             print('migrate: revizia %s nu exista si nu exista tabele, '
                   'aplic migrarile' % stamped)
             return flask('upgrade')
+        root = squash_root(revisions)
+        if root is None:
+            # Guessing here would either skip migrations or apply them twice.
+            # A deploy that stops is better than a schema that is quietly wrong.
+            print('migrate: nu pot stabili inceputul istoricului comprimat '
+                  '(%d migrari fara parinte). Nu ating baza.' % len(revisions))
+            return 1
         print('migrate: baza are deja schema, dar revizia %s a fost '
-              'comprimata; fac stamp la head' % stamped)
+              'comprimata; fac stamp la %s' % (stamped, root))
         clear_version_marker(engine)
-        return flask('stamp', 'head')
+        code = flask('stamp', root)
+        if code:
+            return code
+        # Anything committed after the squash still has to run.
+        return flask('upgrade')
 
     print('migrate: aplic migrarile')
     return flask('upgrade')

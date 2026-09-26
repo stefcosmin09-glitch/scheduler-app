@@ -5,6 +5,7 @@ from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_babel import Babel
 from flask_wtf.csrf import CSRFProtect
+from werkzeug.middleware.proxy_fix import ProxyFix
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import Config, _require_secret_key
 import os
@@ -54,6 +55,13 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     _require_secret_key(app.config.get('SECRET_KEY'))
+
+    # Railway terminates TLS and forwards the connection, so without this every
+    # request arrives with remote_addr set to the proxy and any per-address
+    # limit counts the whole internet as one caller. x_for=1 trusts exactly
+    # one hop, which matches a single proxy in front of the app. It also fixes
+    # request.scheme, so externally generated links stop saying http.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 
     db.init_app(app)
     login_manager.init_app(app)
