@@ -42,9 +42,27 @@ def is_pro(user):
     return getattr(user, 'plan', 'free') == 'pro'
 
 
+def trial_active(user):
+    """True while the 14-day trial is still running."""
+    if is_pro(user):
+        return False
+    ends = getattr(user, 'trial_ends_at', None)
+    return bool(ends) and ends > datetime.utcnow()
+
+
+def is_unmetered(user):
+    """True where the free allowances must not apply.
+
+    Pro is unmetered, and so is a live trial: the landing page sells the trial
+    as full access, so letting the free caps touch it would contradict what was
+    promised at signup. Only once the trial lapses do the caps start counting.
+    """
+    return is_pro(user) or trial_active(user)
+
+
 def limit_for(user, feature):
     """Allowance for this user, or None when unmetered."""
-    if is_pro(user):
+    if is_unmetered(user):
         return None
     return FREE_LIMITS.get(feature)
 
@@ -146,7 +164,7 @@ def new_customer_block(user, client_name):
     allowance is used up.
     """
     name = (client_name or '').strip()
-    if not name or is_pro(user):
+    if not name or is_unmetered(user):
         return None
     if Job.query.filter(
         func.lower(Job.client_name) == name.lower(), Job.user_id == user.id
@@ -160,7 +178,7 @@ def new_customer_block(user, client_name):
 
 def dashboard_state(user):
     """Limit usage for the dashboard banners, as a list of dicts."""
-    if is_pro(user):
+    if is_unmetered(user):
         return []
     out = []
     for feature in ('jobs', 'customers', 'ai_quote', 'ai_receipt'):

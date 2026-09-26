@@ -3,7 +3,8 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.currency import convert_to_base
-from app.limits import consume, dashboard_state, new_customer_block, reached
+from app.limits import (consume, dashboard_state, is_unmetered,
+                        new_customer_block, reached)
 from itsdangerous import URLSafeTimedSerializer
 from app.models import User, Job, Invoice, Payment, ACTIVITY_TYPES, EXPENSE_CATEGORIES
 from app.notifications import send_overdue_invoice_reminders
@@ -27,13 +28,10 @@ def trial_info(user):
     return True, days, user.trial_ends_at
 
 def can_add_jobs(user):
-    if user.plan == 'pro':
+    # Pro and a live trial are both unmetered, so the caps only start applying
+    # once the trial has lapsed and the account falls back to the free plan.
+    if is_unmetered(user):
         return True
-    active, days, end = trial_info(user)
-    if active:
-        return True
-    # Trial over: fall through to the permanent free plan, which allows jobs
-    # until the monthly cap is hit.
     return not reached(user, 'jobs')
 
 def pro_required(view):
