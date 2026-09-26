@@ -65,13 +65,19 @@ if _try_acquire_lock():
     # because this runs at import it killed every worker as it booted, over
     # and over, so the site did not come up at all.
     #
-    # A failure here has to stop the worker. Booting against a schema that is
-    # not the one the code expects is how a wrong column turns into a 500 in
-    # the middle of a customer's day, and it fails quieter than this does.
+    # A failure is logged and the app boots anyway. Not being able to migrate
+    # is worth shouting about, but taking the whole site down over one schema
+    # change is a worse trade than serving traffic with the old schema: the
+    # database in production predates the squash, so it already carries
+    # everything except what came after, and login degrades to no throttling
+    # rather than to a 500 if that one table is missing. The next deploy with
+    # working access fixes it.
     if ensure_schema() != 0:
-        logging.error('migrate: schema nu a putut fi adusa la versiunea '
-                      'curenta; opresc workerul')
-        raise SystemExit(1)
+        logging.error('migrate: NU pot aduce schema la versiunea curenta. '
+                      'Aplicatia porneste oricum, daca ceva lipseste se '
+                      'remediaza la urmatorul deploy.')
+    else:
+        logging.info('migrate: schema e la zi')
     _start_scheduler()
 
 if __name__ == '__main__':

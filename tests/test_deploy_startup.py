@@ -16,7 +16,10 @@ and then checks the schema and the rows. Three states matter: a database from
 before the squash, one whose marker was lost halfway through a re-stamp, and
 one that is already current.
 """
+import json
 import os
+import pathlib
+import shutil
 import sqlite3
 import subprocess
 import sys
@@ -186,3 +189,118 @@ def test_each_startup_state_is_recognised(tmp_path, revision, expected):
     result = _boot(path)
     assert expected in result.stdout, (
         'expected %r, got:\n%s' % (expected, result.stdout))
+
+
+def test_the_app_boots_even_when_the_migration_cannot_run(tmp_path):
+    """A broken migration history must not be able to take the site down.
+
+    ensure_schema() refuses to guess when the history has no single root, and
+    returns non-zero. The correct response is to say so loudly and serve
+    traffic, because the database in production already has the schema and the
+    alternative is the outage this file was written for: every worker dying on
+    import, forever.
+
+    The history is broken here the only way it can be in a real deploy, by
+    shipping a second root, and the app is imported from a copy of the project
+    so the checkout is left alone.
+    """
+    copy = str(tmp_path / 'project')
+    shutil.copytree(ROOT, copy, ignore=shutil.ignore_patterns(
+        '.git', 'instance', '__pycache__', '*.pyc', 'tests', 'node_modules'))
+    # A second root: two migrations with no parent, so squash_root() cannot tell
+    # where the history began.
+    (pathlib.Path(copy) / 'migrations' / 'versions' / '0009_second_root.py'
+     ).write_text(
+        '"""Second root, deliberately."""\n'
+        'from alembic import op\n'
+        'revision = "0009_second_root"\n'
+        'down_revision = None\n'
+        'branch_labels = None\n'
+        'depends_on = None\n'
+        'def upgrade():\n    pass\n'
+        'def downgrade():\n    pass\n')
+
+    db_path = str(tmp_path / 'broken.db')
+    _squashed(db_path)
+
+    result = subprocess.run(
+        [sys.executable, '-c', 'import run; print("BOOTED")'], cwd=copy,
+        env=dict(os.environ, DATABASE_URL=_url(db_path), SECRET_KEY='probe',
+                 FLASK_APP='run.py'),
+        capture_output=True, text=True)
+
+    output = result.stdout + result.stderr
+    assert 'nu pot stabili inceputul istoricului comprimat' in output, output[-1500:]
+    assert result.returncode == 0, (
+        'the app refused to boot over a schema problem:\n%s' % output[-2000:])
+    assert 'BOOTED' in result.stdout, output[-1500:]
+    assert 'NU pot aduce schema' in output, (
+        'it booted without ever saying the migration failed:\n%s' % output[-1500:])
+
+
+def test_sign_in_works_without_the_throttle_table(tmp_path):
+    """The table the throttle needs is the only thing this deploy adds, so it
+    is the only thing a migration that did not run can take away. Login has to
+    keep working: unthrottled is a bad morning, a 500 for every customer is a
+    bad business.
+
+    The database here is marked as current but has no login_attempt, which is
+    the state a stamp without a following upgrade leaves behind, and it is also
+    the state that cannot be reached by accident on the way in: the marker is
+    known, so the boot leaves it alone.
+
+    Built from the real 0002 schema rather than by hand, because the point is
+    what the app does with a database that is otherwise perfectly healthy."""
+    path = str(tmp_path / 'marked-but-missing.db')
+    built = subprocess.run(
+        [sys.executable, '-m', 'flask', 'db', 'upgrade'], cwd=ROOT,
+        env=dict(os.environ, DATABASE_URL=_url(path), SECRET_KEY='probe',
+                 FLASK_APP='app'),
+        capture_output=True, text=True)
+    assert built.returncode == 0, built.stderr[-1500:]
+    conn = sqlite3.connect(path)
+    conn.execute('drop table login_attempt')
+    conn.execute("insert into user (username, email, password) values "
+                 "('real', 'real@example.test', 'h')")
+    conn.commit()
+    conn.close()
+
+    script = (
+        'import re, run;'
+        'c = run.app.test_client();'
+        'page = c.get("/login").get_data(as_text=True);'
+        'token = re.search(r\'name="csrf_token" value="([^"]+)"\', page).group(1);'
+        'r = c.post("/login", data={"csrf_token": token,'
+        ' "email": "real@example.test", "password": "wrong"});'
+        'print("STATUS", r.status_code);'
+        'print("BODY", "Too many failed" in r.get_data(as_text=True))'
+    )
+    result = subprocess.run(
+        [sys.executable, '-c', script], cwd=ROOT,
+        env=dict(os.environ, DATABASE_URL=_url(path), SECRET_KEY='probe',
+                 FLASK_APP='run.py'),
+        capture_output=True, text=True)
+
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, (
+        'the app did not survive a missing login_attempt:\n%s' % output[-2500:])
+    assert 'tabela login_attempt lipseste' in output, (
+        'the missing table was not reported, so this test is not proving '
+        'anything:\n%s' % output[-1500:])
+    assert 'STATUS 500' not in output, (
+        'a failed sign-in returned 500 without the throttle table:\n%s'
+        % output[-2000:])
+    assert 'STATUS 302' in output, (
+        'a wrong password should redirect back to the form, got:\n%s'
+        % output[-2000:])
+    # No throttling means nothing was written, and nothing re-created the table
+    # behind our back: the marker said 0002, so the boot had no reason to.
+    conn = sqlite3.connect(path)
+    try:
+        tables = {r[0] for r in conn.execute(
+            "select name from sqlite_master where type='table'")}
+    finally:
+        conn.close()
+    assert 'login_attempt' not in tables, \
+        'the table reappeared, so the boot migrated after all and this test ' \
+        'did not exercise the path it claims to'

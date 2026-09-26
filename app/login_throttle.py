@@ -30,8 +30,8 @@ EMAIL_LIMIT = 5
 # Much higher on purpose, see the module docstring. Shared addresses are real.
 IP_LIMIT = 20
 
-# How long failures accumulate before the count is forgotten. Long enough that
-# a scripted run cannot trickle, short enough that a genuine mistake is not
+# How long failures accumulate before the count is forgotten. Long enough that a
+# scripted run cannot trickle, short enough that a genuine mistake is not
 # remembered for a day.
 WINDOW = timedelta(minutes=15)
 
@@ -47,6 +47,38 @@ PRUNE_AFTER = timedelta(days=1)
 
 EMAIL = 'email'
 IP = 'ip'
+
+# Whether login_attempt exists, or None when it has not been looked up yet.
+# Cached because the answer cannot change under a running process, and the
+# throttling is consulted on every sign-in.
+_table_state = None
+
+
+def _table_available():
+    """Whether login_attempt is there to be written to.
+
+    The one table this feature added is also the only thing standing between a
+    deploy that missed it and a login form that returns 500 to everybody. A
+    missing table is treated as no throttling, logged once, and remembered: an
+    unthrottled form is bad, but a form nobody can use is worse, and the schema
+    gets fixed by the next deploy either way.
+    """
+    global _table_state
+    if _table_state is None:
+        from sqlalchemy import inspect
+        try:
+            _table_state = LoginAttempt.__tablename__ in inspect(
+                db.engine).get_table_names()
+        except Exception:
+            db.session.rollback()
+            _table_state = False
+        if not _table_state:
+            import logging
+            logging.error(
+                'login_throttle: tabela %s lipseste, limitarea nu se aplica. '
+                'Autentificarea merge, dar nu este protejata pana la urmatorul '
+                'deploy.' % LoginAttempt.__tablename__)
+    return _table_state
 
 
 def _now():
@@ -96,6 +128,8 @@ def locked_until(email, address):
     Checks both counters and reports the later of the two, because that is how
     long the caller actually has to wait.
     """
+    if not _table_available():
+        return None
     now = _now()
     limit_for = {EMAIL: EMAIL_LIMIT, IP: IP_LIMIT}
     keys = {EMAIL: email_key(email), IP: address}
@@ -121,6 +155,8 @@ def seconds_remaining(email, address):
 
 def record_failure(email, address):
     """Count one failed attempt against both the email and the address."""
+    if not _table_available():
+        return
     now = _now()
     _prune(now)
     for scope, key, limit in ((EMAIL, email_key(email), EMAIL_LIMIT),
@@ -160,6 +196,8 @@ def clear(email):
     the per-address allowance is back. The address counter is left to age out
     of its window, which is the whole point of having one.
     """
+    if not _table_available():
+        return
     try:
         LoginAttempt.query.filter_by(scope=EMAIL, key=email_key(email)).delete(
             synchronize_session=False)
