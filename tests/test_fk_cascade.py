@@ -90,8 +90,7 @@ def test_migration_declares_the_same_clause():
     import os
     path = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        'migrations', 'versions',
-        'e5f6a7b8c9d0_add_time_tracking_and_calendar.py')
+        'migrations', 'versions', '0001_initial_schema.py')
     with open(path, encoding='utf-8') as handle:
         migration = handle.read()
     lines = [line for line in migration.splitlines()

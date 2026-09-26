@@ -26,7 +26,14 @@ class User(UserMixin, db.Model):
     stripe_subscription_status = db.Column(db.String(50))
     # Secret for the /calendar/<token>.ics subscription feed. Null until the
     # user asks for a calendar link, so we never mint tokens nobody uses.
-    calendar_token = db.Column(db.String(64), unique=True)
+    calendar_token = db.Column(db.String(64))
+
+    __table_args__ = (
+        # A named unique index rather than unique=True on the column: the
+        # existing database already has it under this name, and a fresh install
+        # has to end up with the same thing.
+        db.Index('ix_user_calendar_token', 'calendar_token', unique=True),
+    )
 
 class AIUsage(db.Model):
     """Per-user AI call counters, bucketed by period.
@@ -155,6 +162,13 @@ class TimeEntry(db.Model):
     job = db.relationship(
         'Job',
         backref=db.backref('time_entries', cascade='all, delete-orphan'),
+    )
+
+    __table_args__ = (
+        # running_for() filters on user_id, started_at and ended_at on every
+        # page that shows a timer. The index lived only in a migration, so a
+        # database built from the models alone never had it.
+        db.Index('ix_time_entry_user_open', 'user_id', 'ended_at'),
     )
 
     @property

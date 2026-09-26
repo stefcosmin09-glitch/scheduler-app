@@ -11,4 +11,4 @@ ENV FLASK_APP=run.py
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "flask db upgrade && gunicorn run:app --bind 0.0.0.0:8080"]
+CMD ["sh", "-c", "python migrate.py && gunicorn run:app --bind 0.0.0.0:8080"]

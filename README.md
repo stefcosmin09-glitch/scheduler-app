@@ -62,11 +62,30 @@ touches `instance/`, so it is safe to run against a real checkout.
 | `test_pages.py` | Every page touched by the feature still renders |
 | `test_dashboard_actions.py` | Job actions render as forms, not GET links |
 | `test_fk_cascade.py` | `ON DELETE CASCADE` behaves the way Postgres will |
-| `test_migrations.py` | Migration DDL, data preservation, reversibility |
+| `test_migrations.py` | A fresh database builds, matches the models, survives a downgrade, and the deploy entrypoint moves an old one over |
 | `test_encoding.py` | Sources stay valid UTF-8, no mojibake |
 | `test_no_secrets.py` | No credential-shaped literals are committed |
 
-The four round-trip migration tests need `instance/scheduler.db` as a
-pre-feature baseline and skip without it, with the reason printed. A fresh
-database cannot be built from scratch today because the first migration in the
-chain creates a foreign key to a table it never creates.
+## Migrations
+
+The history is a single `0001_initial_schema`, generated from the models.
+Before that it was fifteen migrations that could not build a database from
+scratch, because the first one created a foreign key to a table nothing in the
+chain ever created.
+
+```bash
+python migrate.py     # what the container runs on every deploy
+```
+
+`migrate.py` exists because `flask db upgrade` alone is not safe after a
+squash. A database created before the squash is stamped with a revision id the
+script directory no longer has, and plain `upgrade` answers that with
+`Can't locate revision identified by ...`, which would stop the container from
+starting. The entrypoint tells the three situations apart: an empty database
+gets the migrations, a database carrying a squashed revision gets re-stamped,
+and anything else gets a normal upgrade. An existing database is never altered,
+because its schema is already correct.
+
+The Dockerfile runs it in place of `flask db upgrade` for that reason. Do not
+change it back.
+
