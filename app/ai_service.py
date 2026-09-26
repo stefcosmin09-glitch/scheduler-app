@@ -33,6 +33,48 @@ def ai_configured():
     return ai_provider() == 'openai' and bool(ai_api_key())
 
 
+# ── quota & payload guards ─────────────────────────────────────────
+# The trial needs no card, so without a cap the AI key is an open expense.
+# Buckets are hourly and keyed per user, so a heavy user throttles themselves
+# without ever blocking the next tradesperson.
+
+AI_HOURLY_PERIOD = '%Y-%m-%dT%H'
+MAX_RECEIPT_BYTES = 8 * 1024 * 1024
+FREE_HOURLY_AI_CALLS = 30
+PRO_HOURLY_AI_CALLS = 120
+
+
+def consume_ai_quota(user, feature):
+    """Count one AI call against this user's hourly cap and raise if spent.
+
+    Counters live in the ai_usage table rather than in memory, so the limit
+    survives a deploy and holds when more than one worker is serving.
+    """
+    if user is None:
+        return
+    from app import db
+    from app.models import AIUsage
+
+    period = datetime.utcnow().strftime(AI_HOURLY_PERIOD)
+    cap = PRO_HOURLY_AI_CALLS if getattr(user, 'plan', 'free') == 'pro' else FREE_HOURLY_AI_CALLS
+
+    row = AIUsage.query.filter_by(user_id=user.id, feature=feature, period=period).first()
+    if row is None:
+        AIUsage.query.filter(
+            AIUsage.user_id == user.id, AIUsage.period < period
+        ).delete(synchronize_session=False)
+        row = AIUsage(user_id=user.id, feature=feature, period=period, count=0)
+        db.session.add(row)
+
+    row.count = (row.count or 0) + 1
+    db.session.commit()
+
+    if row.count > cap:
+        raise AIServiceError(
+            'You have used a lot of AI features in the last hour. Please try again shortly.'
+        )
+
+
 def _post_chat(messages, want_json=True):
     if not ai_configured():
         raise AIServiceError('AI is not configured.')
@@ -135,6 +177,7 @@ def _sample_jobs(user, limit=8):
 def generate_quote(user, description):
     if not description or not description.strip():
         raise AIServiceError('Please describe the job first.')
+    consume_ai_quota(user, 'quote')
     samples = _sample_jobs(user)
     sample_txt = ''
     if samples:
@@ -207,6 +250,9 @@ def generate_quote(user, description):
 def extract_receipt(user, image_bytes, mime):
     if not image_bytes:
         raise AIServiceError('No image provided.')
+    if len(image_bytes) > MAX_RECEIPT_BYTES:
+        raise AIServiceError('That photo is too large. Please use an image under 8 MB.')
+    consume_ai_quota(user, 'receipt')
     b64 = base64.b64encode(image_bytes).decode('ascii')
     allowed = ["Materials", "Tools", "Fuel / Vehicle", "Subcontractors",
                "Insurance", "Accountancy", "Marketing", "Rent / Office",
@@ -267,6 +313,7 @@ def extract_receipt(user, image_bytes, mime):
 def extract_job_from_message(user, text):
     if not text or not text.strip():
         raise AIServiceError('Please paste the client message first.')
+    consume_ai_quota(user, 'message')
     types = "electric, plumbing, construction, carpentry, decorating, general, other"
     prompt = (
         "A UK tradesperson received a message from a client about a job. "

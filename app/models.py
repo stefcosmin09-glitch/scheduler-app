@@ -2,6 +2,7 @@ from app import db, login_manager
 from flask_login import UserMixin
 from datetime import datetime
 from decimal import Decimal
+from sqlalchemy import UniqueConstraint
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -23,6 +24,25 @@ class User(UserMixin, db.Model):
     stripe_customer_id = db.Column(db.String(100))
     stripe_subscription_id = db.Column(db.String(100))
     stripe_subscription_status = db.Column(db.String(50))
+
+class AIUsage(db.Model):
+    """Per-user AI call counters, bucketed by period.
+
+    The bucket kind is encoded in the period format rather than a separate
+    column: hourly buckets look like '2026-09-26T15', monthly ones '2026-09'.
+    Hourly buckets drive the rate limit; monthly ones will carry the free tier
+    feature allowances once that lands.
+    """
+    __tablename__ = 'ai_usage'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    feature = db.Column(db.String(30), nullable=False)
+    period = db.Column(db.String(20), nullable=False)
+    count = db.Column(db.Integer, nullable=False, default=0)
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'feature', 'period', name='uq_ai_usage_user_feature_period'),
+    )
 
 class BusinessProfile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
