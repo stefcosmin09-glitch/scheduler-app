@@ -92,7 +92,9 @@ def create_app():
         }
 
     from app.routes import auth, main
+    from app.admin import admin
     app.register_blueprint(auth)
     app.register_blueprint(main)
+    app.register_blueprint(admin)
 
     return app

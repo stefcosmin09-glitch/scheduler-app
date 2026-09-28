@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ _('Users') }} - TradeScheduler{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">{{ _('Users') }}</h2>
+    <span class="text-sm text-gray-600">
+        {{ total }} {{ _('accounts in total') }}
+    </span>
+</div>
+
+<form method="GET" action="{{ url_for('admin.users') }}" class="mb-6 flex gap-2">
+    <input type="text" name="q" value="{{ search }}"
+           placeholder="{{ _('Email or username') }}"
+           class="flex-1 rounded-lg border border-gray-300 px-3 py-2">
+    <button type="submit"
+            class="rounded-lg bg-gray-800 text-white px-4 py-2 hover:bg-gray-700">
+        {{ _('Search') }}
+    </button>
+    {% if search %}
+    <a href="{{ url_for('admin.users') }}"
+       class="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-100">
+        {{ _('Clear') }}
+    </a>
+    {% endif %}
+</form>
+
+{% if search %}
+<p class="mb-4 text-sm text-gray-600">
+    {{ matched }} {{ _('shown for') }} &ldquo;{{ search }}&rdquo;
+</p>
+{% endif %}
+
+{% if users %}
+<div class="bg-white rounded-lg shadow overflow-x-auto">
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-left">
+            <tr>
+                <th class="px-4 py-3">{{ _('Signed up') }}</th>
+                <th class="px-4 py-3">{{ _('Email') }}</th>
+                <th class="px-4 py-3">{{ _('Name') }}</th>
+                <th class="px-4 py-3">{{ _('Plan') }}</th>
+                <th class="px-4 py-3">{{ _('Billing') }}</th>
+                <th class="px-4 py-3"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr class="border-t border-gray-100">
+                <td class="px-4 py-3 whitespace-nowrap">
+                    {% if u.created_at %}
+                        {{ u.created_at.strftime('%Y-%m-%d %H:%M') }}
+                    {% else %}
+                        <span class="text-gray-400"
+                              title="{{ _('Recovered from activity, so this is the latest possible date, not the exact one.') }}">
+                            {{ _('unknown') }}
+                        </span>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3">{{ u.email }}</td>
+                <td class="px-4 py-3">{{ u.username }}</td>
+                <td class="px-4 py-3">
+                    <span class="px-2 py-1 rounded text-xs font-semibold
+                        {% if u.plan == 'pro' %}bg-green-100 text-green-800
+                        {% elif u.plan == 'trial' %}bg-blue-100 text-blue-800
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ u.plan }}
+                    </span>
+                    {% if u.is_admin %}
+                    <span class="ml-1 px-2 py-1 rounded text-xs font-semibold bg-purple-100 text-purple-800">
+                        {{ _('admin') }}
+                    </span>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3">
+                    {% if u.stripe_subscription_status %}
+                        {{ u.stripe_subscription_status }}
+                    {% else %}
+                        <span class="text-gray-400">{{ _('none') }}</span>
+                    {% endif %}
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <a href="{{ url_for('admin.user_detail', user_id=u.id) }}"
+                       class="text-blue-600 hover:underline">{{ _('Details') }}</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if pagination.pages > 1 %}
+<div class="mt-4 flex gap-2">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('admin.users', q=search or None, page=pagination.prev_num) }}"
+       class="rounded-lg border border-gray-300 px-3 py-2 text-sm
+              text-gray-700 hover:bg-gray-100">{{ _('Previous') }}</a>
+    {% endif %}
+    <span class="px-3 py-2 text-sm text-gray-600">
+        {{ _('Page') }} {{ pagination.page }} / {{ pagination.pages }}
+    </span>
+    {% if pagination.has_next %}
+    <a href="{{ url_for('admin.users', q=search or None, page=pagination.next_num) }}"
+       class="rounded-lg border border-gray-300 px-3 py-2 text-sm
+              text-gray-700 hover:bg-gray-100">{{ _('Next') }}</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="bg-white rounded-lg shadow p-8 text-center text-gray-600">
+    {% if search %}
+        {{ _('No account matches that search.') }}
+    {% else %}
+        {{ _('No accounts yet.') }}
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

@@ -27,7 +27,7 @@ import sys
 import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HEAD = '0002_login_throttle'
+HEAD = '0003_admin_user_created_at'
 ROOT_REVISION = '0001_initial_schema'
 
 

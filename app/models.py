@@ -27,12 +27,25 @@ class User(UserMixin, db.Model):
     # Secret for the /calendar/<token>.ics subscription feed. Null until the
     # user asks for a calendar link, so we never mint tokens nobody uses.
     calendar_token = db.Column(db.String(64))
+    # When the account was created. Added late, so existing rows were recovered
+    # by migration 0003 rather than by the register route, which has always run
+    # long before this column existed. Null means the backfill could not prove a
+    # date, not that the account is new.
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    # Read-only view over the user list. False for everyone by default and never
+    # set by the register route, so a new signup cannot grant itself this: it
+    # has to be turned on deliberately, one account at a time, in the database.
+    is_admin = db.Column(db.Boolean, nullable=False, default=False,
+                         server_default='0')
 
     __table_args__ = (
         # A named unique index rather than unique=True on the column: the
         # existing database already has it under this name, and a fresh install
         # has to end up with the same thing.
         db.Index('ix_user_calendar_token', 'calendar_token', unique=True),
+        # The user list is ordered by signup date, newest first, over the whole
+        # table. Without this it is a sort of everything, on every page view.
+        db.Index('ix_user_created_at', 'created_at'),
     )
 
 class AIUsage(db.Model):

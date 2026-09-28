@@ -112,6 +112,10 @@
 
         <a href="{{ url_for('main.tools') }}" class="block whitespace-nowrap rounded-lg border border-white/60 bg-white/10 px-3 py-2 mb-2 hover:bg-white/20 hover:underline">🧮 {{ _('Tools') }}</a>
 
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <a href="{{ url_for('admin.users') }}" class="block whitespace-nowrap rounded-lg border border-white/60 bg-white/10 px-3 py-2 mb-2 hover:bg-white/20 hover:underline">👥 {{ _('Users') }}</a>
+        {% endif %}
+
         <a href="{{ url_for('main.business_settings') }}" class="block whitespace-nowrap rounded-lg border border-white/60 bg-white/10 px-3 py-2 mb-2 hover:bg-white/20 hover:underline">⚙️ {{ _('Settings') }}</a>
 
         <button class="install-btn hidden rounded-lg border border-white/60 bg-white/10 px-3 py-2 mb-2 whitespace-nowrap hover:bg-white/20 hover:underline">📲 {{ _('Install app') }}</button>
@@ -127,6 +131,9 @@
         <a href="{{ url_for('main.expenses') }}" class="block whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3 py-2 mb-2 text-gray-800 hover:bg-gray-100 hover:underline">🧾 {{ _('Expenses') }}</a>
         <a href="{{ url_for('main.ai_job') }}" class="block whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3 py-2 mb-2 text-gray-800 hover:bg-gray-100 hover:underline">🤖 {{ _('AI Inbox') }}</a>
         <a href="{{ url_for('main.tools') }}" class="block whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3 py-2 mb-2 text-gray-800 hover:bg-gray-100 hover:underline">🧮 {{ _('Tools') }}</a>
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <a href="{{ url_for('admin.users') }}" class="block whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3 py-2 mb-2 text-gray-800 hover:bg-gray-100 hover:underline">👥 {{ _('Users') }}</a>
+        {% endif %}
         <a href="{{ url_for('main.business_settings') }}" class="block whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3 py-2 mb-2 text-gray-800 hover:bg-gray-100 hover:underline">⚙️ {{ _('Settings') }}</a>
         <button class="block install-btn hidden rounded-lg border border-gray-300 bg-white px-3 py-2 mb-2 text-gray-800 whitespace-nowrap hover:bg-gray-100 hover:underline">📲 {{ _('Install app') }}</button>
         <a href="{{ url_for('auth.logout') }}" class="block whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3 py-2 mb-2 text-gray-800 hover:bg-gray-100 hover:underline">🚪 {{ _('Logout') }}</a>

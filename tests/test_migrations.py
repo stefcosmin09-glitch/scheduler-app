@@ -31,7 +31,7 @@ from sqlalchemy import create_engine, inspect, text
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VERSIONS = os.path.join(ROOT, 'migrations', 'versions')
 INITIAL = '0001_initial_schema'
-HEAD = '0002_login_throttle'
+HEAD = '0003_admin_user_created_at'
 # The app refuses to start without one, and the deploy provides it, so every
 # subprocess here needs it too.
 TEST_ENV = {'SECRET_KEY': 'test-key-not-used-outside-this-scratch-directory'}
@@ -404,21 +404,19 @@ def test_entrypoint_stamps_a_squashed_revision(tmp_path):
         conn.close()
 
 
-def test_entrypoint_does_not_touch_a_current_database(tmp_path):
-    """A database already on the root takes the normal upgrade path, so a
-    migration added afterwards still runs on it.
+def test_entrypoint_upgrades_from_the_root_without_losing_rows(tmp_path):
+    """A database built to the root and no further is exactly the state a
+    deploy adds migrations on top of: it keeps its rows, gains the tables and
+    columns that came after, and does not get its marker rewritten to a
+    revision it never ran.
     """
     path = str(tmp_path / 'at-root.db')
-    built = _flask_db(path, 'upgrade')
+    built = _flask_db(path, 'upgrade', INITIAL)
     assert built.returncode == 0, built.stdout[-2000:] + built.stderr[-2000:]
     with sqlite3.connect(path) as conn:
         conn.execute("insert into user (username, email, password) "
                      "values ('a', 'a@example.test', 'h')")
-        # Rewind to the state the root migration leaves behind, table included,
-        # so that the upgrade has something real to do.
-        conn.execute('drop table login_attempt')
-        conn.execute('delete from alembic_version')
-        conn.execute("insert into alembic_version values ('%s')" % INITIAL)
+        conn.commit()
 
     env = _env(path)
     result = subprocess.run([sys.executable, 'migrate.py'], cwd=ROOT, env=env,
@@ -430,6 +428,130 @@ def test_entrypoint_does_not_touch_a_current_database(tmp_path):
         assert conn.execute(
             'select version_num from alembic_version').fetchone()[0] == HEAD
         assert 'login_attempt' in _tables(path)
+        user_columns = {r[1] for r in conn.execute(
+            'PRAGMA table_info(user)')}
+        assert 'created_at' in user_columns, '0003 did not add created_at'
+        assert 'is_admin' in user_columns, '0003 did not add is_admin'
         assert conn.execute('select count(*) from user').fetchone()[0] == 1
+    finally:
+        conn.close()
+
+
+# --- migration 0003: signup date recovery ----------------------------------
+
+def _pre_0003_database(path):
+    """Upgrade to 0002, then seed accounts with and without derivable dates."""
+    result = _flask_db(path, 'upgrade', '0002_login_throttle')
+    assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-2000:]
+
+    conn = sqlite3.connect(path)
+    try:
+        # A trial account: signup date is recoverable exactly.
+        conn.execute(
+            "insert into user (username, email, password, plan, "
+            "trial_ends_at) values ('trial', 'trial@t.test', 'x', 'trial', "
+            "'2026-03-10 12:00:00.000000')")
+        # An account with a job but no trial: signup is the latest possible.
+        conn.execute(
+            "insert into user (username, email, password) values "
+            "('worker', 'worker@t.test', 'x')")
+        worker = conn.execute(
+            "select id from user where username='worker'").fetchone()[0]
+        conn.execute(
+            "insert into job (user_id, client_name, address, date, "
+            "duration_minutes, created_at) values (?, 'C', 'A', "
+            "'2026-03-01 08:00:00.000000', 60, '2026-03-02 09:30:00.000000')",
+            (worker,))
+        # An account with nothing: must stay null, not be invented.
+        conn.execute(
+            "insert into user (username, email, password) values "
+            "('ghost', 'ghost@t.test', 'x')")
+        conn.commit()
+
+        trial_ends = conn.execute(
+            "select trial_ends_at from user where username='trial'"
+        ).fetchone()[0]
+    finally:
+        conn.close()
+
+    return trial_ends
+
+
+def test_0003_recovers_signup_dates(tmp_path):
+    """created_at is backfilled from trial_ends_at (exact) or the first job
+    (a lower bound), and left alone when nothing exists to derive it from."""
+    path = str(tmp_path / 'backfill.db')
+    _pre_0003_database(path)
+
+    result = _flask_db(path, 'upgrade')
+    assert result.returncode == 0, result.stdout[-2000:] + result.stderr[-2000:]
+
+    conn = sqlite3.connect(path)
+    try:
+        trial_created = conn.execute(
+            "select created_at from user where username='trial'").fetchone()[0]
+        worker_created = conn.execute(
+            "select created_at from user where username='worker'").fetchone()[0]
+        ghost_created = conn.execute(
+            "select created_at from user where username='ghost'").fetchone()[0]
+
+        from datetime import datetime, timedelta
+        fmt = '%Y-%m-%d %H:%M:%S.%f'
+        expected_trial = datetime.strptime(
+            '2026-03-10 12:00:00.000000', fmt) - timedelta(days=14)
+        assert trial_created == expected_trial.strftime(fmt), \
+            'trial signup date is wrong: %r' % trial_created
+        assert worker_created == '2026-03-02 09:30:00.000000', \
+            'job activity bound is wrong: %r' % worker_created
+        assert ghost_created is None, \
+            'an account with no evidence got an invented date: %r' % ghost_created
+    finally:
+        conn.close()
+
+
+def test_0003_defaults_is_admin_to_false(tmp_path):
+    """Backfilling must not promote an account. is_admin only ever turns on by
+    an explicit edit in the database, never as a side effect of a deploy."""
+    path = str(tmp_path / 'backfill-admin.db')
+    _pre_0003_database(path)
+
+    _flask_db(path, 'upgrade')
+
+    conn = sqlite3.connect(path)
+    try:
+        admins = [r[0] for r in conn.execute(
+            "select username from user where is_admin = 1")]
+        assert admins == [], 'backfill granted admin to %s' % admins
+    finally:
+        conn.close()
+
+
+def test_0003_keeps_rows_and_user_email_unique(tmp_path):
+    """The two adds of columns must not touch rows, and dropping and rebuilding
+    around them must not loosen the unique email constraint either."""
+    path = str(tmp_path / 'backfill-rows.db')
+    _pre_0003_database(path)
+
+    _flask_db(path, 'upgrade')
+
+    conn = sqlite3.connect(path)
+    try:
+        assert conn.execute('select count(*) from user').fetchone()[0] == 3
+        rejected = False
+        try:
+            conn.execute("insert into user (username, email, password) "
+                         "values ('dup', 'trial@t.test', 'x')")
+            conn.commit()
+        except sqlite3.IntegrityError:
+            conn.rollback()
+            rejected = True
+        assert rejected, 'email uniqueness was lost'
+        # New signups still default cleanly to non-admin.
+        conn.execute("insert into user (username, email, password) "
+                     "values ('new', 'new@t.test', 'x')")
+        conn.commit()
+        is_admin = conn.execute(
+            "select is_admin from user where username='new'").fetchone()[0]
+        assert is_admin == 0, 'a fresh signup defaults to admin'
     finally:
         conn.close()

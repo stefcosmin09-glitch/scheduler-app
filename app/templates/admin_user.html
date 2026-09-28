@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ account.email }} - TradeScheduler{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-800">{{ account.username }}</h2>
+    <a href="{{ url_for('admin.users') }}"
+       class="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-100">
+        {{ _('Back to users') }}
+    </a>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6">
+    <dl class="grid gap-4 sm:grid-cols-2">
+        <div>
+            <dt class="text-sm text-gray-500">{{ _('Email') }}</dt>
+            <dd class="text-gray-800">{{ account.email }}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{ _('Signed up') }}</dt>
+            <dd class="text-gray-800">
+                {% if account.created_at %}
+                    {{ account.created_at.strftime('%Y-%m-%d %H:%M') }} UTC
+                {% else %}
+                    {{ _('unknown') }}
+                {% endif %}
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{ _('Plan') }}</dt>
+            <dd class="text-gray-800">{{ account.plan }}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{ _('Admin') }}</dt>
+            <dd class="text-gray-800">{{ _('yes') if account.is_admin else _('no') }}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{ _('Trial ends') }}</dt>
+            <dd class="text-gray-800">
+                {% if account.trial_ends_at %}
+                    {{ account.trial_ends_at.strftime('%Y-%m-%d %H:%M') }} UTC
+                {% else %}
+                    <span class="text-gray-400">{{ _('none') }}</span>
+                {% endif %}
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{ _('Currency') }}</dt>
+            <dd class="text-gray-800">{{ account.currency }}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{ _('Language') }}</dt>
+            <dd class="text-gray-800">{{ account.language }}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">{{ _('Subscription') }}</dt>
+            <dd class="text-gray-800">
+                {% if account.stripe_subscription_status %}
+                    {{ account.stripe_subscription_status }}
+                {% else %}
+                    <span class="text-gray-400">{{ _('none') }}</span>
+                {% endif %}
+            </dd>
+        </div>
+    </dl>
+
+    <div class="mt-6 pt-4 border-t border-gray-100 text-sm text-gray-500">
+        <p>{{ account.jobs|length }} {{ _('jobs') }} &middot;
+           {{ account.invoices|length }} {{ _('invoices') }}</p>
+    </div>
+</div>
+
+<p class="mt-4 text-sm text-gray-500">
+    {{ _('This page only reads. Changing an account is done in the database, on purpose.') }}
+</p>
+{% endblock %}
