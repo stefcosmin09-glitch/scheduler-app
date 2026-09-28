@@ -5,21 +5,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from db_url import resolve_url
 from sqlalchemy import create_engine, text, inspect
 from sqlalchemy.exc import IntegrityError
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
-def resolve_url(url):
-    if url.startswith('sqlite:///'):
-        path = url[len('sqlite:///'):]
-        if not os.path.isabs(path) and not path.startswith('instance'):
-            p = os.path.join(BASE_DIR, 'instance', path)
-            if os.path.exists(p):
-                return 'sqlite:///' + p.replace('\\', '/')
-    return url
-
 
 RESTORE_URL = resolve_url(os.getenv('RESTORE_DATABASE_URL') or os.getenv('DATABASE_URL') or 'sqlite:///scheduler.db')
 

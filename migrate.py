@@ -24,6 +24,7 @@ import os
 import subprocess
 import sys
 
+from db_url import resolve_url
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,17 +36,6 @@ VERSIONS_DIR = os.path.join(BASE_DIR, 'migrations', 'versions')
 
 # A table that only exists in a migrated database, never in an empty one.
 SENTINEL_TABLE = 'user'
-
-
-def resolve_url():
-    url = os.getenv('DATABASE_URL') or 'sqlite:///scheduler.db'
-    if url.startswith('sqlite:///'):
-        path = url[len('sqlite:///'):]
-        if not os.path.isabs(path) and not path.startswith('instance'):
-            candidate = os.path.join(BASE_DIR, 'instance', path)
-            if os.path.exists(candidate):
-                return 'sqlite:///' + candidate.replace('\\', '/')
-    return url
 
 
 def script_revisions():
@@ -148,7 +138,7 @@ def ensure_schema(url=None):
     Dockerfile, so run.py calls this at import instead. Keeping the logic in
     one place means every way of starting the app gets the same treatment.
     """
-    url = url or resolve_url()
+    url = url or resolve_url(os.getenv('DATABASE_URL'))
     print('migrate: %s' % url.split('//')[0] + '//...')
 
     try:

@@ -4,21 +4,11 @@ import glob
 import base64
 import datetime
 from sqlalchemy import create_engine, text, inspect
+from db_url import resolve_url
 
 BACKUPS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'backups', 'auto')
 KEEP_COUNT = 14
 MAX_ATTACHMENT_SIZE = 30 * 1024 * 1024
-
-
-def resolve_url(url):
-    if url.startswith('sqlite:///'):
-        path = url[len('sqlite:///'):]
-        base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        if not os.path.isabs(path) and not path.startswith('instance'):
-            p = os.path.join(base, 'instance', path)
-            if os.path.exists(p):
-                return 'sqlite:///' + p.replace('\\', '/')
-    return url
 
 
 def sql_literal(v):

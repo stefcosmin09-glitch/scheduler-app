@@ -1,15 +1,14 @@
 import os
 
+from db_url import resolve_url
+
+
 def _database_uri():
-    raw = os.environ.get('DATABASE_URL') or 'sqlite:///scheduler.db'
-    # SQLAlchemy 2.1 flipped the default PostgreSQL driver to psycopg 3, but we
-    # ship psycopg2-binary. Pin the driver so a rebuild cannot swap it underneath
-    # us and take the whole app down at import time.
-    if '+' not in raw.split('://', 1)[0]:
-        for scheme in ('postgres://', 'postgresql://'):
-            if raw.startswith(scheme):
-                return 'postgresql+psycopg2://' + raw[len(scheme):]
-    return raw
+    # db_url.resolve_url pins a postgres URL to the psycopg2 driver the project
+    # ships. SQLAlchemy 2.1 made psycopg (v3) the default for a bare postgres
+    # URL, so without the pin the first create_engine() raises
+    # ModuleNotFoundError; that is what took the migration probe down at deploy.
+    return resolve_url(os.environ.get('DATABASE_URL'))
 
 class Config:
     # No fallback. A key committed to the repository signs every session and

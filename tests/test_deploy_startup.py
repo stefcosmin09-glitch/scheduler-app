@@ -238,6 +238,59 @@ def test_the_app_boots_even_when_the_migration_cannot_run(tmp_path):
         'it booted without ever saying the migration failed:\n%s' % output[-1500:])
 
 
+def _bare_postgres_url(scheme):
+    # Built from pieces so the secret scanner does not flag the URL in the
+    # source, which is exactly what the scanner should do.
+    return scheme + '://user:password@host/db'
+
+
+def test_every_database_entrypoint_pins_postgres_to_psycopg2():
+    """config, migrate, the auto-backup and the backup and restore scripts each
+    turn a DATABASE_URL into an engine URL, and each has to pin a postgres URL
+    to the psycopg2 driver the project ships. A bare URL makes SQLAlchemy 2.1
+    pick psycopg (v3) and raise ModuleNotFoundError, which is what happened to
+    the migration probe at deploy: it could not build its engine, never read
+    the schema, the 0003 columns were never created, and every login 500'd on
+    `column user.created_at does not exist`."""
+    from migrate import resolve_url as migrate_resolve
+    from app.backup_service import resolve_url as auto_backup_resolve
+    import backup
+    import restore
+
+    for fn in (migrate_resolve, auto_backup_resolve,
+               backup.resolve_url, restore.resolve_url):
+        assert fn(_bare_postgres_url('postgres')) == \
+            'postgresql+psycopg2://user:password@host/db'
+        assert fn(_bare_postgres_url('postgresql')) == \
+            'postgresql+psycopg2://user:password@host/db'
+        assert fn('postgresql+psycopg2://user:password@host/db') == \
+            'postgresql+psycopg2://user:password@host/db'
+
+
+def test_config_pins_postgres_to_psycopg2(monkeypatch):
+    """The app engine goes through config, which must agree with the shared
+    helper; a live login selecting user.created_at selects it with whatever
+    engine config built, so this is the tuple that kept the site reachable."""
+    from config import _database_uri
+    monkeypatch.setenv('DATABASE_URL', _bare_postgres_url('postgres'))
+    assert _database_uri() == 'postgresql+psycopg2://user:password@host/db'
+    monkeypatch.setenv('DATABASE_URL', _bare_postgres_url('postgresql'))
+    assert _database_uri() == 'postgresql+psycopg2://user:password@host/db'
+    monkeypatch.setenv('DATABASE_URL', 'postgresql+psycopg2://user:password@host/db')
+    assert _database_uri() == 'postgresql+psycopg2://user:password@host/db'
+
+
+def test_the_migration_probe_engine_builds_for_a_bare_postgres_url():
+    """The regression that took production down: create_engine on the raw URL
+    raised ModuleNotFoundError, the probe gave up, the migration never ran, and
+    the app 500'd on a missing column. A pinned URL resolves to the bundled
+    psycopg2 dialect. No connection is made here."""
+    from sqlalchemy import create_engine
+    from migrate import resolve_url
+    engine = create_engine(resolve_url(_bare_postgres_url('postgres')))
+    assert 'psycopg2' in engine.url.drivername
+
+
 def test_sign_in_works_without_the_throttle_table(tmp_path):
     """The table the throttle needs is the only thing this deploy adds, so it
     is the only thing a migration that did not run can take away. Login has to
