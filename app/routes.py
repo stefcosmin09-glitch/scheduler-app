@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, send_from_directory, Response, abort, jsonify, make_response
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_file, send_from_directory, Response, abort, jsonify, make_response, session
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
@@ -104,6 +104,7 @@ def register():
             return redirect(url_for('main.billing_checkout'))
 
         flash(_('Account created successfully!'))
+        session['track_signup'] = True
         return redirect(url_for('auth.login'))
 
     return render_template('register.html')
@@ -141,7 +142,8 @@ def login():
         login_user(user)
         return redirect(url_for('main.dashboard'))
 
-    return render_template('login.html')
+    return render_template('login.html',
+                           just_signed_up=session.pop('track_signup', None))
 
 
 @auth.route('/logout')
