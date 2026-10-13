@@ -42,7 +42,7 @@
                 {% endif %}
             </div>
             <div class="flex gap-2">
-                {% if current_user.plan == 'pro' %}
+                {% if current_user.plan in ('pro', 'starter') %}
                 <form method="POST" action="{{ url_for('main.billing_portal') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <button type="submit"
@@ -51,10 +51,21 @@
                     </button>
                 </form>
                 {% elif billing_configured %}
+                {% if starter_configured %}
                 <form method="POST" action="{{ url_for('main.billing_checkout') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="plan" value="starter">
                     <button type="submit"
                         class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        {{ _('Choose Starter') }} — £12.99/{{ _('month') }}
+                    </button>
+                </form>
+                {% endif %}
+                <form method="POST" action="{{ url_for('main.billing_checkout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="plan" value="pro">
+                    <button type="submit"
+                        class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900">
                         🚀 {{ _('Upgrade to Pro') }} — {{ pro_price_text }}/{{ _('month') }}
                     </button>
                 </form>

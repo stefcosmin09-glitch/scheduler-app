@@ -29,6 +29,20 @@ FREE_LIMITS = {
 
 AI_FEATURES = ('ai_quote', 'ai_receipt', 'ai_message')
 
+# Starter (£12.99): jobs and customers are unlimited, AI has a small monthly cap
+# so the user can try it and want Pro. Pro gets a generous fair-use cap.
+STARTER_AI_LIMITS = {
+    'ai_quote': 25,
+    'ai_receipt': 10,
+    'ai_message': 25,
+}
+
+PRO_AI_LIMITS = {
+    'ai_quote': 500,
+    'ai_receipt': 300,
+    'ai_message': 500,
+}
+
 # English labels for the dashboard counters; templates run them through _().
 FEATURE_LABELS = {
     'jobs': 'jobs this month',
@@ -42,26 +56,36 @@ def is_pro(user):
     return getattr(user, 'plan', 'free') == 'pro'
 
 
+def is_starter(user):
+    return getattr(user, 'plan', 'free') == 'starter'
+
+
 def trial_active(user):
     """True while the 14-day trial is still running."""
-    if is_pro(user):
+    if is_pro(user) or is_starter(user):
         return False
     ends = getattr(user, 'trial_ends_at', None)
     return bool(ends) and ends > datetime.utcnow()
 
 
 def is_unmetered(user):
-    """True where the free allowances must not apply.
+    """True where the free allowances must not apply to jobs and customers.
 
-    Pro is unmetered, and so is a live trial: the landing page sells the trial
-    as full access, so letting the free caps touch it would contradict what was
-    promised at signup. Only once the trial lapses do the caps start counting.
+    Paid plans are unmetered, and so is a live trial: the landing page sells the
+    trial as full access, so letting the free caps touch it would contradict what
+    was promised at signup. Only once the trial lapses do the caps start counting.
     """
-    return is_pro(user) or trial_active(user)
+    return is_pro(user) or is_starter(user) or trial_active(user)
 
 
 def limit_for(user, feature):
     """Allowance for this user, or None when unmetered."""
+    if feature in AI_FEATURES:
+        if is_pro(user) or trial_active(user):
+            return PRO_AI_LIMITS[feature]
+        if is_starter(user):
+            return STARTER_AI_LIMITS[feature]
+        return FREE_LIMITS.get(feature)
     if is_unmetered(user):
         return None
     return FREE_LIMITS.get(feature)
@@ -178,7 +202,7 @@ def new_customer_block(user, client_name):
 
 def dashboard_state(user):
     """Limit usage for the dashboard banners, as a list of dicts."""
-    if is_unmetered(user):
+    if is_pro(user) or trial_active(user):
         return []
     out = []
     for feature in ('jobs', 'customers', 'ai_quote', 'ai_receipt'):

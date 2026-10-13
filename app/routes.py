@@ -31,7 +31,7 @@ FREE_TIME_ENTRIES = 5
 _DUMMY_HASH = generate_password_hash(secrets.token_urlsafe(32))
 
 def trial_info(user):
-    if user.plan == 'pro':
+    if user.plan in ('pro', 'starter'):
         return False, 0, None
     if not user.trial_ends_at:
         return False, 0, None
@@ -101,7 +101,7 @@ def register():
 
         if request.args.get('upgrade') == '1':
             login_user(user)
-            return redirect(url_for('main.billing_checkout'))
+            return redirect(url_for('main.billing_checkout', plan=request.args.get('plan') or 'pro'))
 
         flash(_('Account created successfully!'))
         session['track_signup'] = True
@@ -314,6 +314,7 @@ def dashboard():
                            weekly_total=weekly_total,
                            monthly_total=monthly_total,
                            billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')),
+                           starter_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_STARTER_PRICE_ID')),
                            trial_active=trial_active,
                            trial_days=trial_days,
                            limits=dashboard_state(current_user),
@@ -940,6 +941,7 @@ def business_settings():
                            calendar_token=current_user.calendar_token,
                            pro=is_pro(current_user),
                            billing_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_PRO_PRICE_ID')),
+                           starter_configured=bool(os.getenv('STRIPE_API_KEY') and os.getenv('STRIPE_STARTER_PRICE_ID')),
                            trial_active=trial_info(current_user)[0],
                            trial_days=trial_info(current_user)[1])
 
@@ -1018,7 +1020,9 @@ def stripe_webhook():
             if uid:
                 user = User.query.get(int(uid))
             if user:
-                user.plan = 'pro'
+                user.plan = (session.get('metadata') or {}).get('plan') or 'pro'
+                if user.plan not in ('starter', 'pro'):
+                    user.plan = 'pro'
                 if sub_id:
                     user.stripe_subscription_id = sub_id
                 user.stripe_subscription_status = 'active'
@@ -1036,7 +1040,12 @@ def stripe_webhook():
             if status in ('canceled', 'unpaid', 'incomplete_expired'):
                 user.plan = 'free'
             elif status == 'active':
-                user.plan = 'pro'
+                items = ((sub.get('items') or {}).get('data') or [])
+                price_id = ((items[0].get('price') or {}).get('id') if items else None)
+                if price_id and price_id == os.getenv('STRIPE_STARTER_PRICE_ID'):
+                    user.plan = 'starter'
+                else:
+                    user.plan = 'pro'
             db.session.commit()
             print(f">>> User {user.username} subscription status -> {status}")
     return Response('ok', status=200)
@@ -1055,13 +1064,20 @@ def visitor_currency():
 def billing_checkout():
     import os
     import stripe
-    if not os.getenv('STRIPE_API_KEY') or not os.getenv('STRIPE_PRO_PRICE_ID'):
+    plan = (request.values.get('plan') or 'pro').lower()
+    if plan not in ('starter', 'pro'):
+        plan = 'pro'
+    if plan == 'starter':
+        price_id = os.getenv('STRIPE_STARTER_PRICE_ID')
+        currency = 'GBP'
+    else:
+        currency = (request.args.get('currency') or current_user.currency or 'GBP').upper()
+        price_env = {'GBP': 'STRIPE_PRO_PRICE_ID', 'USD': 'STRIPE_PRO_PRICE_ID_USD', 'RON': 'STRIPE_PRO_PRICE_ID_RON'}
+        price_id = os.getenv(price_env.get(currency, '')) or os.getenv('STRIPE_PRO_PRICE_ID')
+    if not os.getenv('STRIPE_API_KEY') or not price_id:
         flash(_('Billing is not configured yet.'))
         return redirect(url_for('main.business_settings'))
     stripe.api_key = os.getenv('STRIPE_API_KEY')
-    currency = (request.args.get('currency') or current_user.currency or 'GBP').upper()
-    price_env = {'GBP': 'STRIPE_PRO_PRICE_ID', 'USD': 'STRIPE_PRO_PRICE_ID_USD', 'RON': 'STRIPE_PRO_PRICE_ID_RON'}
-    price_id = os.getenv(price_env.get(currency, '')) or os.getenv('STRIPE_PRO_PRICE_ID')
     if not current_user.stripe_customer_id:
         customer = stripe.Customer.create(
             email=current_user.email,
@@ -1071,14 +1087,14 @@ def billing_checkout():
         db.session.commit()
     try:
         session_kwargs = {}
-        trial_active, trial_days, _ = trial_info(current_user)
+        trial_active, trial_days, _trial_end = trial_info(current_user)
         if trial_active:
             session_kwargs['subscription_data'] = {'trial_period_days': max(int(trial_days), 1)}
         session = stripe.checkout.Session.create(
             customer=current_user.stripe_customer_id,
             mode='subscription',
             line_items=[{'price': price_id, 'quantity': 1}],
-            metadata={'user_id': current_user.id, 'plan': 'pro'},
+            metadata={'user_id': current_user.id, 'plan': plan},
             client_reference_id=str(current_user.id),
             success_url=url_for('main.business_settings', _external=True) + '?billing=success&session_id={CHECKOUT_SESSION_ID}',
             cancel_url=url_for('main.business_settings', _external=True),
