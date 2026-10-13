@@ -90,4 +90,11 @@ def create_app():
     app.register_blueprint(main)
     app.register_blueprint(admin)
 
+    @app.cli.command('trial-lifecycle')
+    def trial_lifecycle_command():
+        """Send due trial emails and apply the retention rule. Run daily."""
+        from app.trial_lifecycle import run_trial_lifecycle
+        sent, deleted = run_trial_lifecycle()
+        print('trial lifecycle: %d emails sent, %d accounts deleted' % (sent, deleted))
+
     return app

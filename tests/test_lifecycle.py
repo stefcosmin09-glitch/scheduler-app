@@ -159,6 +159,16 @@ def test_deletion_keeps_accounts_that_ever_subscribed():
         check('subscriber kept', deleted, 0)
 
 
+def test_cli_command_runs_the_lifecycle(monkeypatch):
+    sent = []
+    monkeypatch.setattr(trial_lifecycle, 'send_email',
+                        lambda to, subject, body: sent.append(subject) or True)
+    _create(username='cli1', plan='free', ends_in=-1)
+    result = app.test_cli_runner().invoke(args=['trial-lifecycle'])
+    check('command exits cleanly', result.exit_code, 0)
+    check('command sent the email', len(sent), 1)
+
+
 def test_deletion_keeps_recent_expiries():
     os.environ['DATA_RETENTION_DELETE'] = '1'
     _create(username='recent1', plan='free', ends_in=-10)
