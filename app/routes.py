@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.currency import convert_to_base
-from app.limits import (consume, dashboard_state, is_pro, is_unmetered,
+from app.limits import (consume, dashboard_state, is_pro, is_read_only, is_unmetered,
                         new_customer_block, reached)
 from itsdangerous import URLSafeTimedSerializer
 from app.models import User, Job, Invoice, Payment, TimeEntry, ACTIVITY_TYPES, EXPENSE_CATEGORIES
@@ -61,6 +61,42 @@ def pro_required(view):
 
 auth = Blueprint('auth', __name__)
 main = Blueprint('main', __name__)
+
+# Endpoints a read-only account can still reach with a write method: the paths
+# to subscribing, the export, and the profile page where the user manages all
+# of this. Everything else that changes data is refused until they pay.
+_READ_ONLY_OPEN = {
+    'main.billing_checkout', 'main.billing_portal', 'main.stripe_webhook',
+    'main.visitor_currency', 'main.account_export', 'main.business_settings',
+}
+
+
+@main.before_app_request
+def enforce_read_only_after_trial():
+    if request.method in ('GET', 'HEAD', 'OPTIONS'):
+        return None
+    if not current_user.is_authenticated or not is_read_only(current_user):
+        return None
+    endpoint = request.endpoint
+    if not endpoint:
+        # No route matched: a 404 or 405 from Flask, not a write this could stop.
+        return None
+    if endpoint.startswith(('auth.', 'admin.')) or endpoint in _READ_ONLY_OPEN:
+        return None
+    message = _('Your trial has ended, so this account is read-only. Choose a plan to keep adding jobs and invoices. You can still view and download your data.')
+    if request.is_json:
+        return jsonify({'error': message, 'read_only': True, 'upgrade': True}), 402
+    flash(message)
+    return redirect(url_for('main.business_settings'))
+
+
+@main.route('/account/export')
+@login_required
+def account_export():
+    from app.data_export import build_export
+    archive = build_export(current_user)
+    return send_file(archive, mimetype='application/zip', as_attachment=True,
+                     download_name='tradescheduler-export.zip')
 
 # ─── AUTH ───────────────────────────────────────────
 
@@ -225,9 +261,10 @@ def dashboard():
     if not current_user.is_authenticated:
         return render_template('landing.html')
 
-    from app.notifications import send_overdue_invoice_reminders, send_trial_expiry_reminders
+    from app.notifications import send_overdue_invoice_reminders
+    from app.trial_lifecycle import run_trial_lifecycle
     send_overdue_invoice_reminders(current_app._get_current_object())
-    send_trial_expiry_reminders(current_app._get_current_object())
+    run_trial_lifecycle()
 
     filter_type = request.args.get('type', 'all')
     filter_status = request.args.get('status', 'active')
@@ -329,7 +366,7 @@ def dashboard():
 @login_required
 def add_job():
     if not can_add_jobs(current_user):
-        flash(_('You have reached the free plan limit. Subscribe to add new jobs.'))
+        flash(_('Your trial has ended. Choose a plan to add new jobs.'))
         return redirect(url_for('main.dashboard'))
     if request.method == 'POST':
         blocked = new_customer_block(current_user, request.form.get('client_name'))
@@ -1071,9 +1108,8 @@ def billing_checkout():
         price_id = os.getenv('STRIPE_STARTER_PRICE_ID')
         currency = 'GBP'
     else:
-        currency = (request.args.get('currency') or current_user.currency or 'GBP').upper()
-        price_env = {'GBP': 'STRIPE_PRO_PRICE_ID', 'USD': 'STRIPE_PRO_PRICE_ID_USD', 'RON': 'STRIPE_PRO_PRICE_ID_RON'}
-        price_id = os.getenv(price_env.get(currency, '')) or os.getenv('STRIPE_PRO_PRICE_ID')
+        currency = 'GBP'
+        price_id = os.getenv('STRIPE_PRO_PRICE_ID')
     if not os.getenv('STRIPE_API_KEY') or not price_id:
         flash(_('Billing is not configured yet.'))
         return redirect(url_for('main.business_settings'))

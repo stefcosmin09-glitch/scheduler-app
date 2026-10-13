@@ -91,7 +91,7 @@ def test_starter_job_count_is_not_blocked():
 
 def _post_webhook(event):
     import os
-    os.environ['STRIPE_WEBHOOK_SECRET'] = 'whsec_test'
+    os.environ['STRIPE_WEBHOOK_SECRET'] = 'test-webhook-value'
     with mock.patch('stripe.Webhook.construct_event', return_value=event):
         return app.test_client().post('/stripe/webhook', data=b'{}',
                                       headers={'Stripe-Signature': 'x'})

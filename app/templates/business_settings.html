@@ -76,6 +76,15 @@
         </div>
     </div>
 
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-1">{{ _('Your data') }}</h2>
+        <p class="text-sm text-gray-600 mb-4">{{ _('Download everything in TradeScheduler as CSV files: jobs, invoices, payments, expenses and your business profile.') }}</p>
+        <a href="{{ url_for('main.account_export') }}"
+            class="inline-block bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-900">
+            {{ _('Download my data') }}
+        </a>
+    </div>
+
     {# Calendar feed. The link is a secret token, so treat it like a password. #}
     <div class="bg-white rounded-lg shadow p-6 mb-6">
         <h2 class="text-lg font-semibold text-gray-800 mb-1">📅 {{ _('Calendar feed') }}</h2>

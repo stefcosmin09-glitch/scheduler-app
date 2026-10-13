@@ -78,6 +78,15 @@ def is_unmetered(user):
     return is_pro(user) or is_starter(user) or trial_active(user)
 
 
+def is_read_only(user):
+    """True once the trial has ended without a paid plan.
+
+    Such an account keeps its data and can still view and export it, but cannot
+    add or change anything until it subscribes.
+    """
+    return not is_unmetered(user)
+
+
 def limit_for(user, feature):
     """Allowance for this user, or None when unmetered."""
     if feature in AI_FEATURES:
@@ -201,8 +210,12 @@ def new_customer_block(user, client_name):
 
 
 def dashboard_state(user):
-    """Limit usage for the dashboard banners, as a list of dicts."""
-    if is_pro(user) or trial_active(user):
+    """Limit usage for the dashboard banners, as a list of dicts.
+
+    Only Starter has allowances to show: Pro, a live trial and a read-only
+    account have none.
+    """
+    if not is_starter(user):
         return []
     out = []
     for feature in ('jobs', 'customers', 'ai_quote', 'ai_receipt'):

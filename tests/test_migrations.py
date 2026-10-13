@@ -31,7 +31,7 @@ from sqlalchemy import create_engine, inspect, text
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VERSIONS = os.path.join(ROOT, 'migrations', 'versions')
 INITIAL = '0001_initial_schema'
-HEAD = '0003_admin_user_created_at'
+HEAD = '0004_trial_lifecycle'
 # The app refuses to start without one, and the deploy provides it, so every
 # subprocess here needs it too.
 TEST_ENV = {'SECRET_KEY': 'test-key-not-used-outside-this-scratch-directory'}

@@ -9,7 +9,7 @@
             {% if trial_active %}
             <span>🚀 {{ _('Free trial: %(days)s days left.', days=trial_days) }}</span>
             {% else %}
-            <span>🆓 {{ _('Free plan') }}</span>
+            <span>🔒 {{ _('Trial ended: read-only. Choose a plan to keep adding jobs and invoices.') }}</span>
             {% endif %}
             {% if limits %}
             <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs mt-1">

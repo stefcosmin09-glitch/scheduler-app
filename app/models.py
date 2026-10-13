@@ -21,6 +21,9 @@ class User(UserMixin, db.Model):
     plan = db.Column(db.String(20), default='free')
     trial_ends_at = db.Column(db.DateTime)
     trial_reminder_sent = db.Column(db.Boolean, default=False)
+    # Comma-separated lifecycle emails already sent: d10, d13, expired,
+    # deletion_warning. Lets each email go out exactly once.
+    trial_emails_sent = db.Column(db.String(100))
     stripe_customer_id = db.Column(db.String(100))
     stripe_subscription_id = db.Column(db.String(100))
     stripe_subscription_status = db.Column(db.String(50))

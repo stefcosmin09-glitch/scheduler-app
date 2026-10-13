@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}TradeScheduler – Job Management &amp; Invoice Software for UK Tradespeople{% endblock %}
+{% block title %}TradeScheduler – Job Management &amp; Invoicing App for UK Tradespeople{% endblock %}
 
 {% block head %}
-<meta name="description" content="Job management software for UK tradespeople. Manage jobs, schedules, customers, quotes, invoices and payments in one app. Try it free for 14 days – no credit card required.">
+<meta name="description" content="Online job management app for UK tradespeople. Manage jobs, schedules, customers, quotes, invoices and payments in one app. Try it free for 14 days – no credit card required.">
 <link rel="canonical" href="https://thetradescheduler.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="TradeScheduler">
-<meta property="og:title" content="TradeScheduler – Job Management &amp; Invoice Software for UK Tradespeople">
-<meta property="og:description" content="Manage jobs, schedules, customers, quotes, invoices and payments in one simple app. Free forever for up to 20 jobs a month.">
+<meta property="og:title" content="TradeScheduler – Job Management &amp; Invoicing App for UK Tradespeople">
+<meta property="og:description" content="Manage jobs, schedules, customers, quotes, invoices and payments in one simple app. 14-day trial, then from £12.99 a month.">
 <meta property="og:url" content="https://thetradescheduler.com/">
 <meta property="og:image" content="{{ url_for('static', filename='icons/icon-512.png', _external=True) }}">
 <meta name="twitter:card" content="summary">
@@ -25,10 +25,10 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
+  "@type": "WebApplication",
   "name": "TradeScheduler",
   "applicationCategory": "BusinessApplication",
-  "operatingSystem": "Web, Android, iOS",
+  "operatingSystem": "Any (web browser)",
   "description": "Job management, scheduling, quotes, invoices and payments for UK tradespeople.",
   "url": "https://thetradescheduler.com/",
   "inLanguage": ["en", "ro"],
@@ -36,9 +36,9 @@
     {
       "@type": "Offer",
       "name": "Starter",
-      "price": "0",
+      "price": "12.99",
       "priceCurrency": "GBP",
-      "description": "Free forever: 20 jobs a month, 5 new customers a month, monthly AI allowances."
+      "description": "Unlimited jobs and customers, invoicing, online payments, expenses and monthly AI allowances, after a 14-day trial."
     },
     {
       "@type": "Offer",
@@ -56,13 +56,13 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is TradeScheduler really free?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes, two ways. You get 14 days with every feature unlocked. If you don't upgrade, your account drops to the free Starter plan — 20 jobs a month, 5 new customers a month, and monthly AI allowances — and it never expires." }
+      "name": "How does the free trial work?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You get 14 days with every feature unlocked and no card needed. Then choose Starter at £12.99 a month or Pro at £22.99 a month. If you don't choose a plan, your account becomes read-only: you can still view and download your data." }
     },
     {
       "@type": "Question",
       "name": "Do I need a credit card to start?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. Create your account and use everything free for 14 days." }
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Create your account and use everything for 14 days, then choose a plan." }
     },
     {
       "@type": "Question",
@@ -91,8 +91,8 @@
     },
     {
       "@type": "Question",
-      "name": "Does it support GBP and Romanian?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Yes. TradeScheduler supports GBP, RON, EUR and USD, and is available in English and Romanian." }
+      "name": "What currency and languages are supported?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Prices are in GBP. The app is available in English and Romanian." }
     }
   ]
 }
@@ -129,12 +129,12 @@
         <div class="flex items-center gap-3">
             <a href="{{ url_for('auth.login') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-900 px-3 py-2">Log in</a>
             <a href="{{ url_for('auth.register') }}"
-                class="hidden sm:inline-block bg-blue-600 text-white text-sm font-bold px-4 py-2.5 rounded-lg hover:bg-blue-700">
-                Start free
+                class="hidden sm:inline-block bg-blue-600 text-white text-sm font-bold px-4 py-2.5 rounded-lg hover:bg-blue-700 shadow-sm">
+                Start trial
             </a>
             <a href="{{ url_for('auth.register') }}"
                 class="sm:hidden bg-blue-600 text-white text-sm font-bold px-4 py-2.5 rounded-lg hover:bg-blue-700">
-                Start free
+                Start trial
             </a>
         </div>
     </nav>
@@ -152,7 +152,7 @@
                     Stop juggling jobs, WhatsApp and invoices.
                 </h1>
                 <p class="text-gray-600 text-lg mt-6 leading-relaxed max-w-lg">
-                    TradeScheduler helps UK tradespeople manage jobs, schedules, customers, quotes, invoices and payments — in one simple app.
+                    Book jobs, send quotes and invoices, get paid online and see what you've earned. All in one simple app, from your phone or laptop.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-3 mt-9">
                     <a href="{{ url_for('auth.register') }}"
@@ -164,7 +164,11 @@
                         See how it works
                     </a>
                 </div>
-                <p class="text-gray-400 text-sm mt-5">No credit card required · Set up in minutes</p>
+                <ul class="flex flex-wrap gap-3 mt-5 text-sm text-gray-600">
+                    <li class="flex items-center gap-1.5"><span class="text-green-600 font-bold">✓</span> No credit card</li>
+                    <li class="flex items-center gap-1.5"><span class="text-green-600 font-bold">✓</span> Set up in minutes</li>
+                    <li class="flex items-center gap-1.5"><span class="text-green-600 font-bold">✓</span> Cancel anytime</li>
+                </ul>
             </div>
 
             <!-- Product preview -->
@@ -218,8 +222,8 @@
                         <p class="text-gray-500 text-xs">free trial</p>
                     </div>
                     <div class="bg-gray-50 border border-gray-200 rounded-lg px-2 py-3">
-                        <p class="text-gray-900 font-bold text-sm">£0</p>
-                        <p class="text-gray-500 text-xs">to start</p>
+                        <p class="text-gray-900 font-bold text-sm">£12.99</p>
+                        <p class="text-gray-500 text-xs">a month after trial</p>
                     </div>
                     <div class="bg-gray-50 border border-gray-200 rounded-lg px-2 py-3">
                         <p class="text-gray-900 font-bold text-sm">📲</p>
@@ -246,7 +250,7 @@
         </div>
         <div class="bg-white rounded-lg p-4 text-center shadow-sm">
             <p class="font-bold text-gray-900">English &amp; Romanian</p>
-            <p class="text-gray-500 text-xs mt-1">GBP, RON, EUR, USD</p>
+            <p class="text-gray-500 text-xs mt-1">Prices in GBP</p>
         </div>
     </div>
 
@@ -323,48 +327,48 @@
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
                 <p class="text-3xl mb-3">🗓️</p>
-                <h3 class="font-bold text-gray-900 mb-1">Schedule jobs</h3>
-                <p class="text-gray-600 text-sm">Keep your jobs, dates, addresses and customer details organised in one place.</p>
+                <h3 class="font-bold text-gray-900 mb-1">Never double-book a job</h3>
+                <p class="text-gray-600 text-sm">See every job, date and address in one calendar. Know exactly where you need to be tomorrow.</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
                 <p class="text-3xl mb-3">📝</p>
-                <h3 class="font-bold text-gray-900 mb-1">Quotes &amp; invoices</h3>
-                <p class="text-gray-600 text-sm">Create professional quotes and PDF invoices without spending your evening on paperwork.</p>
+                <h3 class="font-bold text-gray-900 mb-1">Send a quote in minutes</h3>
+                <p class="text-gray-600 text-sm">Turn a job into a professional quote, then a PDF invoice with VAT. Send it from your phone.</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
                 <p class="text-3xl mb-3">💳</p>
-                <h3 class="font-bold text-gray-900 mb-1">Online payments</h3>
-                <p class="text-gray-600 text-sm">Give customers an easy way to pay you online and keep track of what's been paid.</p>
+                <h3 class="font-bold text-gray-900 mb-1">Get paid faster</h3>
+                <p class="text-gray-600 text-sm">Customers pay you online from the invoice link. See what's been paid and what's still owed.</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
                 <p class="text-3xl mb-3">🔔</p>
-                <h3 class="font-bold text-gray-900 mb-1">Payment reminders</h3>
-                <p class="text-gray-600 text-sm">Reminders go out automatically for overdue invoices, so you spend less time chasing.</p>
+                <h3 class="font-bold text-gray-900 mb-1">Stop chasing late payments</h3>
+                <p class="text-gray-600 text-sm">Reminders for overdue invoices go out automatically, so you can focus on the next job.</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
                 <p class="text-3xl mb-3">📊</p>
-                <h3 class="font-bold text-gray-900 mb-1">Expenses &amp; P&amp;L</h3>
-                <p class="text-gray-600 text-sm">See your income, expenses, outstanding amounts and annual VAT reports in one place.</p>
+                <h3 class="font-bold text-gray-900 mb-1">Track expenses by job</h3>
+                <p class="text-gray-600 text-sm">Log costs against each job and see what's still outstanding at a glance.</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
                 <p class="text-3xl mb-3">👥</p>
-                <h3 class="font-bold text-gray-900 mb-1">Customer management</h3>
-                <p class="text-gray-600 text-sm">Keep customer details and job history organised and easy to find when you need them.</p>
+                <h3 class="font-bold text-gray-900 mb-1">Every customer, every job</h3>
+                <p class="text-gray-600 text-sm">Contact details and full job history, one search away. No more digging through texts.</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
                 <p class="text-3xl mb-3">🤖</p>
-                <h3 class="font-bold text-gray-900 mb-1">AI instant quotes</h3>
-                <p class="text-gray-600 text-sm">Turn a one-line job description into a professional, priced quote in seconds — no more staring at a blank page.</p>
+                <h3 class="font-bold text-gray-900 mb-1">Quote in seconds with AI</h3>
+                <p class="text-gray-600 text-sm">Describe the job in one line and get a professional, priced quote back. No more blank page.</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
                 <p class="text-3xl mb-3">🧾</p>
-                <h3 class="font-bold text-gray-900 mb-1">Snap &amp; scan receipts</h3>
-                <p class="text-gray-600 text-sm">Photograph a receipt and AI reads the supplier, date and amount for you — expenses sorted on the go.</p>
+                <h3 class="font-bold text-gray-900 mb-1">Snap a receipt, done</h3>
+                <p class="text-gray-600 text-sm">Take a photo and AI reads the supplier, date and amount for you. Expenses sorted on the go.</p>
             </div>
             <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
                 <p class="text-3xl mb-3">📊</p>
-                <h3 class="font-bold text-gray-900 mb-1">Accounting &amp; VAT reports</h3>
-                <p class="text-gray-600 text-sm">Income, expenses, profit &amp; loss and annual VAT reports for UK and Australia — ready for your accountant.</p>
+                <h3 class="font-bold text-gray-900 mb-1">Reports ready for your accountant</h3>
+                <p class="text-gray-600 text-sm">Profit &amp; loss and annual VAT reports for the UK and Australia, ready to hand over at tax time.</p>
             </div>
         </div>
     </section>
@@ -639,7 +643,7 @@
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 text-blue-600 font-bold">✓</span>
-                        <span class="text-gray-700">GBP, RON, EUR and USD</span>
+                        <span class="text-gray-700">Prices in GBP</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 text-blue-600 font-bold">✓</span>
@@ -663,7 +667,7 @@
                 <div class="bg-blue-50 border border-blue-100 rounded-xl p-5 text-sm text-blue-900">
                     <p class="font-bold mb-1">Set up in minutes</p>
                     <p>Add your business details, add your first job and send your first invoice — all before your tea goes cold.</p>
-                    <a href="{{ url_for('auth.register') }}" class="inline-block mt-3 font-bold text-blue-800 hover:underline">Start free</a>
+                    <a href="{{ url_for('auth.register') }}" class="inline-block mt-3 font-bold text-blue-800 hover:underline">Start your 14-day trial</a>
                 </div>
             </div>
         </div>
@@ -671,23 +675,23 @@
 
     <!-- ─── PRICING ────────────────────────────────────── -->
     <section id="pricing" class="mb-16 ">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Start free. Upgrade only if you need more.</h2>
-        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-2">14 days with every feature unlocked. After that stay free forever, or go Pro at <span id="price-strap">{{ pro_price_text }}</span> a month and cancel whenever you like.</p>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Simple pricing. Try everything for 14 days.</h2>
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-2">14 days with every feature unlocked, no card needed. Then pick Starter at £12.99 a month, or Pro at <span id="price-strap">{{ pro_price_text }}</span> a month. Cancel whenever you like.</p>
         <p id="price-locale" class="text-sm text-center text-gray-500 mb-8"></p>
         <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-6 items-start">
 
             <div class="bg-white rounded-2xl shadow border-t-4 border-gray-300 p-8 flex flex-col h-full">
                 <p class="text-gray-500 font-semibold mb-2">Starter</p>
-                <p class="text-4xl font-extrabold text-gray-900 mb-1">£0<span class="text-base font-semibold text-gray-500">/forever</span></p>
-                <p class="text-gray-500 text-sm mb-6">No card. No expiry. Enough to run a small job list.</p>
+                <p class="text-4xl font-extrabold text-gray-900 mb-1">£12.99<span class="text-base font-semibold text-gray-500">/month</span></p>
+                <p class="text-gray-500 text-sm mb-6">Everything you need to run your jobs, after your 14-day trial.</p>
                 <ul class="text-left space-y-2.5 mb-8 flex-1">
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 text-green-600 font-bold">✓</span>
-                        <span class="text-gray-700 text-sm">Up to 20 jobs a month</span>
+                        <span class="text-gray-700 text-sm">Unlimited jobs</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 text-green-600 font-bold">✓</span>
-                        <span class="text-gray-700 text-sm">5 new customers a month — the ones you already have are unlimited</span>
+                        <span class="text-gray-700 text-sm">Unlimited customers</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 text-green-600 font-bold">✓</span>
@@ -703,14 +707,14 @@
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 text-gray-400 font-bold">✕</span>
-                        <span class="text-gray-500 text-sm">VAT report export and branded invoice PDFs are Pro</span>
+                        <span class="text-gray-500 text-sm">VAT report export and invoices without the TradeScheduler footer are Pro</span>
                     </li>
                 </ul>
-                <a href="{{ url_for('auth.register') }}"
+                <a href="{{ url_for('auth.register', upgrade=1, plan='starter') }}"
                     class="block bg-gray-800 hover:bg-gray-900 text-white font-bold text-center px-6 py-3.5 rounded-xl">
-                    Create a free account
+                    Start on Starter
                 </a>
-                <p class="text-gray-500 text-xs mt-3 text-center">No credit card required.</p>
+                <p class="text-gray-500 text-xs mt-3 text-center">14-day trial first. Cancel anytime.</p>
             </div>
 
             <div class="bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 p-8 flex flex-col h-full relative">
@@ -718,7 +722,7 @@
                 <p class="text-blue-600 font-semibold mb-2">Pro</p>
                 <p class="text-4xl font-extrabold text-gray-900 mb-1"><span id="price-amount" data-prices='{{ PRO_PRICES|tojson }}'>{{ pro_price_text }}</span><span class="text-base font-semibold text-gray-500">/month</span></p>
                 <p class="text-gray-500 text-sm mb-2">Unlimited use. Cancel anytime.</p>
-                <label class="inline-flex items-center gap-2 text-sm text-gray-500 mb-6">
+                <label class="hidden items-center gap-2 text-sm text-gray-500 mb-6">
                     {{ _('Currency') }}:
                     <select id="price-currency" onchange="setPriceCurrency(this.value)"
                         class="border border-gray-300 rounded px-2 py-1 bg-white text-gray-800">
@@ -734,7 +738,7 @@
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 text-green-600 font-bold">✓</span>
-                        <span class="text-gray-700 text-sm">Unlimited AI quotes, receipt scans and message reads</span>
+                        <span class="text-gray-700 text-sm">Fair-use AI quotes, receipt scans and message reads</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 text-green-600 font-bold">✓</span>
@@ -760,24 +764,24 @@
         <div class="space-y-3">
             <details class="group bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
-                    Is TradeScheduler really free?
+                    How does the free trial work?
                     <span class="faq-chevron text-blue-600 transition">▾</span>
                 </summary>
-                <p class="px-5 pb-5 text-gray-600 text-sm">Yes, two ways. You get 14 days with every feature unlocked. If you don't upgrade, your account drops to the free Starter plan — 20 jobs a month, 5 new customers a month, and monthly AI allowances — and it never expires. Customers you have already added stay unlimited. You can upgrade to Pro whenever you need more.</p>
+                <p class="px-5 pb-5 text-gray-600 text-sm">You get 14 days with every feature unlocked, with no card needed. Then choose Starter at £12.99 a month, or Pro at £22.99 a month. Cancel whenever you like.</p>
             </details>
             <details class="bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
-                    What happens when I run out of the free allowance?
+                    What happens when the trial ends?
                     <span class="faq-chevron text-blue-600">▾</span>
                 </summary>
-                <p class="px-5 pb-5 text-gray-600 text-sm">Jobs and customers reset at the start of each month. If you hit the monthly AI allowance you can still enter everything by hand — nothing is locked away. You'll always see exactly where you stand at the top of your dashboard.</p>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Your account becomes read-only. Nothing is deleted: you can still see and download all your jobs, invoices and expenses. To add new jobs and invoices, choose a plan. We keep your data for 60 days after the trial ends, and email you seven days before anything is removed.</p>
             </details>
             <details class="bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
                     Do I need a credit card to start?
                     <span class="faq-chevron text-blue-600">▾</span>
                 </summary>
-                <p class="px-5 pb-5 text-gray-600 text-sm">No. Create your account and use everything free for 14 days, then decide.</p>
+                <p class="px-5 pb-5 text-gray-600 text-sm">No. Create your account and use everything for 14 days, then choose a plan.</p>
             </details>
             <details class="bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
@@ -791,7 +795,7 @@
                     Can I use it on my phone?
                     <span class="faq-chevron text-blue-600">▾</span>
                 </summary>
-                <p class="px-5 pb-5 text-gray-600 text-sm">Yes — it's mobile-first, and you can install it like an app from your browser so it's always one tap away.</p>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes — it's mobile-first and works in any modern browser on your phone, tablet or computer. No download needed.</p>
             </details>
             <details class="bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
@@ -816,10 +820,10 @@
             </details>
             <details class="bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
-                    Does it support GBP and Romanian?
+                    What currency and languages are supported?
                     <span class="faq-chevron text-blue-600">▾</span>
                 </summary>
-                <p class="px-5 pb-5 text-gray-600 text-sm">Yes. TradeScheduler works in English and Romanian, and supports GBP, RON, EUR and USD.</p>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Prices are in GBP. The app is available in English and Romanian.</p>
             </details>
         </div>
     </section>
@@ -829,7 +833,7 @@
         <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white max-w-2xl mx-auto leading-tight">
             Spend less time managing the business. More time doing the work.
         </h2>
-        <p class="text-blue-100 mt-4 max-w-xl mx-auto">Try TradeScheduler free for 14 days and see if it works for your business.</p>
+        <p class="text-blue-100 mt-4 max-w-xl mx-auto">Start your 14-day trial today and see how much time you get back on every job.</p>
         <a href="{{ url_for('auth.register') }}"
             class="inline-block mt-8 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold px-10 py-4 rounded-xl shadow-lg">
             Start your 14-day free trial
@@ -845,9 +849,9 @@
         <p class="text-gray-500 text-sm mb-4">Jobs, quotes, invoices and payments for UK tradespeople.</p>
         <div class="flex items-center justify-center gap-6 text-sm text-gray-600 mb-4">
             <a href="{{ url_for('auth.login') }}" class="hover:text-gray-900">Log in</a>
-            <a href="{{ url_for('auth.register') }}" class="hover:text-gray-900">Start free</a>
+            <a href="{{ url_for('auth.register') }}" class="hover:text-gray-900">Start trial</a>
         </div>
-        <p class="text-gray-400 text-xs">English &amp; Romanian · GBP, RON, EUR, USD · Mobile-friendly and installable as an app</p>
+        <p class="text-gray-400 text-xs">English &amp; Romanian · Prices in GBP · Mobile-friendly and installable as an app</p>
     </footer>
 </div>
 
@@ -906,7 +910,7 @@
             document.getElementById('price-strap').textContent = PRICES_BY_CURRENCY[cur];
             var sel = document.getElementById('price-currency');
             if (sel && sel.value !== cur) sel.value = cur;
-            var label = LABELS[cur];
+            var label = null;
             var n = document.getElementById('price-locale');
             if (label) {
                 n.textContent = 'We detected you\u0027re browsing from ' + label[0] + ' — showing prices in ' + label[1] + '.';
@@ -916,7 +920,7 @@
             document.cookie = 'ts_currency=' + cur + '; path=/; max-age=' + maxAge + '; samesite=Lax';
         }
         var current = getCookie('ts_currency');
-        setPriceCurrency(current && PRICES_BY_CURRENCY[current] ? current : detectCurrency(), false);
+        setPriceCurrency('GBP', false);
         if (window.gtag) gtag('event', 'pricing_currency_shown', {
             event_category: 'engagement',
             event_label: document.getElementById('price-amount').textContent

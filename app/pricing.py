@@ -12,8 +12,8 @@ PRO_MONTHLY = {
     'AUD': Decimal('34.99'),
 }
 
-# PREFERRED_CURRENCIES reflects the displayed, localised order on the landing page
-PREFERRED_CURRENCIES = ['GBP', 'USD', 'RON', 'AUD']
+# GBP only at launch. Other currencies come back when there is real demand.
+PREFERRED_CURRENCIES = ['GBP']
 
 _SYMBOL = {'GBP': '\u00a3', 'USD': '$', 'RON': 'lei', 'EUR': '\u20ac', 'AUD': 'AU$'}
 
