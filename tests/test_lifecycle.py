@@ -160,6 +160,16 @@ def test_deletion_keeps_accounts_that_ever_subscribed():
         check('subscriber kept', deleted, 0)
 
 
+def test_deletion_flag_tolerates_a_trailing_space_in_the_name(monkeypatch):
+    """Railway keeps a pasted trailing space; the rule must still run."""
+    monkeypatch.delenv('DATA_RETENTION_DELETE', raising=False)
+    monkeypatch.setenv('DATA_RETENTION_DELETE ', '1')
+    _create(username='gone_space', plan='free', ends_in=-61)
+    with app.app_context():
+        deleted = trial_lifecycle.delete_expired_accounts()
+        check('deleted despite stray space', deleted, 1)
+
+
 def test_cli_command_runs_the_lifecycle(monkeypatch):
     sent = []
     monkeypatch.setattr(trial_lifecycle, 'send_email',

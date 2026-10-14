@@ -131,13 +131,28 @@ def run_trial_lifecycle(now=None):
         return sent_count, deleted
 
 
+def _deletion_enabled():
+    """True when DATA_RETENTION_DELETE=1, tolerating a stray space in the name.
+
+    Railway keeps a trailing space when a variable name was pasted with one,
+    and os.getenv('DATA_RETENTION_DELETE') then returns None even though the
+    variable looks perfectly present in the dashboard. A retention rule that
+    silently never runs is worse than an unusual lookup, so names are compared
+    with surrounding whitespace stripped.
+    """
+    for key, value in os.environ.items():
+        if key.strip() == 'DATA_RETENTION_DELETE':
+            return (value or '').strip() == '1'
+    return False
+
+
 def delete_expired_accounts(now=None):
     """Delete never-subscribed accounts 60 days after their trial ended.
 
     Does nothing unless DATA_RETENTION_DELETE=1, so turning deletion on is a
     deliberate step in the environment, not a side effect of deploying this code.
     """
-    if os.getenv('DATA_RETENTION_DELETE') != '1':
+    if not _deletion_enabled():
         return 0
     now = now or datetime.utcnow()
     cutoff = now - timedelta(days=RETENTION_DAYS)
