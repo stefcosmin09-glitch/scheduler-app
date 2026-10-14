@@ -146,23 +146,28 @@ def reached(user, feature):
 
 
 def message(user, feature):
-    """The upgrade message for a feature the user has run out of."""
+    """The message shown when a feature has run out.
+
+    In practice this fires on Starter's AI allowances, so it points at Pro's
+    much larger fair-use allowance rather than promising "unlimited", which Pro
+    is not.
+    """
     limit, _, _ = state(user, feature)
     if feature == 'jobs':
-        return ('You have used all %d free jobs this month. '
-                'Upgrade to Pro for unlimited jobs.' % limit)
-    if feature == 'customers':
-        return ('You have added all %d new customers available this month. '
-                'Upgrade to Pro, or keep working with the customers you already have.'
+        return ('You have used all %d jobs included this month.'
                 % limit)
+    if feature == 'customers':
+        return ('You have added all %d new customers included this month. '
+                'Keep working with the customers you already have, or upgrade '
+                'for more.' % limit)
     if feature == 'ai_quote':
-        return ('You have used all %d free AI quotes this month. '
-                'Upgrade to Pro for unlimited quotes.' % limit)
+        return ('You have used all %d AI quotes included this month. '
+                'Upgrade to Pro for a much larger monthly allowance.' % limit)
     if feature == 'ai_receipt':
-        return ('You have used all %d free receipt scans this month. '
-                'Upgrade to Pro for unlimited scans.' % limit)
-    return ('You have used all %d free AI message reads this month. '
-            'Upgrade to Pro for unlimited.' % limit)
+        return ('You have used all %d receipt scans included this month. '
+                'Upgrade to Pro for a much larger monthly allowance.' % limit)
+    return ('You have used all %d AI message reads included this month. '
+            'Upgrade to Pro for a much larger monthly allowance.' % limit)
 
 
 def _bump_ai(user, feature):

@@ -160,6 +160,45 @@ def test_checkout_starter_without_price_is_refused():
     check('redirected to settings', resp.status_code, 302)
 
 
+def test_return_from_checkout_activates_plan_for_the_same_customer():
+    import os
+    os.environ['STRIPE_API_KEY'] = 'sk_test_dummy'
+    client = app.test_client()
+    register(client, 'ret1')
+    login(client, 'ret1')
+    with app.app_context():
+        user = User.query.first()
+        user.stripe_customer_id = 'cus_ret1'
+        db.session.commit()
+    session_obj = mock.Mock()
+    session_obj.to_dict.return_value = {
+        'metadata': {'user_id': '1', 'plan': 'starter'},
+        'customer': 'cus_ret1', 'payment_status': 'no_payment_required',
+        'subscription': 'sub_ret1'}
+    with mock.patch('stripe.checkout.Session.retrieve', return_value=session_obj):
+        client.get('/business-settings?billing=success&session_id=cs_test_ret1')
+    check('plan activated from the verified session', _user(1).plan, 'starter')
+
+
+def test_return_from_checkout_ignores_another_customer():
+    import os
+    os.environ['STRIPE_API_KEY'] = 'sk_test_dummy'
+    client = app.test_client()
+    register(client, 'ret2')
+    login(client, 'ret2')
+    with app.app_context():
+        user = User.query.first()
+        user.stripe_customer_id = 'cus_mine'
+        db.session.commit()
+    session_obj = mock.Mock()
+    session_obj.to_dict.return_value = {
+        'metadata': {'user_id': '1', 'plan': 'starter'},
+        'customer': 'cus_someone_else', 'payment_status': 'paid'}
+    with mock.patch('stripe.checkout.Session.retrieve', return_value=session_obj):
+        client.get('/business-settings?billing=success&session_id=cs_test_ret2')
+    check('someone elses session is not applied', _user(1).plan, 'trial')
+
+
 def test_checkout_starter_uses_starter_price_and_metadata():
     import os
     os.environ['STRIPE_API_KEY'] = 'sk_test_dummy'

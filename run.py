@@ -41,6 +41,27 @@ def _start_scheduler():
             coalesce=True,
             misfire_grace_time=3600,
         )
+        from app.trial_lifecycle import run_trial_lifecycle
+
+        def _trial_lifecycle():
+            with app.app_context():
+                run_trial_lifecycle()
+
+        # Once a day is enough for trial emails and the 60-day retention rule.
+        # The dashboard also nudges this, for the day the scheduler is not
+        # running; run_trial_lifecycle takes a lock so the two cannot double-send.
+        scheduler.add_job(
+            func=_trial_lifecycle,
+            trigger='cron',
+            hour=7,
+            minute=0,
+            timezone='UTC',
+            id='trial_lifecycle',
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+            misfire_grace_time=3600,
+        )
     scheduler.start()
     print(">>> Scheduler started")
 

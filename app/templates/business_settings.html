@@ -35,10 +35,10 @@
                     <p class="text-sm text-gray-600">{{ _('Pro plan') }} — {{ pro_price_text }}/{{ _('month') }}</p>
                 {% elif trial_active %}
                     <p class="text-sm text-gray-600">{{ _('Free trial: %(days)s days left.', days=trial_days) }}</p>
-                    <p class="text-xs text-gray-400">{{ pro_price_text }}/{{ _('month') }} {{ _('after your trial') }}</p>
+                    <p class="text-xs text-gray-400">{{ _('Starter £12.99/month or Pro %(price)s/month after your trial', price=pro_price_text) }}</p>
                 {% else %}
-                    <p class="text-sm text-gray-600">{{ _('Your free trial has ended.') }}</p>
-                    <p class="text-xs text-gray-400">{{ pro_price_text }}/{{ _('month') }} {{ _('to continue using Pro') }}</p>
+                    <p class="text-sm text-gray-600">{{ _('Your free trial has ended. Choose a plan to keep adding jobs and invoices.') }}</p>
+                    <p class="text-xs text-gray-400">{{ _('Starter £12.99/month or Pro %(price)s/month', price=pro_price_text) }}</p>
                 {% endif %}
             </div>
             <div class="flex gap-2">
@@ -50,7 +50,7 @@
                         {{ _('Manage Subscription') }}
                     </button>
                 </form>
-                {% elif billing_configured %}
+                {% elif starter_configured or billing_configured %}
                 {% if starter_configured %}
                 <form method="POST" action="{{ url_for('main.billing_checkout') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -61,6 +61,7 @@
                     </button>
                 </form>
                 {% endif %}
+                {% if billing_configured %}
                 <form method="POST" action="{{ url_for('main.billing_checkout') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="plan" value="pro">
@@ -69,6 +70,7 @@
                         🚀 {{ _('Upgrade to Pro') }} — {{ pro_price_text }}/{{ _('month') }}
                     </button>
                 </form>
+                {% endif %}
                 {% else %}
                 <span class="text-sm text-gray-400">{{ _('Billing coming soon') }}</span>
                 {% endif %}

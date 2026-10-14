@@ -14,11 +14,17 @@ ever held a Stripe subscription are never deleted automatically: a cancelled
 subscriber's clock would otherwise start from the trial, not from cancellation.
 """
 import os
+import threading
 from datetime import datetime, timedelta
 
 from app import db
 from app.email_service import send_email
 from app.models import User
+
+# One run at a time. The dashboard fallback and the daily scheduler job can fire
+# together; serialising them means the second sees the marks the first just
+# wrote instead of sending the same email twice.
+_LOCK = threading.Lock()
 
 RETENTION_DAYS = 60
 WARNING_DAYS_BEFORE_DELETE = 7
@@ -106,22 +112,23 @@ def _email_for(user, stage, base_url):
 
 def run_trial_lifecycle(now=None):
     """Send each due lifecycle email once, then apply the retention rule."""
-    base_url = os.getenv('APP_URL') or 'https://thetradescheduler.com'
-    now = now or datetime.utcnow()
-    sent_count = 0
-    candidates = User.query.filter(
-        User.plan.notin_(PAID_PLANS), User.trial_ends_at.isnot(None)).all()
-    for user in candidates:
-        stage = next_stage(user, now)
-        if stage is None:
-            continue
-        subject, body = _email_for(user, stage, base_url)
-        if send_email(user.email, subject, body):
-            _mark(user, stage)
-            sent_count += 1
-    db.session.commit()
-    deleted = delete_expired_accounts(now)
-    return sent_count, deleted
+    with _LOCK:
+        base_url = os.getenv('APP_URL') or 'https://thetradescheduler.com'
+        now = now or datetime.utcnow()
+        sent_count = 0
+        candidates = User.query.filter(
+            User.plan.notin_(PAID_PLANS), User.trial_ends_at.isnot(None)).all()
+        for user in candidates:
+            stage = next_stage(user, now)
+            if stage is None:
+                continue
+            subject, body = _email_for(user, stage, base_url)
+            if send_email(user.email, subject, body):
+                _mark(user, stage)
+                sent_count += 1
+        db.session.commit()
+        deleted = delete_expired_accounts(now)
+        return sent_count, deleted
 
 
 def delete_expired_accounts(now=None):

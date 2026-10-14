@@ -972,7 +972,10 @@ def business_settings():
         return redirect(url_for('main.business_settings'))
 
     if request.args.get('billing') == 'success':
-        flash(_('Your Pro plan is now active. Welcome!'))
+        if _activate_from_checkout(request.args.get('session_id')):
+            flash(_('Your plan is now active. Welcome!'))
+        else:
+            flash(_('Payment received. Your plan will update in a moment.'))
 
     return render_template('business_settings.html', business=business,
                            calendar_token=current_user.calendar_token,
@@ -1012,6 +1015,39 @@ def invoices():
     pay_url = business.payment_link_url if business else ''
     
     return render_template('invoices.html', invoices=all_invoices, pay_url=pay_url)
+
+def _activate_from_checkout(session_id):
+    """Apply a paid Checkout session to the current user, as the webhook would.
+
+    The success redirect alone proves nothing, so the session is fetched from
+    Stripe and must belong to this user and this customer. Returns True when the
+    plan was changed.
+    """
+    import os
+    import stripe
+    if not session_id or not os.getenv('STRIPE_API_KEY'):
+        return False
+    stripe.api_key = os.getenv('STRIPE_API_KEY')
+    try:
+        data = stripe.checkout.Session.retrieve(session_id).to_dict()
+    except Exception as e:
+        print(f">>> Could not read checkout session: {e}")
+        return False
+    metadata = data.get('metadata') or {}
+    if str(metadata.get('user_id')) != str(current_user.id):
+        return False
+    if not current_user.stripe_customer_id or data.get('customer') != current_user.stripe_customer_id:
+        return False
+    if data.get('payment_status') not in ('paid', 'no_payment_required'):
+        return False
+    plan = metadata.get('plan')
+    current_user.plan = plan if plan in ('starter', 'pro') else 'pro'
+    if data.get('subscription'):
+        current_user.stripe_subscription_id = data['subscription']
+    current_user.stripe_subscription_status = 'active'
+    db.session.commit()
+    return True
+
 
 @main.route('/stripe/webhook', methods=['POST'])
 @csrf.exempt
