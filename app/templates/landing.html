@@ -721,16 +721,7 @@
                 <span class="absolute -top-3 right-8 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">14-day trial</span>
                 <p class="text-blue-600 font-semibold mb-2">Pro</p>
                 <p class="text-4xl font-extrabold text-gray-900 mb-1"><span id="price-amount" data-prices='{{ PRO_PRICES|tojson }}'>{{ pro_price_text }}</span><span class="text-base font-semibold text-gray-500">/month</span></p>
-                <p class="text-gray-500 text-sm mb-2">Unlimited use. Cancel anytime.</p>
-                <label class="hidden items-center gap-2 text-sm text-gray-500 mb-6">
-                    {{ _('Currency') }}:
-                    <select id="price-currency" onchange="setPriceCurrency(this.value)"
-                        class="border border-gray-300 rounded px-2 py-1 bg-white text-gray-800">
-                        {% for c in PREFERRED_CURRENCIES %}
-                        <option value="{{ c }}">{{ c }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
+                <p class="text-gray-500 text-sm mb-6">Fair-use AI. Cancel anytime.</p>
                 <ul class="text-left space-y-2.5 mb-8 flex-1">
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 text-green-600 font-bold">✓</span>

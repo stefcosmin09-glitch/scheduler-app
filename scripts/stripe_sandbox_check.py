@@ -4,8 +4,8 @@ Reads the key from STRIPE_API_KEY in the current terminal session only. Refuses
 anything that is not a test key, and never prints the key.
 
 Usage (PowerShell, in the project folder):
-    $env:STRIPE_API_KEY = "<your sk_test key>"
-    $env:STRIPE_STARTER_PRICE_ID = "price_..."
+    $env:STRIPE_API_KEY = <your sk_test key, typed here>
+    $env:STRIPE_STARTER_PRICE_ID = <the price_... id>
     python scripts/stripe_sandbox_check.py
 """
 import os
