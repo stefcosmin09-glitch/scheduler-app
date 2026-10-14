@@ -108,12 +108,19 @@ def health_billing():
     question can be answered without opening the dashboard.
     """
     import os
+    names = sorted(k for k in os.environ
+                   if 'STRIPE' in k.upper() or 'PRICE' in k.upper())
     return jsonify({
         'stripe_api_key': bool(os.getenv('STRIPE_API_KEY')),
         'pro_price': bool(os.getenv('STRIPE_PRO_PRICE_ID')),
         'starter_price': bool(os.getenv('STRIPE_STARTER_PRICE_ID')),
         'webhook_secret': bool(os.getenv('STRIPE_WEBHOOK_SECRET')),
         'app_url': bool(os.getenv('APP_URL')),
+        'stripe_like_var_names': names,
+        'railway_service': os.getenv('RAILWAY_SERVICE_NAME'),
+        'railway_environment': (os.getenv('RAILWAY_ENVIRONMENT_NAME')
+                                or os.getenv('RAILWAY_ENVIRONMENT')),
+        'railway_project': os.getenv('RAILWAY_PROJECT_NAME'),
     })
 
 # ─── AUTH ───────────────────────────────────────────
