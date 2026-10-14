@@ -9,7 +9,8 @@ import pytest
 
 from _support import app, check, csrf, db, login, make_job, make_user, register
 from app import trial_lifecycle
-from app.models import Job, User
+from app.models import (AIUsage, BusinessProfile, Expense, Invoice, Job,
+                        LoginAttempt, Payment, TimeEntry, User)
 from app.trial_lifecycle import next_stage, run_trial_lifecycle
 
 
@@ -175,6 +176,55 @@ def test_deletion_keeps_recent_expiries():
     with app.app_context():
         deleted = trial_lifecycle.delete_expired_accounts()
         check('recent kept', deleted, 0)
+
+
+def test_deletion_removes_everything_the_account_owned():
+    """A real account owns rows in eight tables; the delete has to clear all.
+
+    Without cascades the ORM nulls the child foreign keys instead, which are
+    NOT NULL, so the delete fails outright and nothing is ever removed.
+    """
+    os.environ['DATA_RETENTION_DELETE'] = '1'
+    uid = make_user('gone_data')
+    jid = make_job(uid, name='Client to erase')
+    with app.app_context():
+        user = User.query.get(uid)
+        user.trial_ends_at = datetime.utcnow() - timedelta(days=61)
+        db.session.add(BusinessProfile(user_id=uid, legal_name='Gone Ltd'))
+        db.session.add(Expense(user_id=uid, merchant='Screwfix',
+                               date=datetime.utcnow().date(), total=10))
+        db.session.add(AIUsage(user_id=uid, feature='quote', period='2026-10',
+                               count=3))
+        db.session.add(TimeEntry(user_id=uid, job_id=jid, minutes=30))
+        invoice = Invoice(invoice_number='INV-GONE', user_id=uid, job_id=jid)
+        db.session.add(invoice)
+        db.session.commit()
+        db.session.add(Payment(invoice_id=invoice.id, amount=50))
+        db.session.commit()
+
+    with app.app_context():
+        deleted = trial_lifecycle.delete_expired_accounts()
+        check('one deleted', deleted, 1)
+        for model in (User, Job, Invoice, Payment, Expense, TimeEntry, AIUsage,
+                      BusinessProfile):
+            check(model.__name__ + ' cleared', model.query.count(), 0)
+
+
+def test_deletion_clears_sign_in_throttle_rows():
+    """The throttle is keyed by email, so nothing else would reach it."""
+    os.environ['DATA_RETENTION_DELETE'] = '1'
+    uid = make_user('gone_throttle')
+    with app.app_context():
+        user = User.query.get(uid)
+        user.trial_ends_at = datetime.utcnow() - timedelta(days=61)
+        db.session.add(LoginAttempt(scope='email', key='gone_throttle@t.test',
+                                    failed_count=3))
+        db.session.commit()
+        check('throttle row present', LoginAttempt.query.count(), 1)
+
+    with app.app_context():
+        trial_lifecycle.delete_expired_accounts()
+        check('throttle row cleared', LoginAttempt.query.count(), 0)
 
 
 # ─── helpers ───────────────────────────────────────────

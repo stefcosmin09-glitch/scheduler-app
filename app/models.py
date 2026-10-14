@@ -14,9 +14,20 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(256), nullable=False)
     language = db.Column(db.String(10), default='en')
-    jobs = db.relationship('Job', backref='owner', lazy=True)
-    business = db.relationship('BusinessProfile', backref='user', uselist=False)
-    invoices = db.relationship('Invoice', backref='user', lazy=True)
+    # Deleting an account has to take everything it owns with it. Every child
+    # foreign key is NOT NULL, so the ORM's default of nulling them would fail
+    # the delete outright: retention deletion only works because these say
+    # "delete", not the default.
+    jobs = db.relationship('Job', backref='owner', lazy=True,
+                           cascade='all, delete-orphan')
+    business = db.relationship('BusinessProfile', backref='user', uselist=False,
+                               cascade='all, delete-orphan')
+    invoices = db.relationship('Invoice', backref='user', lazy=True,
+                               cascade='all, delete-orphan')
+    time_entries = db.relationship('TimeEntry', backref='user', lazy=True,
+                                   cascade='all, delete-orphan')
+    ai_usage = db.relationship('AIUsage', backref='user', lazy=True,
+                               cascade='all, delete-orphan')
     currency = db.Column(db.String(10), nullable=False, server_default='GBP', default='GBP')
     plan = db.Column(db.String(20), default='free')
     trial_ends_at = db.Column(db.DateTime)
@@ -146,7 +157,8 @@ class Invoice(db.Model):
     reminder_sent = db.Column(db.Boolean, default=False)
     payment_link = db.Column(db.String(500))
     job = db.relationship('Job', backref='invoice', uselist=False)
-    payments = db.relationship('Payment', backref='invoice', lazy=True)
+    payments = db.relationship('Payment', backref='invoice', lazy=True,
+                               cascade='all, delete-orphan')
 
 class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -275,4 +287,5 @@ class Expense(db.Model):
     receipt_image = db.Column(db.String(300))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    user = db.relationship('User', backref='expenses')
+    user = db.relationship('User', backref=db.backref('expenses',
+                                                      cascade='all, delete-orphan'))

@@ -19,7 +19,7 @@ from datetime import datetime, timedelta
 
 from app import db
 from app.email_service import send_email
-from app.models import User
+from app.models import LoginAttempt, User
 
 # One run at a time. The dashboard fallback and the daily scheduler job can fire
 # together; serialising them means the second sees the marks the first just
@@ -148,6 +148,11 @@ def delete_expired_accounts(now=None):
         User.stripe_subscription_id.is_(None),
     ).all()
     for user in doomed:
+        # The sign-in throttle is keyed by email, not by user id, so the
+        # account cascade never reaches it. Left alone it would outlive the
+        # data we promised to delete.
+        LoginAttempt.query.filter_by(scope='email', key=user.email).delete(
+            synchronize_session=False)
         db.session.delete(user)
     db.session.commit()
     return len(doomed)
