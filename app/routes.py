@@ -98,6 +98,24 @@ def account_export():
     return send_file(archive, mimetype='application/zip', as_attachment=True,
                      download_name='tradescheduler-export.zip')
 
+
+@main.route('/health/billing')
+def health_billing():
+    """Which Stripe settings the running process can see, as booleans only.
+
+    A deploy that never picked up a variable is invisible from outside: the
+    buttons simply stay hidden. This reports presence, never values, so the
+    question can be answered without opening the dashboard.
+    """
+    import os
+    return jsonify({
+        'stripe_api_key': bool(os.getenv('STRIPE_API_KEY')),
+        'pro_price': bool(os.getenv('STRIPE_PRO_PRICE_ID')),
+        'starter_price': bool(os.getenv('STRIPE_STARTER_PRICE_ID')),
+        'webhook_secret': bool(os.getenv('STRIPE_WEBHOOK_SECRET')),
+        'app_url': bool(os.getenv('APP_URL')),
+    })
+
 # ─── AUTH ───────────────────────────────────────────
 
 @auth.route('/register', methods=['GET', 'POST'])
