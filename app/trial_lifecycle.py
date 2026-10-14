@@ -128,6 +128,10 @@ def run_trial_lifecycle(now=None):
                 sent_count += 1
         db.session.commit()
         deleted = delete_expired_accounts(now)
+        # One line a day, so the rule is visible in the deploy logs: silence
+        # otherwise looks the same whether deletion ran or was switched off.
+        print(f'>>> Trial lifecycle: {sent_count} email(s), '
+              f'{deleted} account(s) deleted')
         return sent_count, deleted
 
 
