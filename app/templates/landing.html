@@ -675,15 +675,15 @@
 
     <!-- ─── PRICING ────────────────────────────────────── -->
     <section id="pricing" class="mb-16 ">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Simple pricing. Try everything for 14 days.</h2>
-        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-2">14 days with every feature unlocked, no card needed. Then pick Starter at £12.99 a month, or Pro at <span id="price-strap">{{ pro_price_text }}</span> a month. Cancel whenever you like.</p>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-3">Simple pricing. Try free for 14 days, or subscribe now.</h2>
+        <p class="text-gray-600 text-center max-w-2xl mx-auto mb-2">Every feature unlocked for 14 days with no card. Ready to go now? Starter is £12.99 a month, Pro is <span id="price-strap">{{ pro_price_text }}</span> a month. Cancel whenever you like.</p>
         <p id="price-locale" class="text-sm text-center text-gray-500 mb-8"></p>
         <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-6 items-start">
 
             <div class="bg-white rounded-2xl shadow border-t-4 border-gray-300 p-8 flex flex-col h-full">
                 <p class="text-gray-500 font-semibold mb-2">Starter</p>
                 <p class="text-4xl font-extrabold text-gray-900 mb-1">£12.99<span class="text-base font-semibold text-gray-500">/month</span></p>
-                <p class="text-gray-500 text-sm mb-6">Everything you need to run your jobs, after your 14-day trial.</p>
+                <p class="text-gray-500 text-sm mb-6">Everything you need to run your jobs. Billed monthly in GBP.</p>
                 <ul class="text-left space-y-2.5 mb-8 flex-1">
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 text-green-600 font-bold">✓</span>
@@ -712,13 +712,13 @@
                 </ul>
                 <a href="{{ url_for('auth.register', upgrade=1, plan='starter') }}"
                     class="block bg-gray-800 hover:bg-gray-900 text-white font-bold text-center px-6 py-3.5 rounded-xl">
-                    Start on Starter
+                    Subscribe for £12.99/month
                 </a>
-                <p class="text-gray-500 text-xs mt-3 text-center">14-day trial first. Cancel anytime.</p>
+                <p class="text-gray-500 text-xs mt-3 text-center">Cancel anytime.</p>
             </div>
 
             <div class="bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 p-8 flex flex-col h-full relative">
-                <span class="absolute -top-3 right-8 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">14-day trial</span>
+                <span class="absolute -top-3 right-8 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">Most popular</span>
                 <p class="text-blue-600 font-semibold mb-2">Pro</p>
                 <p class="text-4xl font-extrabold text-gray-900 mb-1"><span id="price-amount" data-prices='{{ PRO_PRICES|tojson }}'>{{ pro_price_text }}</span><span class="text-base font-semibold text-gray-500">/month</span></p>
                 <p class="text-gray-500 text-sm mb-6">Fair-use AI. Cancel anytime.</p>
@@ -742,9 +742,9 @@
                 </ul>
                 <a href="{{ url_for('auth.register', upgrade=1) }}"
                     class="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-center px-6 py-3.5 rounded-xl">
-                    Start your 14-day free trial
+                    Subscribe for £22.99/month
                 </a>
-                <p class="text-gray-500 text-xs mt-3 text-center">No credit card required.</p>
+                <p class="text-gray-500 text-xs mt-3 text-center">Cancel anytime.</p>
             </div>
         </div>
     </section>
