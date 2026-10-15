@@ -30,24 +30,24 @@
     </div>
 </div>
 {% endif %}
-<div class="flex justify-between items-center mb-6">
+<div class="flex flex-wrap justify-between items-center gap-3 mb-6">
     <h2 class="text-2xl font-bold text-gray-800">{{ _('My Jobs') }}</h2>
     <a href="{{ url_for('main.add_job') }}"
-        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 whitespace-nowrap">
         + {{ _('New Job') }}
     </a>
 </div>
 
 <!-- Total earned -->
-<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="ts-stat-grid mb-6">
     <div class="bg-white rounded-lg shadow p-6 text-center border border-gray-300">
         <p class="text-gray-500 text-sm mb-1">{{ _('This Week') }}</p>
-        <p class="text-3xl font-bold text-green-600">{{ weekly_total|money }}</p>
+        <p class="text-2xl sm:text-3xl font-bold text-green-600">{{ weekly_total|money }}</p>
         <p class="text-gray-400 text-xs mt-1">{{ _('completed jobs') }}</p>
     </div>
     <div class="bg-white rounded-lg shadow p-6 text-center border border-gray-300">
         <p class="text-gray-500 text-sm mb-1">{{ _('This Month') }}</p>
-        <p class="text-3xl font-bold text-blue-600">{{ monthly_total|money }}</p>
+        <p class="text-2xl sm:text-3xl font-bold text-blue-600">{{ monthly_total|money }}</p>
         <p class="text-gray-400 text-xs mt-1">{{ _('completed jobs') }}</p>
     </div>
 </div>
@@ -63,7 +63,7 @@
         <p class="text-3xl font-extrabold text-gray-900">{{ money.total|money }}</p>
     </div>
 
-    <div class="grid grid-cols-3 gap-3 mb-5 mt-4">
+    <div class="ts-money-grid mb-5 mt-4">
         <div class="rounded-lg border border-red-200 bg-red-50 p-3">
             <p class="text-xs font-bold text-red-700 uppercase tracking-wide">{{ _('Overdue') }}</p>
             <p class="text-lg font-bold text-red-700">{{ money.overdue|money }}</p>
@@ -104,7 +104,8 @@
                     <p class="text-gray-500 text-xs">📅 {{ _('Due') }}:
                         {{ inv.due_date.strftime('%d/%m/%Y') if inv.due_date else _('N/A') }}
                         {% if d is not none and d < 0 %}
-                        <span class="text-red-600 font-semibold">· {{ 0 - d }} {{ _('days overdue') }}</span>
+                        {% set overdue_days = 0 - d %}
+                        <span class="text-red-600 font-semibold">· {{ ngettext('%(num)d day overdue', '%(num)d days overdue', overdue_days) }}</span>
                         {% elif d is not none and d == 0 %}
                         <span class="text-yellow-700 font-semibold">· {{ _('due today') }}</span>
                         {% elif d is not none %}
@@ -202,11 +203,11 @@
 </div>
 
 {% if jobs %}
-<div class="grid gap-4">
+<div class="grid grid-cols-1 gap-4">
     {% for job in jobs %}
-    <div class="bg-white rounded-lg shadow p-6 flex justify-between items-start">
-        <div class="flex-1">
-            <div class="flex items-center gap-3 mb-1">
+    <div class="bg-white rounded-lg shadow p-6 ts-job-card">
+        <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-3 mb-1">
                 <h3 class="text-lg font-bold text-gray-800">{{ job.client_name }}</h3>
                 <span class="text-sm px-2 py-0.5 rounded bg-blue-50 text-blue-700">
                     {% for value, label in activity_types %}
@@ -227,7 +228,7 @@
             {% endif %}
         </div>
 
-        <div class="flex flex-col gap-2 ml-4">
+        <div class="ts-job-actions">
             {% if running_entry and running_entry.job_id == job.id %}
             <form method="POST" action="{{ url_for('main.stop_timer') }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">

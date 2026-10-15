@@ -122,6 +122,71 @@
     padding: 0.125rem 0.25rem;
 }
 
+/* ---------- Dashboard rows at phone width ----------
+   These are plain CSS rather than sm: utilities because tailwind.css is a
+   prebuilt *purged* file: it only holds the utilities that were in use when it
+   was generated, and Node is not available to regenerate it. sm:flex-col,
+   sm:items-start, sm:ml-4 and sm:gap-0 are not in it, so a responsive row
+   written with those would silently do nothing on a desktop.
+
+   The stat cards and the money boxes were fixed-column grids. On a phone their
+   contents were wider than their tracks, and the overflow dragged the whole
+   page sideways. Each row now stacks until the columns genuinely fit, and the
+   one-column track is minmax(0, 1fr) so a wide value can never stretch it past
+   the viewport again. The breakpoints keep the old look from 400px (two stat
+   cards) and 480px (three money boxes) upwards. */
+.ts-stat-grid,
+.ts-money-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+}
+.ts-stat-grid { gap: 1rem; }
+.ts-money-grid { gap: 0.75rem; }
+
+/* A job card puts its buttons down the right-hand side. A phone has no room for
+   that, so the buttons drop under the details and wrap; from 640px they return
+   to the narrow right-hand column they have always been. */
+.ts-job-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.ts-job-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* The top bar holds the brand, the links and the language picker. Those do not
+   fit on one line between 768px and about 1080px, and the row used to push the
+   page sideways instead of wrapping. */
+.ts-nav-row {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+}
+
+@media (min-width: 400px) {
+    .ts-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (min-width: 480px) {
+    .ts-money-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 640px) {
+    .ts-job-card {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0;
+    }
+    .ts-job-actions {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        margin-left: 1rem;
+    }
+}
+
 /* ---------- Reveal on scroll ---------- */
 .ts-reveal {
     opacity: 0.001;

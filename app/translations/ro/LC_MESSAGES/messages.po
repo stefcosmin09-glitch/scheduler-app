@@ -730,9 +730,13 @@ msgstr ""
 msgid "Upcoming"
 msgstr ""
 
-#: app/templates/dashboard.html:94
-msgid "days overdue"
-msgstr "Scadență"
+#: app/templates/dashboard.html:108
+#, python-format
+msgid "%(num)d day overdue"
+msgid_plural "%(num)d days overdue"
+msgstr[0] "%(num)d zi întârziere"
+msgstr[1] "%(num)d zile întârziere"
+msgstr[2] "%(num)d de zile întârziere"
 
 #: app/templates/dashboard.html:96
 msgid "due today"
