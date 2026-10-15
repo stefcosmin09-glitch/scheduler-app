@@ -161,3 +161,43 @@ select:focus-visible {
 }
 
 .ts-text-10 { font-size: 10px; line-height: 1.45; }
+
+/* 5. Sticky mobile call to action ------------------------------------------ */
+
+.ts-mobile-cta {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .75rem .75rem calc(.75rem + env(safe-area-inset-bottom));
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -10px 30px -18px rgba(15, 23, 42, .45);
+    transform: translateY(130%);
+    transition: transform .3s cubic-bezier(.2, .7, .2, 1);
+}
+
+.ts-mobile-cta.ts-show { transform: none; }
+
+.ts-mobile-cta-close {
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+/* Phones only. Declared after Tailwind's .md\:hidden so it always wins. */
+@media (min-width: 768px) {
+    .ts-mobile-cta { display: none; }
+}

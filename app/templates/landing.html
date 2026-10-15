@@ -924,27 +924,7 @@
     </footer>
 </div>
 
-<!-- Sticky mobile CTA (appears after the hero) -->
-<div id="mobile-cta" class="hidden fixed bottom-0 inset-x-0 z-40 md:hidden border-t border-gray-200 bg-white p-3 shadow-2xl">
-    <a href="{{ url_for('auth.register') }}"
-        class="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-center px-6 py-3 rounded-xl">
-        Start your 14-day free trial — no card needed
-    </a>
-</div>
-
-<script>
-    (function () {
-        var hero = document.getElementById('hero');
-        var cta = document.getElementById('mobile-cta');
-        if (!hero || !cta) return;
-        if ('IntersectionObserver' in window) {
-            var io = new IntersectionObserver(function (entries) {
-                cta.classList.toggle('hidden', entries[0].isIntersecting);
-            }, { threshold: 0 });
-            io.observe(hero);
-        }
-    })();
-</script>
+{% include '_mobile_cta.html' %}
 
 <script>
     (function () {

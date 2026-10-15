@@ -81,3 +81,14 @@ def test_trust_band_and_trial_reassurance_are_shown(client):
         check('%s shows the no-card marker' % path, 'No credit card' in body, True)
         check('%s explains the post-trial state' % path,
               'becomes read-only' in body, True)
+
+
+def test_mobile_cta_is_on_every_marketing_page(client):
+    # One tap away from the trial on a phone, on every page a visitor can land
+    # on from an ad or a sitelink.
+    for path in ('/', '/why', '/how-it-works', '/pricing', '/faq'):
+        body = client.get(path).get_data(as_text=True)
+        check('%s shows the sticky mobile CTA' % path,
+              'id="ts-mobile-cta"' in body, True)
+        check('%s can dismiss the CTA' % path,
+              'ts-mobile-cta-close' in body, True)

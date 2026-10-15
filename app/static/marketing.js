@@ -25,3 +25,36 @@
 
     nodes.forEach(function (node) { observer.observe(node); });
 })();
+
+/* Sticky mobile call to action.
+
+   Appears once the visitor has scrolled past the top of the page, so the free
+   trial is always within reach on a phone. marketing.css hides the bar from
+   768px up, and the visitor can dismiss it. */
+(function () {
+    var bar = document.getElementById('ts-mobile-cta');
+    if (!bar) return;
+
+    var dismissed = false;
+    var shown = false;
+
+    function update() {
+        var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+        var next = !dismissed && y > 480;
+        if (next !== shown) {
+            shown = next;
+            bar.classList.toggle('ts-show', shown);
+        }
+    }
+
+    var close = document.getElementById('ts-mobile-cta-close');
+    if (close) {
+        close.addEventListener('click', function () {
+            dismissed = true;
+            update();
+        });
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+})();

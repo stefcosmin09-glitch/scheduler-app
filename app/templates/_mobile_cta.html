@@ -1,0 +1,12 @@
+{# Sticky mobile call to action.
+
+   Sits at the bottom of the viewport on phones and appears once the visitor has
+   scrolled past the top of the page, so the free trial is always one tap away.
+   marketing.js toggles .ts-show; marketing.css hides the bar from 768px up. #}
+<div id="ts-mobile-cta" class="ts-mobile-cta" role="complementary" aria-label="Start your free trial">
+    <a href="{{ url_for('auth.register') }}"
+        class="flex-1 block bg-blue-600 hover:bg-blue-700 text-white font-bold text-center px-5 py-3 rounded-xl text-sm">
+        Start your 14-day free trial
+    </a>
+    <button type="button" id="ts-mobile-cta-close" class="ts-mobile-cta-close" aria-label="Hide this bar">&times;</button>
+</div>
