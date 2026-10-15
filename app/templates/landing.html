@@ -125,11 +125,10 @@
             </span>
         </a>
         <div class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-            <a href="#why" class="hover:text-gray-900">Why TradeScheduler</a>
-            <a href="#product" class="hover:text-gray-900">See the app</a>
-            <a href="#how-it-works" class="hover:text-gray-900">How it works</a>
-            <a href="#pricing" class="hover:text-gray-900">Pricing</a>
-            <a href="#faq" class="hover:text-gray-900">FAQ</a>
+            <a href="{{ url_for('main.why') }}" class="hover:text-gray-900">Why TradeScheduler</a>
+            <a href="{{ url_for('main.how_it_works') }}" class="hover:text-gray-900">How it works</a>
+            <a href="{{ url_for('main.pricing') }}" class="hover:text-gray-900">Pricing</a>
+            <a href="{{ url_for('main.faq') }}" class="hover:text-gray-900">FAQ</a>
         </div>
         <div class="flex items-center gap-3">
             <a href="{{ url_for('auth.login') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-900 px-3 py-2">Log in</a>
@@ -164,7 +163,7 @@
                         class="group inline-flex items-center justify-center gap-2 bg-gradient-to-b from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-center px-8 py-4 rounded-lg shadow-lg shadow-blue-600/20">
                         Start your 14-day free trial
                     </a>
-                    <a href="#how-it-works"
+                    <a href="{{ url_for('main.how_it_works') }}"
                         class="border border-gray-300 text-gray-700 font-semibold text-center px-8 py-4 rounded-lg hover:bg-gray-50">
                         See how it works
                     </a>
