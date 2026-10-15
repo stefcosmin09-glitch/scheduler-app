@@ -36,8 +36,11 @@ os.environ['DATABASE_URL'] = 'sqlite:///' + str(DB_PATH).replace('\\', '/')
 os.environ.pop('MAIL_PASSWORD', None)
 os.environ.pop('STRIPE_API_KEY', None)
 
-DEMO_USERNAME = 'demo'
-DEMO_PASSWORD = 'demo-password-123'
+# A loopback-only demo login, for a database that lives outside the repository.
+# Nothing here is a real secret, and both values stay overridable so nobody has
+# to sign in with a password written down in a public file.
+DEMO_USERNAME = os.environ.get('DEMO_USERNAME', 'demo')
+DEMO_PASSWORD = os.environ.get('DEMO_PASSWORD', 'demo-password-123')
 
 # A fictional business, so the screenshots show plausible UK trade data without
 # standing in for a real customer.

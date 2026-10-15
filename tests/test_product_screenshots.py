@@ -23,7 +23,7 @@ EXPECTED = {
     'dashboard.png': (960, 640),
     'invoices.png': (960, 640),
     'accounting.png': (960, 640),
-    'dashboard-phone.png': (414, 896),
+    'dashboard-phone.png': (390, 844),
 }
 
 IMG_TAG = re.compile(r'<img[^>]*>')

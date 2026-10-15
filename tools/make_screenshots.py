@@ -38,7 +38,7 @@ SHOTS = [
     ('expenses', '/expenses', 960, 640),
     ('new-job', '/job/add', 960, 640),
     ('payments', '/payments', 960, 640),
-    ('dashboard-phone', '/', 414, 896),
+    ('dashboard-phone', '/', 390, 844),
 ]
 
 CHROME_CANDIDATES = [

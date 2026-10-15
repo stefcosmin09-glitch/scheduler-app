@@ -151,11 +151,15 @@ select:focus-visible {
     box-shadow: 0 26px 50px -18px rgba(15, 23, 42, .55);
 }
 
+/* The phone sits beside a paragraph, so it has to be big enough that the app
+   screenshot inside it can actually be read once scaled down. At 20rem the
+   real 390px screen lands at roughly 0.77, which keeps the app's body text
+   around 12px instead of the wallpaper it becomes below 15rem. */
 .ts-phone-static {
-    width: 15rem;
+    width: 20rem;
     background: #fff;
-    border: 8px solid #111827;
-    border-radius: 2rem;
+    border: 10px solid #111827;
+    border-radius: 2.5rem;
     overflow: hidden;
     box-shadow: 0 30px 55px -22px rgba(15, 23, 42, .45);
 }
