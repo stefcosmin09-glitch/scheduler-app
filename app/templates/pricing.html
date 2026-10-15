@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+
+{% block title %}Pricing – £12.99 Starter and £22.99 Pro a Month{% endblock %}
+
+{% block head %}
+<meta name="description" content="Simple GBP pricing for UK tradespeople. Try every feature free for 14 days with no card, then Starter at £12.99 a month or Pro at £22.99 a month. Cancel anytime.">
+<link rel="canonical" href="https://thetradescheduler.com/pricing">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TradeScheduler">
+<meta property="og:title" content="Pricing – £12.99 Starter and £22.99 Pro a Month">
+<meta property="og:description" content="14 days free, no card. Then Starter at £12.99 a month or Pro at £22.99 a month. Cancel anytime.">
+<meta property="og:url" content="https://thetradescheduler.com/pricing">
+<meta property="og:image" content="{{ url_for('static', filename='icons/icon-512.png', _external=True) }}">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    html { scroll-behavior: smooth; }
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+    details summary::-webkit-details-marker { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    {% include '_marketing_nav.html' %}
+
+    <!-- ─── HEADER ─────────────────────────────────────── -->
+    <header class="text-center max-w-3xl mx-auto mb-14">
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            Simple pricing, no surprises
+        </h1>
+        <p class="text-gray-600 text-lg mt-6 leading-relaxed">
+            Try everything free for 14 days — no card, no commitment. When the trial ends, pick Starter or Pro. Both are billed monthly in pounds, and you can cancel whenever you like.
+        </p>
+    </header>
+
+    <!-- ─── PLANS ──────────────────────────────────────── -->
+    <section class="max-w-5xl mx-auto grid md:grid-cols-2 gap-6 items-start mb-16">
+
+        <div class="bg-white rounded-2xl shadow border-t-4 border-gray-300 p-8 flex flex-col h-full">
+            <p class="text-gray-500 font-semibold mb-2">Starter</p>
+            <p class="text-4xl font-extrabold text-gray-900 mb-1">£12.99<span class="text-base font-semibold text-gray-500">/month</span></p>
+            <p class="text-gray-500 text-sm mb-6">Everything you need to run your jobs. Billed monthly in GBP.</p>
+            <ul class="text-left space-y-2.5 mb-8 flex-1">
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">Unlimited jobs and customers</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">Quotes, invoices, online payments and expenses</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">25 AI quotes, 10 receipt scans, 25 message reads a month</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">Profit &amp; loss and VAT reports</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">1 user</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-gray-400 font-bold">✕</span>
+                    <span class="text-gray-500 text-sm">VAT report export and invoices without the TradeScheduler footer are Pro</span>
+                </li>
+            </ul>
+            <a href="{{ url_for('auth.register', upgrade=1, plan='starter') }}"
+                class="block bg-gray-800 hover:bg-gray-900 text-white font-bold text-center px-6 py-3.5 rounded-xl">
+                Subscribe for £12.99/month
+            </a>
+            <p class="text-gray-500 text-xs mt-3 text-center">Cancel anytime.</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 p-8 flex flex-col h-full relative">
+            <span class="absolute -top-3 right-8 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">Most popular</span>
+            <p class="text-blue-600 font-semibold mb-2">Pro</p>
+            <p class="text-4xl font-extrabold text-gray-900 mb-1">{{ pro_price_text }}<span class="text-base font-semibold text-gray-500">/month</span></p>
+            <p class="text-gray-500 text-sm mb-6">Fair-use AI and the extra invoicing options. Cancel anytime.</p>
+            <ul class="text-left space-y-2.5 mb-8 flex-1">
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">Unlimited jobs and customers</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">Fair-use AI: up to 500 quotes, 300 receipt scans and 500 message reads a month</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">Everything in Starter</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">VAT report export</span>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="mt-0.5 text-green-600 font-bold">✓</span>
+                    <span class="text-gray-700 text-sm">Invoices without the TradeScheduler footer</span>
+                </li>
+            </ul>
+            <a href="{{ url_for('auth.register', upgrade=1) }}"
+                class="block bg-blue-600 hover:bg-blue-700 text-white font-bold text-center px-6 py-3.5 rounded-xl">
+                Subscribe for {{ pro_price_text }}/month
+            </a>
+            <p class="text-gray-500 text-xs mt-3 text-center">Cancel anytime.</p>
+        </div>
+    </section>
+
+    <!-- ─── WHAT EVERY PLAN INCLUDES ───────────────────── -->
+    <section class="max-w-5xl mx-auto mb-16">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-6 text-center">Every plan includes</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="bg-white rounded-xl shadow-sm p-5 flex items-start gap-3">
+                <span class="text-2xl">🗓️</span>
+                <div>
+                    <p class="font-bold text-gray-900 text-sm">Unlimited jobs</p>
+                    <p class="text-gray-600 text-sm">Book as many jobs as you like — no caps on how busy you get.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-5 flex items-start gap-3">
+                <span class="text-2xl">👥</span>
+                <div>
+                    <p class="font-bold text-gray-900 text-sm">Unlimited customers</p>
+                    <p class="text-gray-600 text-sm">Keep every contact and their full job history in one place.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-5 flex items-start gap-3">
+                <span class="text-2xl">📝</span>
+                <div>
+                    <p class="font-bold text-gray-900 text-sm">Quotes from any job</p>
+                    <p class="text-gray-600 text-sm">Turn a job into a professional quote and send it in minutes.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-5 flex items-start gap-3">
+                <span class="text-2xl">📄</span>
+                <div>
+                    <p class="font-bold text-gray-900 text-sm">PDF invoices with VAT</p>
+                    <p class="text-gray-600 text-sm">Your business details, correctly numbered and VAT where it applies.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-5 flex items-start gap-3">
+                <span class="text-2xl">💳</span>
+                <div>
+                    <p class="font-bold text-gray-900 text-sm">Online payments</p>
+                    <p class="text-gray-600 text-sm">Add a payment link, or record cash and transfers as they arrive.</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-5 flex items-start gap-3">
+                <span class="text-2xl">🧾</span>
+                <div>
+                    <p class="font-bold text-gray-900 text-sm">Expenses &amp; reports</p>
+                    <p class="text-gray-600 text-sm">Log costs, scan receipts, and see profit and VAT at a glance.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── AI ALLOWANCES ──────────────────────────────── -->
+    <section class="max-w-3xl mx-auto mb-16">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3 text-center">AI allowances, in plain numbers</h2>
+        <p class="text-gray-600 text-center mb-8">AI features are included in both plans and reset each month. Starter has fixed monthly amounts; Pro runs on fair use.</p>
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-50 text-left text-xs text-gray-500 uppercase tracking-wide">
+                        <th class="px-5 py-3 font-semibold">AI feature</th>
+                        <th class="px-5 py-3 font-semibold text-right">Starter</th>
+                        <th class="px-5 py-3 font-semibold text-right">Pro (fair use)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr>
+                        <td class="px-5 py-4 text-gray-800">AI quotes</td>
+                        <td class="px-5 py-4 text-right font-semibold text-gray-900">25 / month</td>
+                        <td class="px-5 py-4 text-right font-semibold text-gray-900">up to 500 / month</td>
+                    </tr>
+                    <tr>
+                        <td class="px-5 py-4 text-gray-800">Receipt scans</td>
+                        <td class="px-5 py-4 text-right font-semibold text-gray-900">10 / month</td>
+                        <td class="px-5 py-4 text-right font-semibold text-gray-900">up to 300 / month</td>
+                    </tr>
+                    <tr>
+                        <td class="px-5 py-4 text-gray-800">Message reads</td>
+                        <td class="px-5 py-4 text-right font-semibold text-gray-900">25 / month</td>
+                        <td class="px-5 py-4 text-right font-semibold text-gray-900">up to 500 / month</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ─── BILLING FAQ ────────────────────────────────── -->
+    <section class="max-w-3xl mx-auto mb-16">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-8 text-center">Billing questions</h2>
+        <div class="space-y-3">
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    How does the free trial work?
+                    <span class="text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">You get 14 days with every feature unlocked and no card needed. When the trial ends, choose Starter at £12.99 a month or Pro at {{ pro_price_text }} a month — or do nothing and your account becomes read-only.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Do I need a credit card to start?
+                    <span class="text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">No. Create your account and use everything for 14 days. You only enter card details if and when you decide to subscribe.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    What happens when the trial ends?
+                    <span class="text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Your account becomes read-only: nothing is deleted, and you can still view and download all your jobs, invoices and expenses. To keep adding jobs and invoices, choose a plan. If you don't, we keep your data for 60 days after the trial ends and email you seven days before it is removed — then the account and everything in it is deleted. A backup copy may be kept for a short period before it rotates out.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Can I cancel anytime?
+                    <span class="text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes. Cancel from your account whenever you like — there's no minimum term and no lock-in. You keep access until the end of the period you've paid for.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    How am I billed, and in which currency?
+                    <span class="text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Monthly, in pounds sterling (GBP), by card through our payment provider. Subscriptions renew automatically each month until you cancel.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Will I get an invoice for my subscription?
+                    <span class="text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes. Your monthly payments appear in the billing section of your account, where you can see what you've been charged and manage your subscription.</p>
+            </details>
+        </div>
+    </section>
+
+    <!-- ─── CTA ────────────────────────────────────────── -->
+    <section class="bg-gradient-to-br from-blue-700 to-blue-900 rounded-2xl px-6 py-14 md:px-12 text-center mb-6">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white max-w-2xl mx-auto leading-tight">
+            Start free, decide later
+        </h2>
+        <p class="text-blue-100 mt-4 max-w-xl mx-auto">14 days with everything unlocked. No card, no commitment — just try it on real jobs.</p>
+        <a href="{{ url_for('auth.register') }}"
+            class="inline-block mt-8 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold px-10 py-4 rounded-xl shadow-lg">
+            Start your 14-day free trial
+        </a>
+        <p class="text-blue-200 text-sm mt-4">No credit card required.</p>
+    </section>
+
+    {% include '_marketing_footer.html' %}
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+<!-- Shared footer for the marketing sub-pages. -->
+<footer class="pb-24 md:pb-8 pt-4 mt-4 border-t border-gray-200 text-center">
+    <div class="flex items-center justify-center gap-2 font-extrabold text-gray-900 mb-2">
+        <span class="text-xl">🔨</span> TradeScheduler
+    </div>
+    <p class="text-gray-500 text-sm mb-4">Jobs, quotes, invoices and payments for UK tradespeople.</p>
+    <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-600 mb-4">
+        <a href="{{ url_for('main.why') }}" class="hover:text-gray-900">Why TradeScheduler</a>
+        <a href="{{ url_for('main.how_it_works') }}" class="hover:text-gray-900">How it works</a>
+        <a href="{{ url_for('main.pricing') }}" class="hover:text-gray-900">Pricing</a>
+        <a href="{{ url_for('main.faq') }}" class="hover:text-gray-900">FAQ</a>
+        <a href="{{ url_for('auth.login') }}" class="hover:text-gray-900">Log in</a>
+        <a href="{{ url_for('auth.register') }}" class="hover:text-gray-900">Start trial</a>
+    </div>
+    <p class="text-gray-400 text-xs">English &amp; Romanian · Prices in GBP · Mobile-friendly, works in your browser</p>
+</footer>

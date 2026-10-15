@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}How TradeScheduler Works – From Job Booked to Paid{% endblock %}
+
+{% block head %}
+<meta name="description" content="A step-by-step look at how TradeScheduler works: book a job, send a quote, invoice with VAT, take payments and track what you earned. Works in your browser, no download. 14-day free trial.">
+<link rel="canonical" href="https://thetradescheduler.com/how-it-works">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TradeScheduler">
+<meta property="og:title" content="How TradeScheduler Works – From Job Booked to Paid">
+<meta property="og:description" content="Book a job, quote it, invoice it, get paid and see what you earned — all in one place, from your phone.">
+<meta property="og:url" content="https://thetradescheduler.com/how-it-works">
+<meta property="og:image" content="{{ url_for('static', filename='icons/icon-512.png', _external=True) }}">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    html { scroll-behavior: smooth; }
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    {% include '_marketing_nav.html' %}
+
+    <!-- ─── HEADER ─────────────────────────────────────── -->
+    <header class="text-center max-w-3xl mx-auto mb-14">
+        <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+            Step by step
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            How TradeScheduler works, from the first call to getting paid
+        </h1>
+        <p class="text-gray-600 text-lg mt-6 leading-relaxed">
+            No training, no manual. Here's exactly what happens to a job from the moment a customer calls you to the moment the money lands — and where each part lives in the app.
+        </p>
+    </header>
+
+    <!-- ─── THE FIVE STEPS ─────────────────────────────── -->
+    <section class="space-y-4 mb-16">
+
+        <div class="bg-white rounded-2xl shadow-sm p-6 sm:p-10 flex items-start gap-6">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white text-xl font-extrabold flex items-center justify-center">01</div>
+            </div>
+            <div class="min-w-0">
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Book the job in a few seconds</h2>
+                <p class="text-gray-600 mb-3">The customer calls, you agree a price. Add the client name, the address, the date and the amount. That's the job created — and it's now somewhere you'll actually see it again.</p>
+                <ul class="grid sm:grid-cols-2 gap-2 text-sm text-gray-600">
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Client, address, date and price in one entry</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> See the day and week at a glance</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Reuse an existing customer from your list</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> No double-booking — every date is in one place</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-6 sm:p-10 flex items-start gap-6">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white text-xl font-extrabold flex items-center justify-center">02</div>
+            </div>
+            <div class="min-w-0">
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Send a quote while the job is still warm</h2>
+                <p class="text-gray-600 mb-3">Turn the job into a quote with your line items and prices, then send it. If you're staring at a blank page, describe the job in a sentence and the AI drafts a priced quote you can edit before it goes out.</p>
+                <ul class="grid sm:grid-cols-2 gap-2 text-sm text-gray-600">
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Build a quote from the job, not from scratch</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Draft a starting point with AI in seconds</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Your customer can accept or decline</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> The quote stays attached to the job</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-6 sm:p-10 flex items-start gap-6">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white text-xl font-extrabold flex items-center justify-center">03</div>
+            </div>
+            <div class="min-w-0">
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Do the work, then mark it done</h2>
+                <p class="text-gray-600 mb-3">On the day, the job is right there with the address and the price. When you finish, mark it complete — the moment you tick it off is the moment it becomes an invoice you can send, rather than work you might forget to bill.</p>
+                <ul class="grid sm:grid-cols-2 gap-2 text-sm text-gray-600">
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Mark jobs done from your phone, on site</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Track time against a job if you bill hourly</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Add materials and expenses to the job as you go</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Nothing slips through just because you got busy</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-6 sm:p-10 flex items-start gap-6">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white text-xl font-extrabold flex items-center justify-center">04</div>
+            </div>
+            <div class="min-w-0">
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Send a proper invoice before you leave</h2>
+                <p class="text-gray-600 mb-3">One tap turns the finished job into a professional PDF invoice with your business details, the work you did and VAT where it applies. Send it by email from your phone, before the job is even off your mind.</p>
+                <ul class="grid sm:grid-cols-2 gap-2 text-sm text-gray-600">
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Your logo and business details on every invoice</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> VAT shown correctly on the document</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Invoice numbering handled for you</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Send by email straight from the app</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-6 sm:p-10 flex items-start gap-6">
+            <div class="flex-shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white text-xl font-extrabold flex items-center justify-center">05</div>
+            </div>
+            <div class="min-w-0">
+                <h2 class="text-xl font-bold text-gray-900 mb-2">Get paid, and see what you actually earned</h2>
+                <p class="text-gray-600 mb-3">Add a payment link so the customer can pay by card from the invoice, or record the cash, cheque or transfer when it arrives. Either way, the invoice moves from sent to paid, and your numbers update.</p>
+                <ul class="grid sm:grid-cols-2 gap-2 text-sm text-gray-600">
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Online payment link on the invoice</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Record payments received any other way</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Reminders for invoices that go overdue</li>
+                    <li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">✓</span> Income, expenses and VAT reports in one place</li>
+                </ul>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ─── GETTING STARTED ─────────────────────────────── -->
+    <section class="bg-gradient-to-br from-blue-700 to-blue-900 rounded-2xl px-6 py-12 md:px-12 mb-16 text-white">
+        <h2 class="text-2xl sm:text-3xl font-extrabold mb-6">Getting set up takes minutes</h2>
+        <div class="grid md:grid-cols-2 gap-8">
+            <div>
+                <p class="font-bold mb-3">What you need</p>
+                <ul class="space-y-2 text-blue-100 text-sm">
+                    <li class="flex items-start gap-2"><span class="text-green-300 font-bold mt-0.5">✓</span> A phone, tablet or computer with a browser</li>
+                    <li class="flex items-start gap-2"><span class="text-green-300 font-bold mt-0.5">✓</span> Your business name and address for invoices</li>
+                    <li class="flex items-start gap-2"><span class="text-green-300 font-bold mt-0.5">✓</span> Your VAT number if you're VAT registered</li>
+                    <li class="flex items-start gap-2"><span class="text-green-300 font-bold mt-0.5">✓</span> Nothing to download or install</li>
+                </ul>
+            </div>
+            <div>
+                <p class="font-bold mb-3">What happens first</p>
+                <ul class="space-y-2 text-blue-100 text-sm">
+                    <li class="flex items-start gap-2"><span class="text-green-300 font-bold mt-0.5">1</span> Create your account — no card needed</li>
+                    <li class="flex items-start gap-2"><span class="text-green-300 font-bold mt-0.5">2</span> Add your business details once</li>
+                    <li class="flex items-start gap-2"><span class="text-green-300 font-bold mt-0.5">3</span> Add your first job and send your first invoice</li>
+                    <li class="flex items-start gap-2"><span class="text-green-300 font-bold mt-0.5">4</span> Use everything free for 14 days, then pick a plan</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── MINI FAQ ───────────────────────────────────── -->
+    <section class="max-w-3xl mx-auto mb-16">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-center text-gray-900 mb-8">Good to know before you start</h2>
+        <div class="space-y-3">
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Do I need to install anything?
+                    <span class="text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">No. TradeScheduler runs in your browser on any phone, tablet or computer. If you'd like it on your home screen like an app, you can add it from your browser's menu — but it works either way.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    Does it work the same on a phone?
+                    <span class="text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Yes. It's designed mobile-first, so booking jobs, sending quotes and invoicing are all comfortable one-handed. The desktop version is the same thing with more room on screen.</p>
+            </details>
+            <details class="bg-white rounded-xl shadow-sm">
+                <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                    What if I already have jobs written down elsewhere?
+                    <span class="text-blue-600">▾</span>
+                </summary>
+                <p class="px-5 pb-5 text-gray-600 text-sm">Just add the ones you're working on as you go. There's no big migration to get through — most people start with tomorrow's jobs and build from there.</p>
+            </details>
+        </div>
+    </section>
+
+    <!-- ─── CTA ────────────────────────────────────────── -->
+    <section class="bg-gradient-to-br from-blue-700 to-blue-900 rounded-2xl px-6 py-14 md:px-12 text-center mb-6">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white max-w-2xl mx-auto leading-tight">
+            Try it on your next job
+        </h2>
+        <p class="text-blue-100 mt-4 max-w-xl mx-auto">Create an account, add a real job and see how it feels to have everything in one place.</p>
+        <a href="{{ url_for('auth.register') }}"
+            class="inline-block mt-8 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold px-10 py-4 rounded-xl shadow-lg">
+            Start your 14-day free trial
+        </a>
+        <p class="text-blue-200 text-sm mt-4">No credit card required.</p>
+    </section>
+
+    {% include '_marketing_footer.html' %}
+</div>
+{% endblock %}

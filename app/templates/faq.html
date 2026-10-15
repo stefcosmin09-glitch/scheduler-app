@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+
+{% block title %}FAQ – TradeScheduler Questions Answered{% endblock %}
+
+{% block head %}
+<meta name="description" content="Answers about the TradeScheduler free trial, pricing, invoicing, VAT, online payments and what happens to your data. UK trades job management and invoicing in your browser.">
+<link rel="canonical" href="https://thetradescheduler.com/faq">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TradeScheduler">
+<meta property="og:title" content="FAQ – TradeScheduler Questions Answered">
+<meta property="og:description" content="Trial, pricing, invoicing, VAT, payments and your data — the questions UK tradespeople ask before signing up.">
+<meta property="og:url" content="https://thetradescheduler.com/faq">
+<meta property="og:image" content="{{ url_for('static', filename='icons/icon-512.png', _external=True) }}">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    html { scroll-behavior: smooth; }
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+    details summary::-webkit-details-marker { display: none; }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is TradeScheduler?",
+      "acceptedAnswer": { "@type": "Answer", "text": "TradeScheduler is a job management and invoicing app for UK tradespeople. It keeps your jobs, customers, quotes, invoices, online payments and expenses in one place, in your browser on your phone, tablet or computer." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to install anything?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. TradeScheduler runs in your browser and there is nothing to download. If you want quicker access, you can add it to your phone's home screen from your browser menu, but it works without that." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a credit card to start?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. You create your account and use every feature for 14 days with no card. You only enter card details if and when you decide to subscribe." }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does it take to set up?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Minutes. You add your business details once, then add your first job and send your first invoice. There is no import or migration step to get through." }
+    },
+    {
+      "@type": "Question",
+      "name": "Which devices does TradeScheduler work on?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Any phone, tablet or computer with a modern browser, such as Chrome, Safari or Edge. It is designed mobile-first so it is comfortable to use on site, one-handed." }
+    },
+    {
+      "@type": "Question",
+      "name": "How does the free trial work?",
+      "acceptedAnswer": { "@type": "Answer", "text": "You get 14 days with every feature unlocked and no card needed. When the trial ends, choose Starter at £12.99 a month or Pro at £22.99 a month, or do nothing and the account becomes read-only." }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens when the trial ends?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Your account becomes read-only: nothing is deleted, and you can still view and download all your jobs, invoices and expenses. To keep adding jobs and invoices, choose a plan. If you don't, we keep your data for 60 days after the trial ends and email you seven days before it is removed, then the account and everything in it is deleted. A backup copy may be kept for a short period before it rotates out." }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between Starter and Pro?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Both include unlimited jobs and customers, quotes, invoicing, online payments and expenses. Starter is £12.99 a month with 25 AI quotes, 10 receipt scans and 25 message reads. Pro is £22.99 a month with fair-use AI and adds VAT report export and invoices without the TradeScheduler footer." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I cancel anytime?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Cancel from your account whenever you like. There is no minimum term and no lock-in, and you keep access until the end of the period you have paid for." }
+    },
+    {
+      "@type": "Question",
+      "name": "How am I billed, and in which currency?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Monthly, in pounds sterling (GBP), by card through our payment provider. Your subscription renews automatically each month until you cancel." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I create and send quotes?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. You build a quote from a job, with your line items and prices, and send it. Your customer can accept or decline, and the quote stays attached to the job." }
+    },
+    {
+      "@type": "Question",
+      "name": "Do the invoices include VAT?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Invoices are professional PDFs with your business details and VAT shown where it applies, and your invoice numbering is handled for you." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can customers pay me online?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. You can add a payment link to an invoice so the customer can pay by card, or record payments you receive by bank transfer, cash or cheque." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it help me chase late payments?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Invoices you have sent but not been paid for are flagged, and reminders for overdue invoices go out automatically, so you don't have to remember to chase them yourself." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use it for hourly work and materials?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. You can track time against a job and add the materials and expenses you used, so the job reflects what the work actually cost you." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I export my data?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. You can export your data from your account at any time, whether or not you are on a paid plan, so you are never locked in." }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to my data if I never subscribe?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Your account goes read-only when the trial ends and you keep 60 days to export anything you need. We email you seven days before deletion, then the account and its data are removed. A backup copy may be kept for a short period before it rotates out." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my data shared or sold?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Your business and customer data is used to run your account for you, and it is not sold. It is only accessible by signing in to your account." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use TradeScheduler on more than one device?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Sign in on your phone in the van and your laptop at home and you will see the same data. It is the same account, in the browser." }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I change my business details later?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. Your business name, address, logo and VAT details live in settings and can be changed at any time. They are used on the quotes and invoices you send." }
+    }
+  ]
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    {% include '_marketing_nav.html' %}
+
+    <!-- ─── HEADER ─────────────────────────────────────── -->
+    <header class="text-center max-w-3xl mx-auto mb-14">
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            Frequently asked questions
+        </h1>
+        <p class="text-gray-600 text-lg mt-6 leading-relaxed">
+            Everything tradespeople usually ask before they start — the trial, the price, invoicing and VAT, getting paid, and what happens to your data.
+        </p>
+    </header>
+
+    <div class="max-w-3xl mx-auto space-y-10 mb-16">
+
+        <!-- ─── GETTING STARTED ────────────────────────── -->
+        <section>
+            <h2 class="text-xs font-bold uppercase tracking-wide text-blue-600 mb-4">Getting started</h2>
+            <div class="space-y-3">
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        What is TradeScheduler?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">TradeScheduler is a job management and invoicing app for UK tradespeople. It keeps your jobs, customers, quotes, invoices, online payments and expenses in one place, in your browser on your phone, tablet or computer.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Do I need to install anything?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">No. TradeScheduler runs in your browser and there's nothing to download. If you want quicker access, you can add it to your phone's home screen from your browser menu, but it works without that too.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Do I need a credit card to start?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">No. You create your account and use every feature for 14 days with no card. You only enter card details if and when you decide to subscribe.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        How long does it take to set up?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Minutes. You add your business details once, then add your first job and send your first invoice. There's no import or migration step to get through — most people start with tomorrow's jobs and build from there.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Which devices does it work on?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Any phone, tablet or computer with a modern browser, such as Chrome, Safari or Edge. It's designed mobile-first, so it's comfortable to use on site, one-handed.</p>
+                </details>
+            </div>
+        </section>
+
+        <!-- ─── TRIAL AND BILLING ──────────────────────── -->
+        <section>
+            <h2 class="text-xs font-bold uppercase tracking-wide text-blue-600 mb-4">Trial and billing</h2>
+            <div class="space-y-3">
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        How does the free trial work?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">You get 14 days with every feature unlocked, with no card needed. When the trial ends, choose Starter at £12.99 a month or Pro at {{ pro_price_text }} a month — or do nothing and your account becomes read-only.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        What happens when the trial ends?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Your account becomes read-only: nothing is deleted, and you can still view and download all your jobs, invoices and expenses. To keep adding jobs and invoices, choose a plan. If you don't, we keep your data for 60 days after the trial ends and email you seven days before it is removed — then the account and everything in it is deleted. A backup copy may be kept for a short period before it rotates out.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        What's the difference between Starter and Pro?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Both include unlimited jobs and customers, quotes, invoicing, online payments and expenses. Starter is £12.99 a month with 25 AI quotes, 10 receipt scans and 25 message reads. Pro is {{ pro_price_text }} a month with fair-use AI, and adds VAT report export and invoices without the TradeScheduler footer. See <a href="{{ url_for('main.pricing') }}" class="text-blue-700 font-semibold hover:underline">full pricing</a>.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Can I cancel anytime?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Yes. Cancel from your account whenever you like. There's no minimum term and no lock-in, and you keep access until the end of the period you've paid for.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        How am I billed, and in which currency?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Monthly, in pounds sterling (GBP), by card through our payment provider. Your subscription renews automatically each month until you cancel.</p>
+                </details>
+            </div>
+        </section>
+
+        <!-- ─── JOBS, QUOTES AND INVOICES ──────────────── -->
+        <section>
+            <h2 class="text-xs font-bold uppercase tracking-wide text-blue-600 mb-4">Jobs, quotes and invoices</h2>
+            <div class="space-y-3">
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Can I create and send quotes?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Yes. You build a quote from a job, with your line items and prices, and send it. Your customer can accept or decline, and the quote stays attached to the job.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Do the invoices include VAT?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Yes. Invoices are professional PDFs with your business details and VAT shown where it applies, and your invoice numbering is handled for you.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Can customers pay me online?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Yes. You can add a payment link to an invoice so the customer can pay by card, or record payments you receive by bank transfer, cash or cheque.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Does it help me chase late payments?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Yes. Invoices you've sent but not been paid for are flagged, and reminders for overdue invoices go out automatically, so you don't have to remember to chase them yourself.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Can I use it for hourly work and materials?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Yes. You can track time against a job and add the materials and expenses you used, so the job reflects what the work actually cost you.</p>
+                </details>
+            </div>
+        </section>
+
+        <!-- ─── DATA AND ACCOUNT ───────────────────────── -->
+        <section>
+            <h2 class="text-xs font-bold uppercase tracking-wide text-blue-600 mb-4">Your data and account</h2>
+            <div class="space-y-3">
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Can I export my data?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Yes. You can export your data from your account at any time, whether or not you're on a paid plan, so you're never locked in.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        What happens to my data if I never subscribe?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Your account goes read-only when the trial ends and you keep 60 days to export anything you need. We email you seven days before deletion, then the account and its data are removed. A backup copy may be kept for a short period before it rotates out.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Is my data shared or sold?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">No. Your business and customer data is used to run your account for you, and it isn't sold. It's only accessible by signing in to your account.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Can I use it on more than one device?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Yes. Sign in on your phone in the van and your laptop at home and you'll see the same data. It's the same account, in the browser.</p>
+                </details>
+                <details class="bg-white rounded-xl shadow-sm">
+                    <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
+                        Can I change my business details later?
+                        <span class="text-blue-600">▾</span>
+                    </summary>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Yes. Your business name, address, logo and VAT details live in settings and can be changed at any time. They're used on the quotes and invoices you send.</p>
+                </details>
+            </div>
+        </section>
+    </div>
+
+    <!-- ─── CTA ────────────────────────────────────────── -->
+    <section class="bg-gradient-to-br from-blue-700 to-blue-900 rounded-2xl px-6 py-14 md:px-12 text-center mb-6">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white max-w-2xl mx-auto leading-tight">
+            Still got a question? Just try it
+        </h2>
+        <p class="text-blue-100 mt-4 max-w-xl mx-auto">The quickest answer is your own data. Start free for 14 days — no card needed.</p>
+        <a href="{{ url_for('auth.register') }}"
+            class="inline-block mt-8 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold px-10 py-4 rounded-xl shadow-lg">
+            Start your 14-day free trial
+        </a>
+        <p class="text-blue-200 text-sm mt-4">No credit card required.</p>
+    </section>
+
+    {% include '_marketing_footer.html' %}
+</div>
+{% endblock %}

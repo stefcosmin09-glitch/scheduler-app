@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Why UK Tradespeople Choose TradeScheduler{% endblock %}
+
+{% block head %}
+<meta name="description" content="Why electricians, plumbers, builders and other UK tradespeople move off WhatsApp, paper and spreadsheets: one place for jobs, quotes, invoices and payments. 14-day free trial, no card.">
+<link rel="canonical" href="https://thetradescheduler.com/why">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TradeScheduler">
+<meta property="og:title" content="Why UK Tradespeople Choose TradeScheduler">
+<meta property="og:description" content="Stop losing money to forgotten quotes, late invoices and unbilled work. Run jobs, quotes, invoices and payments from one place.">
+<meta property="og:url" content="https://thetradescheduler.com/why">
+<meta property="og:image" content="{{ url_for('static', filename='icons/icon-512.png', _external=True) }}">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    html { scroll-behavior: smooth; }
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+    details summary::-webkit-details-marker { display: none; }
+    details[open] .faq-chevron { transform: rotate(180deg); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    {% include '_marketing_nav.html' %}
+
+    <!-- ─── HEADER ─────────────────────────────────────── -->
+    <header class="bg-gradient-to-br from-blue-50 via-white to-indigo-50 rounded-2xl border border-blue-100/70 px-6 py-12 md:px-12 md:py-16 mb-14">
+        <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+            🇬🇧 Built for UK tradespeople
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight max-w-3xl">
+            Why UK tradespeople move their business out of WhatsApp, notebooks and spreadsheets
+        </h1>
+        <p class="text-gray-600 text-lg mt-6 leading-relaxed max-w-2xl">
+            You didn't start a trade to spend your evenings doing admin. TradeScheduler keeps the whole job — the client, the date, the quote, the invoice and the payment — in one place you can reach from your phone.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 mt-8">
+            <a href="{{ url_for('auth.register') }}"
+                class="inline-flex items-center justify-center bg-gradient-to-b from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold px-8 py-4 rounded-lg shadow-lg shadow-blue-600/20">
+                Start your 14-day free trial
+            </a>
+            <a href="{{ url_for('main.how_it_works') }}"
+                class="inline-flex items-center justify-center border border-gray-300 text-gray-700 font-semibold px-8 py-4 rounded-lg hover:bg-gray-50">
+                See how it works
+            </a>
+        </div>
+        <ul class="flex flex-wrap gap-4 mt-6 text-sm text-gray-600">
+            <li class="flex items-center gap-1.5"><span class="text-green-600 font-bold">✓</span> No credit card</li>
+            <li class="flex items-center gap-1.5"><span class="text-green-600 font-bold">✓</span> Set up in minutes</li>
+            <li class="flex items-center gap-1.5"><span class="text-green-600 font-bold">✓</span> Cancel anytime</li>
+        </ul>
+    </header>
+
+    <!-- ─── THE COST OF PAPERWORK ──────────────────────── -->
+    <section class="mb-16">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-3">Paperwork costs you money every single month</h2>
+        <p class="text-gray-600 max-w-2xl mb-8">None of these are big dramatic problems. They're small leaks, and over a year they add up to real money you've already earned but never got round to billing.</p>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <p class="text-3xl mb-3">💸</p>
+                <h3 class="font-bold text-gray-900 mb-2">Work you forget to invoice</h3>
+                <p class="text-gray-600 text-sm">A couple of hours here, a few materials there. If the job isn't written down somewhere you'll see it, it quietly leaves the business without ever being charged for.</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <p class="text-3xl mb-3">📝</p>
+                <h3 class="font-bold text-gray-900 mb-2">Quotes that go cold</h3>
+                <p class="text-gray-600 text-sm">A quote sent from a phone at the end of the day gets buried under texts and missed calls. The job goes to whoever followed up first.</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <p class="text-3xl mb-3">⏳</p>
+                <h3 class="font-bold text-gray-900 mb-2">Invoices you chase yourself</h3>
+                <p class="text-gray-600 text-sm">Chasing payment is awkward and easy to put off. The longer you leave it, the longer the money sits in someone else's account instead of yours.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── ONE PLACE FOR THE WHOLE JOB ────────────────── -->
+    <section class="mb-16">
+        <div class="grid lg:grid-cols-2 gap-10 items-center max-w-5xl mx-auto">
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-4">One job, one place, from the first call to the final payment</h2>
+                <p class="text-gray-600 mb-6">Instead of juggling five apps and a notebook, everything about a job lives together. That's what makes the difference — you stop having to remember where things are.</p>
+                <ol class="space-y-4">
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 h-7 w-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center">1</span>
+                        <span class="text-gray-700"><strong class="text-gray-900">The enquiry</strong> — client, address, date and price go in as a job.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 h-7 w-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center">2</span>
+                        <span class="text-gray-700"><strong class="text-gray-900">The quote</strong> — turn the job into a quote in a couple of taps and send it.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 h-7 w-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center">3</span>
+                        <span class="text-gray-700"><strong class="text-gray-900">The work</strong> — mark the job done when you finish, while you're still on site.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 h-7 w-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center">4</span>
+                        <span class="text-gray-700"><strong class="text-gray-900">The invoice</strong> — a professional PDF with your details and VAT, sent before you leave.</span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="flex-shrink-0 h-7 w-7 rounded-full bg-blue-600 text-white text-sm font-bold flex items-center justify-center">5</span>
+                        <span class="text-gray-700"><strong class="text-gray-900">The payment</strong> — customers pay online, or you record cash and transfers as they come in.</span>
+                    </li>
+                </ol>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h3 class="font-bold text-gray-900 mb-4 text-sm uppercase tracking-wide text-gray-500">The old way vs TradeScheduler</h3>
+                <div class="divide-y divide-gray-100">
+                    <div class="py-3 grid grid-cols-2 gap-3 text-sm">
+                        <p class="text-gray-500">Jobs in a notebook and your head</p>
+                        <p class="text-gray-900 font-medium">Every job in one list</p>
+                    </div>
+                    <div class="py-3 grid grid-cols-2 gap-3 text-sm">
+                        <p class="text-gray-500">Quotes typed up at night</p>
+                        <p class="text-gray-900 font-medium">Quote from the job in minutes</p>
+                    </div>
+                    <div class="py-3 grid grid-cols-2 gap-3 text-sm">
+                        <p class="text-gray-500">Invoices sent "when you get a minute"</p>
+                        <p class="text-gray-900 font-medium">Invoice before you leave the job</p>
+                    </div>
+                    <div class="py-3 grid grid-cols-2 gap-3 text-sm">
+                        <p class="text-gray-500">Chasing every payment by text</p>
+                        <p class="text-gray-900 font-medium">Payment link plus automatic reminders</p>
+                    </div>
+                    <div class="py-3 grid grid-cols-2 gap-3 text-sm">
+                        <p class="text-gray-500">Receipts in a carrier bag</p>
+                        <p class="text-gray-900 font-medium">Photo it and AI reads the details</p>
+                    </div>
+                    <div class="py-3 grid grid-cols-2 gap-3 text-sm">
+                        <p class="text-gray-500">Guessing what you earned</p>
+                        <p class="text-gray-900 font-medium">Income, expenses and VAT reports</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── BUILT TO BE USED ON SITE ───────────────────── -->
+    <section class="bg-gradient-to-br from-blue-700 to-blue-900 rounded-2xl px-6 py-12 md:px-12 mb-16 text-white">
+        <h2 class="text-2xl sm:text-3xl font-extrabold mb-4">Made to be used on site, not at a desk</h2>
+        <p class="text-blue-100 max-w-2xl mb-8">You're not going to walk back to a laptop in the van to update a spreadsheet. TradeScheduler is built to be used one-handed, outdoors, between jobs — in whatever browser is already on your phone.</p>
+        <div class="grid sm:grid-cols-3 gap-6">
+            <div>
+                <p class="font-bold mb-1">Works in your browser</p>
+                <p class="text-blue-100 text-sm">No download and nothing to install — open it and you're in. Add it to your home screen if you like.</p>
+            </div>
+            <div>
+                <p class="font-bold mb-1">Everything in GBP</p>
+                <p class="text-blue-100 text-sm">Quotes, invoices and reports built around the way UK trades bill and record VAT.</p>
+            </div>
+            <div>
+                <p class="font-bold mb-1">English and Romanian</p>
+                <p class="text-blue-100 text-sm">Switch the app language whenever you want, for you or for someone on your team.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── WHO IT'S FOR ───────────────────────────────── -->
+    <section class="max-w-3xl mx-auto mb-16 text-center">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-4">Built for trades like yours</h2>
+        <p class="text-gray-600 mb-8">Whether you work on your own or run a small team, the same thing matters: knowing what's booked, what's been quoted and what you're owed.</p>
+        <div class="flex flex-wrap justify-center gap-2 mb-8">
+            <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Electricians</span>
+            <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Plumbers</span>
+            <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Builders</span>
+            <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Roofers</span>
+            <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Landscapers</span>
+            <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Carpenters</span>
+            <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Decorators</span>
+            <span class="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-medium text-gray-700">Heating engineers</span>
+        </div>
+        <p class="text-gray-600 mb-6">Ready to see it with your own jobs?</p>
+        <a href="{{ url_for('auth.register') }}"
+            class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl shadow-lg">
+            Start your 14-day free trial
+        </a>
+        <p class="text-gray-500 text-sm mt-3">No credit card required.</p>
+    </section>
+
+    {% include '_marketing_footer.html' %}
+</div>
+{% endblock %}

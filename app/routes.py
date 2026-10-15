@@ -255,6 +255,30 @@ def reset_password(token):
 
 # ─── MAIN ───────────────────────────────────────────
 
+# Public marketing pages. These are real URLs rather than anchors because they
+# are used as Google Ads sitelink destinations: Google rejects a fragment such
+# as /#pricing, and sitelinks that differ only by an anchor count as the same
+# page. Each also gives ad visitors a focused landing page.
+@main.route('/why')
+def why():
+    return render_template('why.html')
+
+
+@main.route('/how-it-works')
+def how_it_works():
+    return render_template('how_it_works.html')
+
+
+@main.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
+
+
+@main.route('/faq')
+def faq():
+    return render_template('faq.html')
+
+
 @main.route('/')
 def dashboard():
     from datetime import timedelta
