@@ -279,6 +279,78 @@ def faq():
     return render_template('faq.html')
 
 
+# The canonical origin. Mirrors the hard-coded canonical URLs in the templates.
+SITE_URL = 'https://thetradescheduler.com'
+
+
+@main.route('/robots.txt')
+def robots_txt():
+    """Let Google index the marketing pages and keep it out of the app.
+
+    Everything under the app is behind a login, so the crawler only ever gets
+    bounced to /login; saying so explicitly saves crawl budget. /login and
+    /register are deliberately left crawlable because an ad or a link may point
+    straight at them.
+    """
+    lines = [
+        'User-agent: *',
+        'Allow: /',
+        'Disallow: /job/',
+        'Disallow: /quote/',
+        'Disallow: /invoices',
+        'Disallow: /invoice/',
+        'Disallow: /time/',
+        'Disallow: /expenses',
+        'Disallow: /accounting',
+        'Disallow: /payments',
+        'Disallow: /calendar/',
+        'Disallow: /ai/',
+        'Disallow: /billing/',
+        'Disallow: /stripe/',
+        'Disallow: /business-settings',
+        'Disallow: /business-logo',
+        'Disallow: /account/export',
+        'Disallow: /tools',
+        '',
+        'Sitemap: %s/sitemap.xml' % SITE_URL,
+        '',
+    ]
+    return Response('\n'.join(lines), mimetype='text/plain')
+
+
+@main.route('/sitemap.xml')
+def sitemap_xml():
+    """The five public pages, newest landing page first.
+
+    Written by hand because the public site is small; keep it in step with the
+    routes above when a page is added.
+    """
+    pages = [
+        ('/', '1.0', 'weekly'),
+        ('/pricing', '0.9', 'monthly'),
+        ('/why', '0.8', 'monthly'),
+        ('/how-it-works', '0.8', 'monthly'),
+        ('/faq', '0.7', 'monthly'),
+    ]
+    lastmod = datetime.utcnow().strftime('%Y-%m-%d')
+    urls = ''.join(
+        '  <url>\n'
+        '    <loc>%s%s</loc>\n'
+        '    <lastmod>%s</lastmod>\n'
+        '    <changefreq>%s</changefreq>\n'
+        '    <priority>%s</priority>\n'
+        '  </url>\n' % (SITE_URL, path, lastmod, changefreq, priority)
+        for path, priority, changefreq in pages
+    )
+    body = (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + urls +
+        '</urlset>\n'
+    )
+    return Response(body, mimetype='application/xml')
+
+
 @main.route('/')
 def dashboard():
     from datetime import timedelta
