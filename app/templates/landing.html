@@ -274,24 +274,9 @@
         </div>
     </section>
 
-    <!-- ─── TRUST ROW ──────────────────────────────────── -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-14">
-        <div class="bg-white rounded-lg p-4 text-center shadow-sm">
-            <p class="font-bold text-gray-900">14-day free trial</p>
-            <p class="text-gray-500 text-xs mt-1">Every feature unlocked</p>
-        </div>
-        <div class="bg-white rounded-lg p-4 text-center shadow-sm">
-            <p class="font-bold text-gray-900">No credit card</p>
-            <p class="text-gray-500 text-xs mt-1">Start at no cost</p>
-        </div>
-        <div class="bg-white rounded-lg p-4 text-center shadow-sm">
-            <p class="font-bold text-gray-900">Cancel anytime</p>
-            <p class="text-gray-500 text-xs mt-1">No lock-in</p>
-        </div>
-        <div class="bg-white rounded-lg p-4 text-center shadow-sm">
-            <p class="font-bold text-gray-900">English &amp; Romanian</p>
-            <p class="text-gray-500 text-xs mt-1">Prices in GBP</p>
-        </div>
+    <!-- ─── TRUST BAND ─────────────────────────────────── -->
+    <div class="ts-reveal mb-14">
+        {% include '_trust_band.html' %}
     </div>
 
     <!-- ─── PROBLEM ────────────────────────────────────── -->
@@ -832,6 +817,9 @@
                 </a>
                 <p class="text-gray-500 text-xs mt-3 text-center">Cancel anytime.</p>
             </div>
+        </div>
+        <div class="mt-8">
+            {% include '_trial_reassurance.html' %}
         </div>
     </section>
 

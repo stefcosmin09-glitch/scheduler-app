@@ -70,3 +70,14 @@ def test_marketing_css_declares_the_utilities_the_build_is_missing(client):
     css = client.get('/static/marketing.css').get_data(as_text=True)
     for rule in (r'.sm\:flex', r'.lg\:block', '.h-7', '.rounded-md', '.bg-white\\/10'):
         check('marketing.css defines %s' % rule, rule in css, True)
+
+
+def test_trust_band_and_trial_reassurance_are_shown(client):
+    # Honest, checkable claims only: the six trust markers plus the plain
+    # explanation of what happens if the visitor never subscribes.
+    for path in ('/', '/pricing'):
+        body = client.get(path).get_data(as_text=True)
+        check('%s shows the trust band' % path, 'Export your data' in body, True)
+        check('%s shows the no-card marker' % path, 'No credit card' in body, True)
+        check('%s explains the post-trial state' % path,
+              'becomes read-only' in body, True)
