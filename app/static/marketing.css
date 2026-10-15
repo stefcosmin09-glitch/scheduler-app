@@ -99,3 +99,65 @@ select:focus-visible {
     .ts-blob { animation: none; }
     * { scroll-behavior: auto !important; }
 }
+
+/* 3. More utilities the committed build never generated ---------------------
+
+   The stylesheet was purged before several of today's templates existed, so
+   classes that are used all over the marketing pages and the app shell have no
+   rule at all - the numbered circles, the sidebar and phone frames, padding and
+   the two responsive display helpers below. Declared here so the markup works
+   without a Node rebuild. Delete this block once the CSS is rebuilt. */
+
+.bg-gray-900        { background-color: #111827; }
+.text-gray-300      { color: #d1d5db; }
+.border-green-100   { border-color: #d1fae5; }
+.rounded-md         { border-radius: .375rem; }
+
+.p-2                { padding: .5rem; }
+.p-2\.5             { padding: .625rem; }
+.pt-1               { padding-top: .25rem; }
+
+.h-1\.5             { height: .375rem; }
+.h-7                { height: 1.75rem; }
+.w-6                { width: 1.5rem; }
+.w-7                { width: 1.75rem; }
+.w-14               { width: 3.5rem; }
+
+.tracking-\[0\.14em\] { letter-spacing: .14em; }
+
+@media (min-width: 640px)  { .sm\:flex { display: flex; } }
+@media (min-width: 1024px) { .lg\:block { display: block; } }
+
+/* Tailwind 2 has no coloured shadows; give the blue CTAs one. */
+.shadow-blue-600\/20 {
+    box-shadow: 0 12px 22px -8px rgba(37, 99, 235, .45);
+}
+
+/* 4. Frames for the product mockups ---------------------------------------- */
+
+.ts-window { box-shadow: 0 30px 60px -28px rgba(15, 23, 42, .40); }
+
+.ts-app-sidebar { background: linear-gradient(180deg, #111827 0%, #1f2937 100%); }
+
+.ts-phone {
+    position: absolute;
+    left: -1.5rem;
+    bottom: -1.75rem;
+    width: 10.5rem;
+    background: #fff;
+    border: 6px solid #111827;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 26px 50px -18px rgba(15, 23, 42, .55);
+}
+
+.ts-phone-static {
+    width: 15rem;
+    background: #fff;
+    border: 8px solid #111827;
+    border-radius: 2rem;
+    overflow: hidden;
+    box-shadow: 0 30px 55px -22px rgba(15, 23, 42, .45);
+}
+
+.ts-text-10 { font-size: 10px; line-height: 1.45; }
