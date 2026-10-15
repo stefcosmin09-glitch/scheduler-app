@@ -50,3 +50,23 @@ def test_faq_page_carries_the_retention_wording(client):
     check('60-day retention is stated', '60 days' in body, True)
     check('the seven-day warning is stated', 'seven days before' in body, True)
     check('the backup caveat is stated', 'backup copy' in body, True)
+
+
+def test_landing_shows_the_product_mockups(client):
+    body = client.get('/').get_data(as_text=True)
+    for marker in ('ts-window', 'ts-app-sidebar', 'ts-phone', 'ts-phone-static'):
+        check('landing renders the %s mockup' % marker, marker in body, True)
+
+
+def test_marketing_assets_are_linked(client):
+    body = client.get('/').get_data(as_text=True)
+    check('marketing.css is linked', 'marketing.css' in body, True)
+    check('marketing.js is linked', 'marketing.js' in body, True)
+
+
+def test_marketing_css_declares_the_utilities_the_build_is_missing(client):
+    # The committed Tailwind file predates some templates, so these live in
+    # marketing.css. If they ever disappear the mocked-up UI collapses again.
+    css = client.get('/static/marketing.css').get_data(as_text=True)
+    for rule in (r'.sm\:flex', r'.lg\:block', '.h-7', '.rounded-md', '.bg-white\\/10'):
+        check('marketing.css defines %s' % rule, rule in css, True)
