@@ -13,9 +13,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from app.markets import active_currency, active_language, ENABLED_CURRENCIES, ENABLED_LANGUAGES
+
 def get_locale():
-    if current_user.is_authenticated and current_user.language in ('en', 'ro'):
-        return current_user.language
+    if current_user.is_authenticated:
+        return active_language(current_user.language)
     return 'en'
 
 from decimal import Decimal, ROUND_HALF_UP
@@ -32,6 +34,7 @@ def format_money(amount, currency=None):
     from app.currency import convert
     if currency is None:
         currency = current_user.currency if current_user.is_authenticated else 'GBP'
+    currency = active_currency(currency)
     symbol, european = CURRENCY_SYMBOLS.get(currency, ('£', False))
     try:
         amount = Decimal(str(convert(amount, currency))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
@@ -82,6 +85,8 @@ def create_app():
             'pro_price_text': price_text(currency),
             'PRO_PRICES': {k: price_text(k) for k in PRO_MONTHLY},
             'PREFERRED_CURRENCIES': PREFERRED_CURRENCIES,
+            'ENABLED_CURRENCIES': ENABLED_CURRENCIES,
+            'ENABLED_LANGUAGES': ENABLED_LANGUAGES,
         }
 
     from app.routes import auth, main

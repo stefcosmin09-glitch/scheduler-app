@@ -291,7 +291,8 @@ def extract_receipt(user, image_bytes, mime):
         category = 'Other'
         uncertain.add('category')
     currency = _text(raw.get('currency'), 4)
-    if currency and currency.upper() in ('GBP', 'RON', 'EUR', 'USD'):
+    from app.markets import ENABLED_CURRENCIES
+    if currency and currency.upper() in ENABLED_CURRENCIES:
         currency = currency.upper()
     else:
         currency = 'GBP'

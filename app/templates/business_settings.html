@@ -313,6 +313,7 @@
 
     <!-- Language & Currency -->
     <div class="mb-6 border-t pt-4 mt-4 flex gap-8">
+        {% if ENABLED_LANGUAGES|length > 1 %}
         <div>
             <label class="block text-gray-700 font-semibold mb-2">{{ _('Language') }}</label>
             <form method="POST" action="{{ url_for('main.set_language', next=request.full_path) }}">
@@ -320,10 +321,12 @@
                 <select name="language" onchange="this.form.submit()"
                     class="border border-gray-300 rounded px-3 py-2">
                     <option value="en" {{ 'selected' if current_user.language == 'en' else '' }}>🇬🇧 English</option>
-                    <option value="ro" {{ 'selected' if current_user.language == 'ro' else '' }}>🇷🇴 Română</option>
+                    {% if 'ro' in ENABLED_LANGUAGES %}<option value="ro" {{ 'selected' if current_user.language == 'ro' else '' }}>🇷🇴 Română</option>{% endif %}
                 </select>
             </form>
         </div>
+        {% endif %}
+        {% if ENABLED_CURRENCIES|length > 1 %}
         <div>
             <label class="block text-gray-700 font-semibold mb-2">{{ _('Currency') }}</label>
             <form method="POST" action="{{ url_for('main.set_currency', next=request.full_path) }}">
@@ -331,12 +334,13 @@
                 <select name="currency" onchange="this.form.submit()"
                     class="border border-gray-300 rounded px-3 py-2">
                     <option value="GBP" {{ 'selected' if current_user.currency == 'GBP' else '' }}>£ GBP</option>
-                    <option value="RON" {{ 'selected' if current_user.currency == 'RON' else '' }}>lei RON</option>
-                    <option value="EUR" {{ 'selected' if current_user.currency == 'EUR' else '' }}>€ EUR</option>
-                    <option value="USD" {{ 'selected' if current_user.currency == 'USD' else '' }}>$ USD</option>
+                    {% if 'RON' in ENABLED_CURRENCIES %}<option value="RON" {{ 'selected' if current_user.currency == 'RON' else '' }}>lei RON</option>{% endif %}
+                    {% if 'EUR' in ENABLED_CURRENCIES %}<option value="EUR" {{ 'selected' if current_user.currency == 'EUR' else '' }}>€ EUR</option>{% endif %}
+                    {% if 'USD' in ENABLED_CURRENCIES %}<option value="USD" {{ 'selected' if current_user.currency == 'USD' else '' }}>$ USD</option>{% endif %}
                 </select>
             </form>
         </div>
+        {% endif %}
     </div>
 </div>
 

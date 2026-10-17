@@ -13,6 +13,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 from app import format_money
+from app.markets import active_currency, active_language
 
 _FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
 pdfmetrics.registerFont(TTFont('DejaVu', os.path.join(_FONT_DIR, 'DejaVuSans.ttf')))
@@ -37,7 +38,7 @@ def generate_invoice(job, user, invoice=None):
     W = doc.width
 
     business = user.business
-    lang = user.language or 'en'
+    lang = active_language(user.language)
 
     L = {
         'title': 'FACTURĂ' if lang == 'ro' else 'INVOICE',
@@ -66,7 +67,7 @@ def generate_invoice(job, user, invoice=None):
     business_address = (business.address or '') if business else ''
     business_phone = (business.phone or '') if business else ''
 
-    invoice_curr = job.currency or user.currency or 'GBP'
+    invoice_curr = active_currency(job.currency or user.currency)
     tax_country = (business.tax_country if business else 'UK') or 'UK'
     tax_labels = {'UK': 'VAT', 'USA': 'Sales Tax', 'RO': 'TVA', 'AU': 'GST'}
     tax_label = tax_labels.get(tax_country, 'VAT')

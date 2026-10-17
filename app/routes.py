@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.currency import convert_to_base
+from app.markets import active_currency, active_language, ENABLED_CURRENCIES, ENABLED_LANGUAGES
 from app.limits import (consume, dashboard_state, is_pro, is_read_only, is_unmetered,
                         new_customer_block, reached)
 from itsdangerous import URLSafeTimedSerializer
@@ -125,7 +126,7 @@ def register():
             trial_ends_at=datetime.utcnow() + timedelta(days=14)
         )
         detected = request.cookies.get('ts_currency')
-        if detected in ('GBP', 'USD', 'RON', 'EUR'):
+        if detected in ENABLED_CURRENCIES:
             user.currency = detected
         db.session.add(user)
         db.session.commit()
@@ -202,7 +203,7 @@ def forgot_password():
             s = get_serializer()
             token = s.dumps(email, salt='password-reset')
             reset_url = url_for('auth.reset_password', token=token, _external=True)
-            if user.language == 'ro':
+            if active_language(user.language) == 'ro':
                 subject = 'Resetare parolă - Scheduler App'
                 body = f"""Bună ziua {user.username},
 
@@ -828,7 +829,7 @@ def download_invoice(job_id):
         try:
             from app.email_service import send_email_with_attachment
             pay_url = business.payment_link_url if business else ''
-            if current_user.language == 'ro':
+            if active_language(current_user.language) == 'ro':
                 subject = f'Factura {invoice.invoice_number}'
                 body = f"""Bună ziua {job.client_name},
 
@@ -937,7 +938,7 @@ def send_quote(job_id):
         decline_url = url_for('main.quote_response', job_id=job.id, response='declined', token=job.quote_token, _external=True)
 
         if job.client_email:
-            if current_user.language == 'ro':
+            if active_language(current_user.language) == 'ro':
                 subject = f'Ofertă de la {current_user.username}'
                 body = f"""Bună ziua {job.client_name},
 
@@ -1222,7 +1223,7 @@ def stripe_webhook():
 @main.route('/visitor-currency', methods=['POST'])
 def visitor_currency():
     currency = request.form.get('currency')
-    if currency not in ('GBP', 'USD', 'RON', 'EUR'):
+    if currency not in ENABLED_CURRENCIES:
         currency = 'GBP'
     resp = make_response(redirect(request.form.get('next') or url_for('main.dashboard')))
     resp.set_cookie('ts_currency', currency, max_age=60 * 60 * 24 * 365, samesite='Lax')
@@ -1379,7 +1380,7 @@ def send_invoice_reminder(invoice_id):
     business = BusinessProfile.query.filter_by(user_id=current_user.id).first()
     amount = format_money(invoice.total_amount, current_user.currency)
     due = invoice.due_date.strftime('%d/%m/%Y') if invoice.due_date else '—'
-    if current_user.language == 'ro':
+    if active_language(current_user.language) == 'ro':
         subject = f'Reminder: factură scadentă {invoice.invoice_number}'
         body = f"""Bună ziua {job.client_name},
 
@@ -1478,7 +1479,7 @@ def ai_job_confirm():
     activity = request.form.get('activity_type') or 'other'
     if activity not in dict(ACTIVITY_TYPES):
         activity = 'other'
-    currency = current_user.currency or 'GBP'
+    currency = active_currency(current_user.currency)
     job = Job(
         client_name=client,
         client_email=(request.form.get('client_email') or '').strip() or None,
@@ -1537,7 +1538,7 @@ def expenses():
         if category not in EXPENSE_CATEGORIES:
             category = 'Other'
         currency = request.form.get('currency') or 'GBP'
-        if currency not in ('GBP', 'RON', 'EUR', 'USD'):
+        if currency not in ENABLED_CURRENCIES:
             currency = 'GBP'
         receipt_image = (request.form.get('receipt_image') or '').strip() or None
         exp = Expense(user_id=current_user.id, merchant=merchant, description=description,
@@ -1810,7 +1811,7 @@ def vat_report():
         Invoice.status != 'cancelled'
     ).all()
 
-    locale = current_user.language if current_user.language == 'ro' else 'en'
+    locale = active_language(current_user.language)
 
     rows = []
     totals = {'count': 0, 'subtotal': 0.0, 'vat': 0.0, 'total': 0.0}
@@ -1891,7 +1892,7 @@ def service_worker():
 @login_required
 def set_language():
     lang = request.form.get('language')
-    if lang in ('en', 'ro'):
+    if lang in ENABLED_LANGUAGES:
         current_user.language = lang
         db.session.commit()
     next_url = request.args.get('next') or url_for('main.dashboard')
@@ -1903,7 +1904,7 @@ def set_language():
 @login_required
 def set_currency():
     currency = request.form.get('currency')
-    if currency in ('GBP', 'RON', 'EUR', 'USD', 'AUD'):
+    if currency in ENABLED_CURRENCIES:
         current_user.currency = currency
         db.session.commit()
     next_url = request.args.get('next') or url_for('main.dashboard')

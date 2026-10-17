@@ -20,6 +20,7 @@ from datetime import datetime, timedelta
 from app import db
 from app.email_service import send_email
 from app.models import LoginAttempt, User
+from app.markets import active_language
 
 # One run at a time. The dashboard fallback and the daily scheduler job can fire
 # together; serialising them means the second sees the marks the first just
@@ -95,7 +96,7 @@ _BODIES = {
 
 
 def _email_for(user, stage, base_url):
-    lang = 'ro' if (user.language or 'en') == 'ro' else 'en'
+    lang = active_language(user.language)
     ends = user.trial_ends_at
     expired_for = max(0, (datetime.utcnow() - ends).days) if ends else 0
     fields = {

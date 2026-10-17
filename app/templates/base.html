@@ -63,6 +63,7 @@
     {% if current_user.is_authenticated %}
 
     {% macro lang_currency() %}
+        {% if ENABLED_LANGUAGES|length > 1 %}
 
         <form method="POST" action="{{ url_for('main.set_language', next=request.full_path) }}" class="inline">
 
@@ -74,12 +75,14 @@
 
                 <option value="en" {{ 'selected' if current_user.language == 'en' else '' }}>🌐 English</option>
 
-                <option value="ro" {{ 'selected' if current_user.language == 'ro' else '' }}>🇷🇴 RO</option>
+                {% if 'ro' in ENABLED_LANGUAGES %}<option value="ro" {{ 'selected' if current_user.language == 'ro' else '' }}>🇷🇴 RO</option>{% endif %}
 
             </select>
 
         </form>
 
+        {% endif %}
+        {% if ENABLED_CURRENCIES|length > 1 %}
         <form method="POST" action="{{ url_for('main.set_currency', next=request.full_path) }}" class="inline">
 
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -90,16 +93,17 @@
 
                 <option value="GBP" {{ 'selected' if current_user.currency == 'GBP' else '' }}>£ GBP</option>
 
-                <option value="RON" {{ 'selected' if current_user.currency == 'RON' else '' }}>lei RON</option>
+                {% if 'RON' in ENABLED_CURRENCIES %}<option value="RON" {{ 'selected' if current_user.currency == 'RON' else '' }}>lei RON</option>{% endif %}
 
-                <option value="EUR" {{ 'selected' if current_user.currency == 'EUR' else '' }}>€ EUR</option>
+                {% if 'EUR' in ENABLED_CURRENCIES %}<option value="EUR" {{ 'selected' if current_user.currency == 'EUR' else '' }}>€ EUR</option>{% endif %}
 
-                <option value="USD" {{ 'selected' if current_user.currency == 'USD' else '' }}>$ USD</option>
-                <option value="AUD" {{ 'selected' if current_user.currency == 'AUD' else '' }}>AU$ AUD</option>
+                {% if 'USD' in ENABLED_CURRENCIES %}<option value="USD" {{ 'selected' if current_user.currency == 'USD' else '' }}>$ USD</option>{% endif %}
+                {% if 'AUD' in ENABLED_CURRENCIES %}<option value="AUD" {{ 'selected' if current_user.currency == 'AUD' else '' }}>AU$ AUD</option>{% endif %}
 
             </select>
 
         </form>
+        {% endif %}
 
     {% endmacro %}
 

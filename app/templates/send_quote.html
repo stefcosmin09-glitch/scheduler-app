@@ -40,9 +40,9 @@
                 <select name="price_currency"
                     class="border border-gray-300 rounded px-3 py-2 bg-white">
                     <option value="GBP" selected>£ GBP</option>
-                    <option value="RON">lei RON</option>
-                    <option value="EUR">€ EUR</option>
-                    <option value="USD">$ USD</option>
+                    {% if 'RON' in ENABLED_CURRENCIES %}<option value="RON">lei RON</option>{% endif %}
+                    {% if 'EUR' in ENABLED_CURRENCIES %}<option value="EUR">€ EUR</option>{% endif %}
+                    {% if 'USD' in ENABLED_CURRENCIES %}<option value="USD">$ USD</option>{% endif %}
                 </select>
             </div>
         </div>

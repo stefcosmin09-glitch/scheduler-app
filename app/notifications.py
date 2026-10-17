@@ -2,6 +2,7 @@ from flask_mail import Message
 from sqlalchemy import or_
 from app import mail, db, format_money
 from app.models import Job, Invoice, User
+from app.markets import active_currency, active_language
 from datetime import datetime, timedelta
 
 def send_due_job_reminders(app):
@@ -18,7 +19,7 @@ def send_due_job_reminders(app):
 
         sent = 0
         for job in pending:
-            lang = job.owner.language if job.owner and job.owner.language else 'en'
+            lang = active_language(job.owner.language if job.owner else None)
 
             if lang == 'ro':
                 subject = 'Reminder: Job în 40 de minute'
@@ -73,8 +74,8 @@ def send_overdue_invoice_reminders(app):
             if not job or not job.client_email:
                 continue
             owner = job.owner
-            lang = owner.language if owner and owner.language else 'en'
-            amount = format_money(invoice.total_amount, owner.currency if owner else 'GBP')
+            lang = active_language(owner.language if owner else None)
+            amount = format_money(invoice.total_amount, active_currency(owner.currency if owner else None))
             due = invoice.due_date.strftime('%d/%m/%Y')
 
             if lang == 'ro':
