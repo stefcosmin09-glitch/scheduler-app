@@ -4,14 +4,26 @@
 {% if just_signed_up %}
 <script>
     (function () {
+        // Fire only once per signup, even on refresh/back (bfcache).
         try {
-            var consent = JSON.parse(localStorage.getItem('ts_cookie_consent') || 'null');
-            if (!consent || !consent.analytics) return;
-        } catch (e) { return; }
+            if (sessionStorage.getItem('ts_signup_tracked') === '1') return;
+        } catch (e) {}
+
+        var consent = null;
+        try { consent = JSON.parse(localStorage.getItem('ts_cookie_consent') || 'null'); } catch (e) { consent = null; }
+        if (!consent) return;
+
         if (typeof gtag !== 'function') return;
-        gtag('event', 'sign_up', { 'method': 'email' });
-        // TODO(owner): replace AW-XXXXXXXXX/label with the real Google Ads conversion label.
-        gtag('event', 'conversion', { 'send_to': 'AW-XXXXXXXXX/TODO_LABEL' });
+
+        if (consent.analytics) {
+            gtag('event', 'sign_up', { 'method': 'email' });
+        }
+        if (consent.ads) {
+            // Google Ads conversion (no personal data, no value).
+            gtag('event', 'conversion', { 'send_to': 'AW-18339646944/M1qlCPWn158dEOCbg6lE' });
+        }
+
+        try { sessionStorage.setItem('ts_signup_tracked', '1'); } catch (e) {}
     })();
 </script>
 {% endif %}
