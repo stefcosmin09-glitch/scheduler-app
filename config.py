@@ -41,6 +41,14 @@ class Config:
     # the "DRAFT" banner everywhere at once.
     LEGAL_DRAFT = os.environ.get('LEGAL_DRAFT', '1') != '0'
 
+    # Contact and legal identity. Required in production: if SUPPORT_EMAIL or
+    # LEGAL_ENTITY_NAME is missing, the legal pages 404 and the footer links
+    # are hidden. COMPANY_NUMBER is optional (sole traders have none).
+    SUPPORT_EMAIL = os.environ.get('SUPPORT_EMAIL', '').strip()
+    LEGAL_ENTITY_NAME = os.environ.get('LEGAL_ENTITY_NAME', '').strip()
+    COMPANY_NUMBER = os.environ.get('COMPANY_NUMBER', '').strip()
+    LEGAL_LAST_UPDATED = os.environ.get('LEGAL_LAST_UPDATED', '').strip()
+
 
 def _require_secret_key(value):
     """Refuse to build an app that cannot sign a session.

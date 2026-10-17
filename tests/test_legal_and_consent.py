@@ -1,5 +1,7 @@
 """Legal pages, cookie consent and the social-proof component."""
-from _support import check
+import os
+
+from _support import app, check, reset_db
 
 
 def test_legal_pages_render(client):
@@ -33,3 +35,41 @@ def test_testimonials_render_nothing_when_empty(client):
 def test_cookie_settings_link_present(client):
     body = client.get('/').get_data(as_text=True)
     check('cookie settings link present', 'cookie-settings-link' in body, True)
+
+
+def test_homepage_has_no_tracking_scripts_before_consent(client):
+    body = client.get('/').get_data(as_text=True)
+    check('no GA script tag', '<script async src="https://www.googletagmanager.com/gtag/js' in body, False)
+    check('no Clarity script tag', 'src="https://www.clarity.ms/tag/' in body, False)
+    check('consent default present', "gtag('consent', 'default'" in body, True)
+
+
+def test_legal_pages_404_when_config_missing(client, monkeypatch):
+    # Temporarily blank the config to simulate an unconfigured deploy.
+    monkeypatch.setitem(app.config, 'SUPPORT_EMAIL', '')
+    monkeypatch.setitem(app.config, 'LEGAL_ENTITY_NAME', '')
+    for path in ('/privacy', '/terms', '/cookies', '/about', '/compare'):
+        check('%s 404 when unconfigured' % path, client.get(path).status_code, 404)
+
+
+def test_legal_pages_200_when_config_set(client, monkeypatch):
+    monkeypatch.setitem(app.config, 'SUPPORT_EMAIL', 'help@example.com')
+    monkeypatch.setitem(app.config, 'LEGAL_ENTITY_NAME', 'Jane Doe')
+    for path in ('/privacy', '/terms', '/cookies', '/about', '/compare'):
+        check('%s 200 when configured' % path, client.get(path).status_code, 200)
+
+
+def test_no_todo_text_when_configured(client, monkeypatch):
+    monkeypatch.setitem(app.config, 'SUPPORT_EMAIL', 'help@example.com')
+    monkeypatch.setitem(app.config, 'LEGAL_ENTITY_NAME', 'Jane Doe')
+    for path in ('/privacy', '/terms', '/cookies'):
+        body = client.get(path).get_data(as_text=True)
+        check('%s has no TODO text' % path, 'TODO(owner)' in body or 'TODO(owner):' in body, False)
+
+
+def test_company_number_omitted_when_empty(client, monkeypatch):
+    monkeypatch.setitem(app.config, 'SUPPORT_EMAIL', 'help@example.com')
+    monkeypatch.setitem(app.config, 'LEGAL_ENTITY_NAME', 'Jane Doe')
+    monkeypatch.setitem(app.config, 'COMPANY_NUMBER', '')
+    body = client.get('/privacy').get_data(as_text=True)
+    check('no company number line', 'company number' in body, False)

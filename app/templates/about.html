@@ -30,15 +30,15 @@
                 TODO(owner): photo
             </div>
             <div>
-                <p class="font-bold text-gray-900">Built by TODO(owner): name, UK</p>
-                <p class="text-gray-500 text-sm">TODO(owner): town / region</p>
+                <p class="font-bold text-gray-900">Built by {{ config.LEGAL_ENTITY_NAME }}</p>
+                {% if config.SUPPORT_EMAIL %}<p class="text-gray-500 text-sm"><a href="mailto:{{ config.SUPPORT_EMAIL }}" class="text-blue-600">{{ config.SUPPORT_EMAIL }}</a></p>{% endif %}
             </div>
         </div>
 
         <p class="text-gray-600 mb-4">TODO(owner): two or three sentences about why TradeScheduler exists and who it is for.</p>
         <p class="text-gray-600 mb-6">TODO(owner): a second short paragraph if needed.</p>
 
-        <p class="text-gray-700">Contact: <a href="mailto:TODO(owner): contact email" class="text-blue-600">TODO(owner): contact email</a></p>
+        {% if config.SUPPORT_EMAIL %}<p class="text-gray-700">Contact: <a href="mailto:{{ config.SUPPORT_EMAIL }}" class="text-blue-600">{{ config.SUPPORT_EMAIL }}</a></p>{% endif %}
     </article>
 
     {% include '_marketing_footer.html' %}

@@ -293,29 +293,43 @@ def trade_landing():
     return render_template('trade_landing.html', trade=trade)
 
 
-@main.route('/about')
-def about():
-    return render_template('about.html')
-
-
-@main.route('/compare')
-def compare():
-    return render_template('compare.html')
+def _legal_config_ok():
+    return bool(current_app.config.get('SUPPORT_EMAIL') and current_app.config.get('LEGAL_ENTITY_NAME'))
 
 
 @main.route('/privacy')
 def privacy():
+    if not _legal_config_ok():
+        abort(404)
     return render_template('privacy.html')
 
 
 @main.route('/terms')
 def terms():
+    if not _legal_config_ok():
+        abort(404)
     return render_template('terms.html')
 
 
 @main.route('/cookies')
 def cookies():
+    if not _legal_config_ok():
+        abort(404)
     return render_template('cookies.html')
+
+
+@main.route('/about')
+def about():
+    if not _legal_config_ok():
+        abort(404)
+    return render_template('about.html')
+
+
+@main.route('/compare')
+def compare():
+    if not _legal_config_ok():
+        abort(404)
+    return render_template('compare.html')
 
 
 # The canonical origin. Mirrors the hard-coded canonical URLs in the templates.

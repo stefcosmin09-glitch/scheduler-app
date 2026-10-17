@@ -43,7 +43,20 @@ SECRET_KEY=
 DATABASE_URL=
 RESEND_API_KEY=
 MAIL_DEFAULT_SENDER=
+SUPPORT_EMAIL=
+LEGAL_ENTITY_NAME=
+COMPANY_NUMBER=
+LEGAL_LAST_UPDATED=
+LEGAL_DRAFT=
 ```
+
+## Legal pages (fail-safe)
+
+`/privacy`, `/terms`, `/cookies`, `/about` and `/compare` return 404 unless
+`SUPPORT_EMAIL` and `LEGAL_ENTITY_NAME` are set. The footer legal links are
+hidden in that case, so an unconfigured deploy cannot leak raw placeholders.
+`COMPANY_NUMBER` is optional (sole traders have none). `LEGAL_DRAFT=0`
+removes the "DRAFT" banner once the text is reviewed.
 
 ## Tests
 
