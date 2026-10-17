@@ -1163,8 +1163,12 @@ def invoices():
 
     business = BusinessProfile.query.filter_by(user_id=current_user.id).first()
     pay_url = business.payment_link_url if business else ''
-    
-    return render_template('invoices.html', invoices=all_invoices, pay_url=pay_url)
+
+    pay_invoice = request.args.get('pay_invoice', type=int)
+    pay_amount = request.args.get('pay_amount')
+
+    return render_template('invoices.html', invoices=all_invoices, pay_url=pay_url,
+                           pay_invoice=pay_invoice, pay_amount=pay_amount)
 
 def _activate_from_checkout(session_id):
     """Apply a paid Checkout session to the current user, as the webhook would.
@@ -1374,10 +1378,28 @@ def mark_invoice_paid(invoice_id):
         flash(_('This invoice is already fully paid.'))
         return redirect(url_for('main.invoices'))
     
-    amount = float(request.form.get('amount') or invoice.total_amount)
+    amount_raw = request.form.get('amount')
     method = request.form.get('payment_method', 'bank_transfer')
     reference = request.form.get('reference', '')
-    
+
+    # Validate the amount before recording anything.
+    try:
+        amount = round(float(amount_raw), 2)
+    except (TypeError, ValueError):
+        flash(_('Please enter a valid amount.'))
+        return redirect(url_for('main.invoices', pay_invoice=invoice.id,
+                               pay_amount=amount_raw or ''))
+    if amount <= 0:
+        flash(_('Amount must be greater than zero.'))
+        return redirect(url_for('main.invoices', pay_invoice=invoice.id,
+                               pay_amount=amount_raw or ''))
+    paid_so_far = sum(float(p.amount) for p in invoice.payments)
+    outstanding = round(float(invoice.total_amount) - paid_so_far, 2)
+    if amount > outstanding + 0.005:
+        flash(_('Amount exceeds outstanding balance.'))
+        return redirect(url_for('main.invoices', pay_invoice=invoice.id,
+                               pay_amount=amount_raw or ''))
+
     payment = Payment(
         invoice_id=invoice.id,
         amount=amount,
@@ -1386,15 +1408,14 @@ def mark_invoice_paid(invoice_id):
         payment_date=datetime.utcnow()
     )
     db.session.add(payment)
-    
-    # Calculam total platit
-    total_paid = sum(float(p.amount) for p in invoice.payments) + amount
-    if total_paid >= float(invoice.total_amount):
+
+    total_paid = paid_so_far + amount
+    if total_paid >= float(invoice.total_amount) - 0.005:
         invoice.status = 'paid'
         invoice.paid_at = datetime.utcnow()
     else:
         invoice.status = 'partially_paid'
-    
+
     db.session.commit()
     flash(_('Payment recorded!'))
     return redirect(request.form.get('next') or url_for('main.invoices'))
@@ -1750,7 +1771,7 @@ def accounting():
         sum(float(p.amount) for p in inv.payments)
         for inv in monthly_invoices
     )
-    total_outstanding = total_invoiced - total_paid
+    total_outstanding = max(0.0, total_invoiced - total_paid)
     invoice_count = len(monthly_invoices)
     paid_count = sum(1 for inv in monthly_invoices if inv.status == 'paid')
     outstanding_count = sum(1 for inv in monthly_invoices if inv.status in ['sent', 'overdue', 'partially_paid'])
@@ -1821,7 +1842,7 @@ def accounting_export():
 
     for inv in invoices:
         total_paid = sum(float(p.amount) for p in inv.payments)
-        outstanding = float(inv.total_amount) - total_paid
+        outstanding = max(0.0, float(inv.total_amount) - total_paid)
         payment_date = inv.paid_at.strftime('%d/%m/%Y') if inv.paid_at else ''
 
         writer.writerow([
