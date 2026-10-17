@@ -22,7 +22,7 @@
 <div class="max-w-3xl mx-auto">
     {% include '_marketing_nav.html' %}
 
-    {% if config.LEGAL_DRAFT %}
+    {% if config.LEGAL_DRAFT and config.SUPPORT_EMAIL and config.LEGAL_ENTITY_NAME %}
     <div class="bg-amber-100 border border-amber-300 text-amber-900 px-4 py-3 rounded-lg mb-6 text-sm font-semibold">
         DRAFT - to be reviewed by owner/legal before launch. Do not treat this as final legal text.
     </div>
@@ -30,7 +30,7 @@
 
     <article class="bg-white rounded-2xl shadow-sm p-6 sm:p-10 prose prose-gray max-w-none">
         <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Cookie Policy</h1>
-        <p class="text-gray-500 text-sm mb-6">Last updated: TODO(owner): date</p>
+        {% if config.LEGAL_LAST_UPDATED %}<p class="text-gray-500 text-sm mb-6">Last updated: {{ config.LEGAL_LAST_UPDATED }}</p>{% endif %}
 
         <h2>What cookies we use</h2>
         <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">

@@ -57,6 +57,20 @@ csrf = CSRFProtect()
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+
+    # Warn loudly if the legal/contact config is incomplete, so a misconfigured
+    # deploy cannot silently ship raw placeholders.
+    missing = []
+    if not app.config.get('SUPPORT_EMAIL'):
+        missing.append('SUPPORT_EMAIL')
+    if not app.config.get('LEGAL_ENTITY_NAME'):
+        missing.append('LEGAL_ENTITY_NAME')
+    if missing:
+        import logging
+        logging.getLogger('tradescheduler').warning(
+            'Legal/contact config incomplete; /privacy, /terms, /cookies, /about '
+            'and /compare will return 404 and the footer links will be hidden. '
+            'Set these environment variables: %s', ', '.join(missing))
     _require_secret_key(app.config.get('SECRET_KEY'))
 
     # Railway terminates TLS and forwards the connection, so without this every
@@ -72,6 +86,15 @@ def create_app():
     migrate.init_app(app, db)
     babel.init_app(app, default_locale='en', locale_selector=get_locale)
     csrf.init_app(app)
+
+    @app.after_request
+    def _no_cache_html(response):
+        # HTML pages must never be served stale: legal text, consent banner and
+        # pricing change often and a cached copy would hide the new version.
+        content_type = response.headers.get('Content-Type', '')
+        if 'text/html' in content_type and 'Cache-Control' not in response.headers:
+            response.headers['Cache-Control'] = 'no-cache, max-age=0, must-revalidate'
+        return response
     app.jinja_env.filters['money'] = format_money
 
     @app.context_processor

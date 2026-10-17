@@ -22,7 +22,7 @@
 <div class="max-w-3xl mx-auto">
     {% include '_marketing_nav.html' %}
 
-    {% if config.LEGAL_DRAFT %}
+    {% if config.LEGAL_DRAFT and config.SUPPORT_EMAIL and config.LEGAL_ENTITY_NAME %}
     <div class="bg-amber-100 border border-amber-300 text-amber-900 px-4 py-3 rounded-lg mb-6 text-sm font-semibold">
         DRAFT - to be reviewed by owner/legal before launch. Do not treat this as final legal text.
     </div>
@@ -30,7 +30,7 @@
 
     <article class="bg-white rounded-2xl shadow-sm p-6 sm:p-10 prose prose-gray max-w-none">
         <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Terms of Service</h1>
-        <p class="text-gray-500 text-sm mb-6">Last updated: TODO(owner): date</p>
+        {% if config.LEGAL_LAST_UPDATED %}<p class="text-gray-500 text-sm mb-6">Last updated: {{ config.LEGAL_LAST_UPDATED }}</p>{% endif %}
 
         <h2>1. The service</h2>
         <p>TradeScheduler provides job management, quoting, invoicing, expense tracking and reporting tools for tradespeople in the United Kingdom. The service is provided as a web application accessible from a browser.</p>
@@ -60,7 +60,7 @@
         <p>These terms are governed by the laws of England and Wales. Disputes are subject to the exclusive jurisdiction of the courts of England and Wales.</p>
 
         <h2>10. Contact</h2>
-        <p>Questions about these terms: TODO(owner): legal contact email.</p>
+        <p>Questions about these terms: <a href="mailto:{{ config.SUPPORT_EMAIL }}" class="text-blue-600">{{ config.SUPPORT_EMAIL }}</a>.</p>
     </article>
 
     {% include '_marketing_footer.html' %}

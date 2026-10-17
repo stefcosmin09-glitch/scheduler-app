@@ -29,6 +29,9 @@ os.environ['SECRET_KEY'] = 'test-key-not-used-outside-this-scratch-directory'
 # The welcome email would otherwise block on a DNS timeout per registration.
 os.environ['MAIL_SUPPRESS_SEND'] = '1'
 os.environ['MAIL_DEFAULT_SENDER'] = 'tests@example.invalid'
+# Legal/contact config so the legal pages render in tests.
+os.environ['SUPPORT_EMAIL'] = 'tests@example.invalid'
+os.environ['LEGAL_ENTITY_NAME'] = 'Test Trader'
 
 from itsdangerous import URLSafeTimedSerializer  # noqa: E402
 from sqlalchemy import event  # noqa: E402
