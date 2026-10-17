@@ -58,6 +58,12 @@ SCALE = 2             # capture at 2x, then downscale, for crisp text
 # when that strip is unmistakable, so a footer can never be sliced off.
 BLANK_RUN = 120
 
+# Headless Chrome will not lay a window out narrower than this, whatever
+# --window-size says. Phone shots are framed at their true width instead, see
+# the __phone_frame__ route in demo_server.py.
+MIN_WINDOW_WIDTH = 491
+PHONE_SHOTS = {'dashboard-phone'}
+
 
 def find_chrome():
     override = os.environ.get('CHROME_PATH')
@@ -146,11 +152,14 @@ def trim_blank_bottom(image):
     return image.crop((0, 0, width, content_end)), height - content_end
 
 
-def tidy(path):
+def tidy(path, frame_width=None):
     from PIL import Image
 
     with Image.open(path) as raw:
         image = raw.convert('RGB')
+
+    if frame_width:
+        image = image.crop((0, 0, frame_width * SCALE, image.height))
 
     image, removed = trim_blank_bottom(image)
 
@@ -196,9 +205,14 @@ def main():
         with tempfile.TemporaryDirectory(prefix='ts-shots-') as profile:
             for name, path, width, height in shots:
                 out_path = OUT_DIR / ('%s.png' % name)
-                url = '%s/__demo_login__?next=%s' % (base, urllib.parse.quote(path))
-                capture(chrome, profile, url, out_path, width, height)
-                size, removed = tidy(out_path)
+                framed = name in PHONE_SHOTS
+                target = path
+                if framed:
+                    target = '/__phone_frame__?next=%s' % urllib.parse.quote(path)
+                url = '%s/__demo_login__?next=%s' % (base, urllib.parse.quote(target))
+                window_width = max(width, MIN_WINDOW_WIDTH) if framed else width
+                capture(chrome, profile, url, out_path, window_width, height)
+                size, removed = tidy(out_path, frame_width=width if framed else None)
                 print('%-18s %sx%s  %5.0f KB%s' % (
                     name, size[0], size[1],
                     out_path.stat().st_size / 1024,

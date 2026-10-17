@@ -269,6 +269,26 @@ def main():
             target = '/'
         return redirect(target)
 
+    @app.route('/__phone_frame__')
+    def _phone_frame():
+        """Show a page at phone width inside a host page.
+
+        Headless Chrome will not lay a window out narrower than about 491px, so a
+        390px capture is really laid out at 491px and then cropped, which clips the
+        page. Framing the page in a 390px iframe inside a wider window gives it a
+        true 390px layout. Like the login route, this exists only in this file.
+        """
+        from flask import request
+        from markupsafe import escape
+
+        target = request.args.get('next') or '/'
+        if not target.startswith('/') or target.startswith('//'):
+            target = '/'
+        return ('<!doctype html><html><body style="margin:0;background:#fff">'
+                '<iframe src="%s" width="390" height="844" '
+                'style="border:0;display:block"></iframe></body></html>'
+                % escape(target))
+
     print('login: %s / %s' % (DEMO_USERNAME, DEMO_PASSWORD))
     app.run(host='127.0.0.1', port=args.port, use_reloader=False, debug=False,
             threaded=True)
