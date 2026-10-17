@@ -1,4 +1,4 @@
-﻿# Pinned on purpose.
+# Pinned on purpose.
 #
 # An unpinned requirements.txt cost us an outage: a rebuild pulled
 # SQLAlchemy 2.1, which changed the default PostgreSQL driver to psycopg 3
