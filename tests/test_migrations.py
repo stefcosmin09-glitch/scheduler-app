@@ -139,6 +139,38 @@ def test_exactly_one_head():
     assert HEAD in result.stdout, result.stdout
 
 
+def test_ci_head_computation_yields_one_head():
+    """Mirror of the head check in .github/workflows/tests.yml.
+
+    A head is a revision that no other migration descends from. The check must
+    not flag every non-root migration as a head, otherwise a perfectly linear
+    chain of four would look like three heads. This test fails if the graph
+    ever stops being a single chain.
+    """
+    import re
+    revisions = set()
+    downs = set()
+    for name in os.listdir(VERSIONS):
+        if not name.endswith('.py'):
+            continue
+        with open(os.path.join(VERSIONS, name), encoding='utf-8') as handle:
+            text = handle.read()
+        rev = re.search(r"^revision = '([^']+)'", text, re.M)
+        down = re.search(r"^down_revision = (.+)$", text, re.M)
+        if rev:
+            revisions.add(rev.group(1))
+        if down:
+            val = down.group(1).strip()
+            if val not in ('None',):
+                if val.startswith('('):
+                    for v in re.findall(r"'([^']+)'", val):
+                        downs.add(v)
+                else:
+                    downs.add(val.strip().strip(chr(39) + chr(34)))
+    heads = revisions - downs
+    assert heads == {HEAD}, 'expected one head %r, got %s' % (HEAD, sorted(heads))
+
+
 def test_exactly_one_squash_root():
     """migrate.py stamps a squashed database to the root and then upgrades.
     If there were two roots it could not tell which one the database matched,
