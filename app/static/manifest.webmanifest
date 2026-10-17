@@ -1,13 +1,13 @@
 {
   "name": "TradeScheduler",
   "short_name": "TradeScheduler",
-  "lang": "ro",
+  "lang": "en-GB",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#F3F4F6",
   "theme_color": "#1E3A8A",
-  "description": "Programari, facturi si plati pentru meseriasi.",
+  "description": "Jobs, quotes, invoices and payments for UK tradespeople.",
   "icons": [
     {
       "src": "/static/icons/icon-192.png",
