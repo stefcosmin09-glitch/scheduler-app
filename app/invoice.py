@@ -68,7 +68,7 @@ def generate_invoice(job, user, invoice=None):
     business_phone = (business.phone or '') if business else ''
 
     invoice_curr = active_currency(job.currency or user.currency)
-    tax_country = (business.tax_country if business else 'UK') or 'UK'
+    tax_country = active_tax_country(business.tax_country if business else None)
     tax_labels = {'UK': 'VAT', 'USA': 'Sales Tax', 'RO': 'TVA', 'AU': 'GST'}
     tax_label = tax_labels.get(tax_country, 'VAT')
     tax_rate = float(business.vat_rate) if business and business.vat_rate else 0

@@ -61,7 +61,7 @@ def test_page_shows_english_and_pounds_only():
     check('no AUD option', 'AUD</option>' in html, False)
 
 
-def test_settings_page_hides_currency_and_language_choice():
+def test_settings_page_hides_currency_language_and_tax_choice():
     reset_db()
     with app.app_context():
         user = User(username='uk', email='uk@t.test',
@@ -73,6 +73,7 @@ def test_settings_page_hides_currency_and_language_choice():
     html = client.get('/business-settings').get_data(as_text=True)
     check('no language select', 'name="language"' in html, False)
     check('no currency select', 'name="currency"' in html, False)
+    check('no tax country select', 'name="tax_country"' in html, False)
 
 
 def test_set_currency_ignores_switched_off_currency():

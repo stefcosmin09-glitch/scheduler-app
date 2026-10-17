@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.currency import convert_to_base
-from app.markets import active_currency, active_language, ENABLED_CURRENCIES, ENABLED_LANGUAGES
+from app.markets import active_currency, active_language, active_tax_country, ENABLED_CURRENCIES, ENABLED_LANGUAGES, ENABLED_TAX_COUNTRIES, DEFAULT_TAX_COUNTRY
 from app.limits import (consume, dashboard_state, is_pro, is_read_only, is_unmetered,
                         new_customer_block, reached)
 from itsdangerous import URLSafeTimedSerializer
@@ -1034,7 +1034,8 @@ def business_settings():
         business.phone = request.form.get('phone')
         business.business_email = request.form.get('business_email')
         business.company_number = request.form.get('company_number')
-        business.tax_country = request.form.get('tax_country', 'UK')
+        tax_country = request.form.get('tax_country', 'UK')
+        business.tax_country = tax_country if tax_country in ENABLED_TAX_COUNTRIES else 'UK'
         business.vat_registered = 'vat_registered' in request.form
         business.vat_number = request.form.get('vat_number')
         business.vat_rate = request.form.get('vat_rate') or 20.00

@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from app.markets import active_currency, active_language, ENABLED_CURRENCIES, ENABLED_LANGUAGES
+from app.markets import active_currency, active_language, ENABLED_CURRENCIES, ENABLED_LANGUAGES, ENABLED_TAX_COUNTRIES, DEFAULT_TAX_COUNTRY
 
 def get_locale():
     if current_user.is_authenticated:
@@ -87,6 +87,7 @@ def create_app():
             'PREFERRED_CURRENCIES': PREFERRED_CURRENCIES,
             'ENABLED_CURRENCIES': ENABLED_CURRENCIES,
             'ENABLED_LANGUAGES': ENABLED_LANGUAGES,
+            'ENABLED_TAX_COUNTRIES': ENABLED_TAX_COUNTRIES,
         }
 
     from app.routes import auth, main
