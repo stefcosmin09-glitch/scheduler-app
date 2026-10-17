@@ -280,6 +280,26 @@ def faq():
     return render_template('faq.html')
 
 
+@main.route('/about')
+def about():
+    return render_template('about.html')
+
+
+@main.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+
+@main.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+
+@main.route('/cookies')
+def cookies():
+    return render_template('cookies.html')
+
+
 # The canonical origin. Mirrors the hard-coded canonical URLs in the templates.
 SITE_URL = 'https://thetradescheduler.com'
 

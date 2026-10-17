@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}About - TradeScheduler{% endblock %}
+
+{% block head %}
+<meta name="description" content="TradeScheduler is built in the UK for UK tradespeople.">
+<link rel="canonical" href="https://thetradescheduler.com/about">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TradeScheduler">
+<meta property="og:title" content="About - TradeScheduler">
+<meta property="og:description" content="TradeScheduler is built in the UK for UK tradespeople.">
+<meta property="og:url" content="https://thetradescheduler.com/about">
+<meta property="og:image" content="{{ url_for('static', filename='og-image.png', _external=True) }}">
+<meta name="twitter:card" content="summary">
+<style>
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    {% include '_marketing_nav.html' %}
+
+    <article class="bg-white rounded-2xl shadow-sm p-6 sm:p-10">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-6">About TradeScheduler</h1>
+
+        <div class="flex items-center gap-5 mb-6">
+            <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs text-center px-2">
+                TODO(owner): photo
+            </div>
+            <div>
+                <p class="font-bold text-gray-900">Built by TODO(owner): name, UK</p>
+                <p class="text-gray-500 text-sm">TODO(owner): town / region</p>
+            </div>
+        </div>
+
+        <p class="text-gray-600 mb-4">TODO(owner): two or three sentences about why TradeScheduler exists and who it is for.</p>
+        <p class="text-gray-600 mb-6">TODO(owner): a second short paragraph if needed.</p>
+
+        <p class="text-gray-700">Contact: <a href="mailto:TODO(owner): contact email" class="text-blue-600">TODO(owner): contact email</a></p>
+    </article>
+
+    {% include '_marketing_footer.html' %}
+</div>
+{% endblock %}

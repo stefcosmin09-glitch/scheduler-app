@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Cookie Policy - TradeScheduler{% endblock %}
+
+{% block head %}
+<meta name="description" content="How TradeScheduler uses cookies, including Google Ads, Analytics and Microsoft Clarity.">
+<link rel="canonical" href="https://thetradescheduler.com/cookies">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TradeScheduler">
+<meta property="og:title" content="Cookie Policy - TradeScheduler">
+<meta property="og:description" content="How TradeScheduler uses cookies.">
+<meta property="og:url" content="https://thetradescheduler.com/cookies">
+<meta property="og:image" content="{{ url_for('static', filename='og-image.png', _external=True) }}">
+<meta name="twitter:card" content="summary">
+<style>
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    {% include '_marketing_nav.html' %}
+
+    {% if config.LEGAL_DRAFT %}
+    <div class="bg-amber-100 border border-amber-300 text-amber-900 px-4 py-3 rounded-lg mb-6 text-sm font-semibold">
+        DRAFT - to be reviewed by owner/legal before launch. Do not treat this as final legal text.
+    </div>
+    {% endif %}
+
+    <article class="bg-white rounded-2xl shadow-sm p-6 sm:p-10 prose prose-gray max-w-none">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Cookie Policy</h1>
+        <p class="text-gray-500 text-sm mb-6">Last updated: TODO(owner): date</p>
+
+        <h2>What cookies we use</h2>
+        <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="text-left px-3 py-2 border-b">Name</th>
+                    <th class="text-left px-3 py-2 border-b">Purpose</th>
+                    <th class="text-left px-3 py-2 border-b">Set by</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="px-3 py-2 border-b">session</td><td class="px-3 py-2 border-b">Keeps you signed in.</td><td class="px-3 py-2 border-b">TradeScheduler</td></tr>
+                <tr><td class="px-3 py-2 border-b">csrf_token</td><td class="px-3 py-2 border-b">Protects forms against cross-site request forgery.</td><td class="px-3 py-2 border-b">TradeScheduler</td></tr>
+                <tr><td class="px-3 py-2 border-b">ts_currency</td><td class="px-3 py-2 border-b">Remembers the currency shown on the landing page.</td><td class="px-3 py-2 border-b">TradeScheduler</td></tr>
+                <tr><td class="px-3 py-2 border-b">_ga, _gid</td><td class="px-3 py-2 border-b">Google Analytics 4 measurement (only with consent).</td><td class="px-3 py-2 border-b">Google</td></tr>
+                <tr><td class="px-3 py-2 border-b">_gcl_au / _gcl_aw</td><td class="px-3 py-2 border-b">Google Ads conversion measurement (only with consent).</td><td class="px-3 py-2 border-b">Google</td></tr>
+                <tr><td class="px-3 py-2 border-b">CLID / _clck / _clsk</td><td class="px-3 py-2 border-b">Microsoft Clarity session recording and heatmaps (only with consent).</td><td class="px-3 py-2 border-b">Microsoft</td></tr>
+            </tbody>
+        </table>
+
+        <h2>Your choices</h2>
+        <p>Essential cookies are always on. Analytics and advertising cookies are only set after you accept them in the cookie banner. You can change your choice at any time using the "Cookie settings" link in the footer.</p>
+
+        <h2>Managing cookies in your browser</h2>
+        <p>You can also delete or block cookies in your browser settings. Blocking essential cookies will stop the app from working.</p>
+    </article>
+
+    {% include '_marketing_footer.html' %}
+</div>
+{% endblock %}

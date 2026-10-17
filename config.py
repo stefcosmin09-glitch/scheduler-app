@@ -37,6 +37,10 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or 'stef.cosmin09@gmail.com'
 
+    # Legal pages are drafts until the owner reviews them. Flip to 0 to remove
+    # the "DRAFT" banner everywhere at once.
+    LEGAL_DRAFT = os.environ.get('LEGAL_DRAFT', '1') != '0'
+
 
 def _require_secret_key(value):
     """Refuse to build an app that cannot sign a session.

@@ -78,6 +78,7 @@ def create_app():
     def inject_pricing():
         from flask import request
         from app.pricing import PRO_MONTHLY, price_text, PREFERRED_CURRENCIES
+        from app.testimonials import TESTIMONIALS
         # GBP only at launch: every price is charged and shown in pounds.
         currency = 'GBP'
         return {
@@ -88,6 +89,7 @@ def create_app():
             'ENABLED_CURRENCIES': ENABLED_CURRENCIES,
             'ENABLED_LANGUAGES': ENABLED_LANGUAGES,
             'ENABLED_TAX_COUNTRIES': ENABLED_TAX_COUNTRIES,
+            'TESTIMONIALS': TESTIMONIALS,
         }
 
     from app.routes import auth, main
