@@ -126,5 +126,16 @@
         if (banner) banner.classList.remove('hidden');
         if (managePanel) managePanel.classList.remove('hidden');
     });
+
+    // Track "Start trial" clicks (only with consent).
+    document.addEventListener('click', function (e) {
+        var el = e.target && e.target.closest ? e.target.closest('[data-track="start-trial"]') : null;
+        if (!el) return;
+        try {
+            var consent = JSON.parse(localStorage.getItem('ts_cookie_consent') || 'null');
+            if (!consent || !consent.analytics) return;
+        } catch (err) { return; }
+        if (typeof gtag === 'function') gtag('event', 'start_trial_click', { 'event_category': 'engagement' });
+    });
 })();
 </script>

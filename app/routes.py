@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.currency import convert_to_base
 from app.markets import active_currency, active_language, active_tax_country, ENABLED_CURRENCIES, ENABLED_LANGUAGES, ENABLED_TAX_COUNTRIES, DEFAULT_TAX_COUNTRY
+from app.trades import TRADES
 from app.limits import (consume, dashboard_state, is_pro, is_read_only, is_unmetered,
                         new_customer_block, reached)
 from itsdangerous import URLSafeTimedSerializer
@@ -280,9 +281,26 @@ def faq():
     return render_template('faq.html')
 
 
+@main.route('/electricians')
+@main.route('/plumbers')
+@main.route('/builders')
+@main.route('/roofers')
+def trade_landing():
+    slug = request.path.strip('/')
+    trade = TRADES.get(slug)
+    if not trade:
+        abort(404)
+    return render_template('trade_landing.html', trade=trade)
+
+
 @main.route('/about')
 def about():
     return render_template('about.html')
+
+
+@main.route('/compare')
+def compare():
+    return render_template('compare.html')
 
 
 @main.route('/privacy')
@@ -1904,6 +1922,17 @@ def vat_report_export():
         mimetype='text/csv',
         headers={'Content-Disposition': f'attachment; filename=vat_report_{year}.csv'}
     )
+
+@main.route('/health')
+def health():
+    from flask import jsonify
+    try:
+        from app import db
+        db.session.execute(db.text('SELECT 1'))
+    except Exception:
+        return jsonify({'status': 'error'}), 503
+    return jsonify({'status': 'ok'}), 200
+
 
 @main.route('/sw.js')
 def service_worker():

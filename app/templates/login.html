@@ -3,7 +3,16 @@
 {% block content %}
 {% if just_signed_up %}
 <script>
-    gtag('event', 'sign_up', {'method': 'email'});
+    (function () {
+        try {
+            var consent = JSON.parse(localStorage.getItem('ts_cookie_consent') || 'null');
+            if (!consent || !consent.analytics) return;
+        } catch (e) { return; }
+        if (typeof gtag !== 'function') return;
+        gtag('event', 'sign_up', { 'method': 'email' });
+        // TODO(owner): replace AW-XXXXXXXXX/label with the real Google Ads conversion label.
+        gtag('event', 'conversion', { 'send_to': 'AW-XXXXXXXXX/TODO_LABEL' });
+    })();
 </script>
 {% endif %}
 <div class="max-w-md mx-auto bg-white rounded-lg shadow p-8">
