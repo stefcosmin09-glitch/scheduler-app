@@ -73,3 +73,11 @@ def test_company_number_omitted_when_empty(client, monkeypatch):
     monkeypatch.setitem(app.config, 'COMPANY_NUMBER', '')
     body = client.get('/privacy').get_data(as_text=True)
     check('no company number line', 'company number' in body, False)
+
+
+def test_privacy_lists_real_processors(client, monkeypatch):
+    monkeypatch.setitem(app.config, 'SUPPORT_EMAIL', 'help@example.com')
+    monkeypatch.setitem(app.config, 'LEGAL_ENTITY_NAME', 'Jane Doe')
+    body = client.get('/privacy').get_data(as_text=True)
+    for name in ('Stripe', 'Railway', 'Resend', 'SendGrid', 'Google', 'Microsoft', 'OpenAI'):
+        check('privacy mentions %s' % name, name in body, True)
