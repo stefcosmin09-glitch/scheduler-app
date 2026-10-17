@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Terms of Service - TradeScheduler{% endblock %}
+
+{% block head %}
+<meta name="description" content="Terms of service for TradeScheduler, the job management and invoicing app for UK tradespeople.">
+<link rel="canonical" href="https://thetradescheduler.com/terms">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TradeScheduler">
+<meta property="og:title" content="Terms of Service - TradeScheduler">
+<meta property="og:description" content="Terms of service for TradeScheduler.">
+<meta property="og:url" content="https://thetradescheduler.com/terms">
+<meta property="og:image" content="{{ url_for('static', filename='og-image.png', _external=True) }}">
+<meta name="twitter:card" content="summary">
+<style>
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    {% include '_marketing_nav.html' %}
+
+    {% if config.LEGAL_DRAFT %}
+    <div class="bg-amber-100 border border-amber-300 text-amber-900 px-4 py-3 rounded-lg mb-6 text-sm font-semibold">
+        DRAFT - to be reviewed by owner/legal before launch. Do not treat this as final legal text.
+    </div>
+    {% endif %}
+
+    <article class="bg-white rounded-2xl shadow-sm p-6 sm:p-10 prose prose-gray max-w-none">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Terms of Service</h1>
+        <p class="text-gray-500 text-sm mb-6">Last updated: TODO(owner): date</p>
+
+        <h2>1. The service</h2>
+        <p>TradeScheduler provides job management, quoting, invoicing, expense tracking and reporting tools for tradespeople in the United Kingdom. The service is provided as a web application accessible from a browser.</p>
+
+        <h2>2. Accounts</h2>
+        <p>You are responsible for keeping your login details secure and for all activity under your account. You must be at least 18 years old to use the service. One account per business.</p>
+
+        <h2>3. Trial and billing</h2>
+        <p>New accounts get a 14-day free trial with all features, no card required. After the trial you can subscribe to Starter (£12.99/month) or Pro (£22.99/month), billed monthly. If you do not subscribe, the account becomes read-only 60 days after the trial ends and the data is then deleted. You can cancel at any time; cancellation takes effect at the end of the current billing period.</p>
+
+        <h2>4. Acceptable use</h2>
+        <p>You may not use the service to send spam, to store or transmit unlawful content, to attempt to gain unauthorised access to other accounts or systems, or to resell the service. We may suspend or terminate accounts that breach these terms.</p>
+
+        <h2>5. Your data</h2>
+        <p>You own the data you enter. You can export it at any time. See the <a href="{{ url_for('main.privacy') }}" class="text-blue-600">Privacy Policy</a> for how we handle it.</p>
+
+        <h2>6. Availability</h2>
+        <p>We aim for high availability but do not guarantee uninterrupted service. Scheduled maintenance will be announced where possible. We are not liable for losses caused by downtime.</p>
+
+        <h2>7. Limitation of liability</h2>
+        <p>To the maximum extent permitted by UK law, our total liability is limited to the fees you paid in the 12 months before the claim. We are not liable for indirect or consequential losses.</p>
+
+        <h2>8. Changes to these terms</h2>
+        <p>We may update these terms. Material changes will be announced in the app or by email. Continued use after a change means you accept it.</p>
+
+        <h2>9. Governing law</h2>
+        <p>These terms are governed by the laws of England and Wales. Disputes are subject to the exclusive jurisdiction of the courts of England and Wales.</p>
+
+        <h2>10. Contact</h2>
+        <p>Questions about these terms: TODO(owner): legal contact email.</p>
+    </article>
+
+    {% include '_marketing_footer.html' %}
+</div>
+{% endblock %}

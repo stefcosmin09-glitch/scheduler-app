@@ -1,0 +1,141 @@
+<!-- Cookie consent banner. Tracking scripts load only after "Accept all". -->
+<div id="cookie-banner" class="hidden fixed bottom-0 inset-x-0 z-[60] bg-white border-t border-gray-200 shadow-2xl">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
+        <div class="flex-1 text-sm text-gray-700">
+            We use essential cookies to run the site, and optional cookies (Google Analytics, Google Ads, Microsoft Clarity)
+            to understand traffic and measure ads. You can accept all, reject all, or manage your choices.
+            See our <a href="{{ url_for('main.cookies') }}" class="text-blue-600 underline">Cookie Policy</a>.
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" id="cookie-reject" class="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Reject all</button>
+            <button type="button" id="cookie-manage" class="px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">Manage</button>
+            <button type="button" id="cookie-accept" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700">Accept all</button>
+        </div>
+    </div>
+    <div id="cookie-manage-panel" class="hidden border-t border-gray-200 bg-gray-50 px-4 py-4">
+        <div class="max-w-5xl mx-auto text-sm space-y-2">
+            <label class="flex items-center gap-2"><input type="checkbox" id="consent-analytics" class="rounded"> Analytics (Google Analytics 4)</label>
+            <label class="flex items-center gap-2"><input type="checkbox" id="consent-ads" class="rounded"> Advertising (Google Ads)</label>
+            <label class="flex items-center gap-2"><input type="checkbox" id="consent-clarity" class="rounded"> Session recording (Microsoft Clarity)</label>
+            <div class="pt-2">
+                <button type="button" id="cookie-save" class="px-4 py-2 text-sm font-semibold rounded-lg bg-blue-600 text-white hover:bg-blue-700">Save choices</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var KEY = 'ts_cookie_consent';
+    var GA_ID = 'AW-18339646944';
+    var CLARITY_ID = 'yq0z0ukkqc';
+
+    function readConsent() {
+        try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; }
+    }
+    function writeConsent(c) {
+        try { localStorage.setItem(KEY, JSON.stringify(c)); } catch (e) {}
+        document.cookie = KEY + '=' + encodeURIComponent(JSON.stringify(c)) + '; path=/; max-age=31536000; samesite=Lax';
+    }
+
+    var loaded = { ga: false, clarity: false };
+    function loadGA() {
+        if (loaded.ga) return; loaded.ga = true;
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+        document.head.appendChild(s);
+        gtag('js', new Date());
+        gtag('config', GA_ID);
+    }
+    function loadClarity() {
+        if (loaded.clarity) return; loaded.clarity = true;
+        (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+            t = l.createElement(r); t.async = 1; t.src = 'https://www.clarity.ms/tag/' + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, 'clarity', 'script', CLARITY_ID);
+    }
+
+    function applyConsent(c) {
+        var analytics = !!(c && c.analytics);
+        var ads = !!(c && c.ads);
+        var clarity = !!(c && c.clarity);
+        gtag('consent', 'update', {
+            ad_storage: ads ? 'granted' : 'denied',
+            analytics_storage: analytics ? 'granted' : 'denied',
+            ad_user_data: ads ? 'granted' : 'denied',
+            ad_personalization: ads ? 'granted' : 'denied'
+        });
+        if (analytics || ads) loadGA();
+        if (clarity) loadClarity();
+    }
+
+    var banner = document.getElementById('cookie-banner');
+    var managePanel = document.getElementById('cookie-manage-panel');
+
+    function showBanner() { if (banner) banner.classList.remove('hidden'); }
+    function hideBanner() { if (banner) banner.classList.add('hidden'); if (managePanel) managePanel.classList.add('hidden'); }
+
+    var existing = readConsent();
+    if (existing) {
+        applyConsent(existing);
+    } else {
+        showBanner();
+    }
+
+    var acceptBtn = document.getElementById('cookie-accept');
+    var rejectBtn = document.getElementById('cookie-reject');
+    var manageBtn = document.getElementById('cookie-manage');
+    var saveBtn = document.getElementById('cookie-save');
+
+    if (acceptBtn) acceptBtn.addEventListener('click', function () {
+        var c = { analytics: true, ads: true, clarity: true };
+        writeConsent(c); applyConsent(c); hideBanner();
+    });
+    if (rejectBtn) rejectBtn.addEventListener('click', function () {
+        var c = { analytics: false, ads: false, clarity: false };
+        writeConsent(c); applyConsent(c); hideBanner();
+    });
+    if (manageBtn) manageBtn.addEventListener('click', function () {
+        if (managePanel) managePanel.classList.toggle('hidden');
+    });
+    if (saveBtn) saveBtn.addEventListener('click', function () {
+        var c = {
+            analytics: document.getElementById('consent-analytics').checked,
+            ads: document.getElementById('consent-ads').checked,
+            clarity: document.getElementById('consent-clarity').checked
+        };
+        writeConsent(c); applyConsent(c); hideBanner();
+    });
+
+    // Pre-fill manage panel from stored choice.
+    if (existing) {
+        var a = document.getElementById('consent-analytics');
+        var d = document.getElementById('consent-ads');
+        var cl = document.getElementById('consent-clarity');
+        if (a) a.checked = !!existing.analytics;
+        if (d) d.checked = !!existing.ads;
+        if (cl) cl.checked = !!existing.clarity;
+    }
+
+    // Footer "Cookie settings" link reopens the banner.
+    var settingsLink = document.getElementById('cookie-settings-link');
+    if (settingsLink) settingsLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (banner) banner.classList.remove('hidden');
+        if (managePanel) managePanel.classList.remove('hidden');
+    });
+
+    // Track "Start trial" clicks (only with consent).
+    document.addEventListener('click', function (e) {
+        var el = e.target && e.target.closest ? e.target.closest('[data-track="start-trial"]') : null;
+        if (!el) return;
+        try {
+            var consent = JSON.parse(localStorage.getItem('ts_cookie_consent') || 'null');
+            if (!consent || !consent.analytics) return;
+        } catch (err) { return; }
+        if (typeof gtag === 'function') gtag('event', 'start_trial_click', { 'event_category': 'engagement' });
+    });
+})();
+</script>

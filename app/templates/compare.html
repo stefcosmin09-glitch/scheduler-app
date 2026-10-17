@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Compare - TradeScheduler vs UK alternatives{% endblock %}
+
+{% block head %}
+<meta name="description" content="Compare TradeScheduler with typical UK trade management tools on price, AI quotes, free trial and per-user pricing.">
+<link rel="canonical" href="https://thetradescheduler.com/compare">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TradeScheduler">
+<meta property="og:title" content="Compare - TradeScheduler vs UK alternatives">
+<meta property="og:description" content="Compare TradeScheduler with typical UK trade management tools.">
+<meta property="og:url" content="https://thetradescheduler.com/compare">
+<meta property="og:image" content="{{ url_for('static', filename='og-image.png', _external=True) }}">
+<meta name="twitter:card" content="summary">
+<style>
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    {% include '_marketing_nav.html' %}
+
+    <header class="text-center mb-10">
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-gray-900 tracking-tight">TradeScheduler vs typical UK alternatives</h1>
+        <p class="text-gray-600 text-lg mt-4">A fair, side-by-side look. Prices and features for other tools are placeholders until verified on each vendor's official pricing page.</p>
+    </header>
+
+    <div class="overflow-x-auto bg-white rounded-2xl shadow-sm">
+        <table class="w-full text-sm">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="text-left px-4 py-3 border-b">Feature</th>
+                    <th class="text-left px-4 py-3 border-b font-bold">TradeScheduler</th>
+                    <th class="text-left px-4 py-3 border-b">Typical UK alternative</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="px-4 py-3 border-b">Monthly price (single user)</td><td class="px-4 py-3 border-b font-semibold">£12.99 Starter / £22.99 Pro</td><td class="px-4 py-3 border-b">TODO(owner): verify on vendor pricing page (date checked: TODO)</td></tr>
+                <tr><td class="px-4 py-3 border-b">Per-user pricing</td><td class="px-4 py-3 border-b">No - one price, one business</td><td class="px-4 py-3 border-b">TODO(owner): verify</td></tr>
+                <tr><td class="px-4 py-3 border-b">Free trial</td><td class="px-4 py-3 border-b">14 days, no card</td><td class="px-4 py-3 border-b">TODO(owner): verify length and card requirement</td></tr>
+                <tr><td class="px-4 py-3 border-b">AI quotes from a one-line description</td><td class="px-4 py-3 border-b">Yes (25/month Starter, fair use Pro)</td><td class="px-4 py-3 border-b">TODO(owner): verify</td></tr>
+                <tr><td class="px-4 py-3 border-b">Receipt scanning</td><td class="px-4 py-3 border-b">Yes (10/month Starter, 300/month Pro)</td><td class="px-4 py-3 border-b">TODO(owner): verify</td></tr>
+                <tr><td class="px-4 py-3 border-b">VAT reports</td><td class="px-4 py-3 border-b">Yes (Pro)</td><td class="px-4 py-3 border-b">TODO(owner): verify</td></tr>
+                <tr><td class="px-4 py-3 border-b">Export CSV/PDF for your accountant</td><td class="px-4 py-3 border-b">Yes</td><td class="px-4 py-3 border-b">TODO(owner): verify</td></tr>
+                <tr><td class="px-4 py-3 border-b">Online payments from invoice link</td><td class="px-4 py-3 border-b">Yes</td><td class="px-4 py-3 border-b">TODO(owner): verify</td></tr>
+                <tr><td class="px-4 py-3 border-b">Cancel anytime</td><td class="px-4 py-3 border-b">Yes</td><td class="px-4 py-3 border-b">TODO(owner): verify</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p class="text-gray-500 text-xs mt-4">Competitor details are placeholders. Verify each on the vendor's official pricing page and record the date checked before publishing.</p>
+
+    <div class="text-center mt-10">
+        <a href="{{ url_for('auth.register') }}" class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-lg shadow-lg">
+            Start your 14-day free trial
+        </a>
+    </div>
+
+    {% include '_marketing_footer.html' %}
+</div>
+{% endblock %}

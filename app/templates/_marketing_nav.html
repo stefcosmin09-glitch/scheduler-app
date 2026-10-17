@@ -16,14 +16,13 @@
         </span>
     </a>
     <div class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
-        <a href="{{ url_for('main.why') }}" class="hover:text-gray-900">Why TradeScheduler</a>
         <a href="{{ url_for('main.how_it_works') }}" class="hover:text-gray-900">How it works</a>
         <a href="{{ url_for('main.pricing') }}" class="hover:text-gray-900">Pricing</a>
         <a href="{{ url_for('main.faq') }}" class="hover:text-gray-900">FAQ</a>
     </div>
     <div class="flex items-center gap-3">
         <a href="{{ url_for('auth.login') }}" class="text-sm font-semibold text-gray-600 hover:text-gray-900 px-3 py-2">Log in</a>
-        <a href="{{ url_for('auth.register') }}"
+        <a href="{{ url_for('auth.register') }}" data-track="start-trial"
             class="bg-blue-600 text-white text-sm font-bold px-4 py-2.5 rounded-lg hover:bg-blue-700 shadow-sm">
             Start trial
         </a>

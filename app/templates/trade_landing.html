@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ trade.title }} - TradeScheduler{% endblock %}
+
+{% block head %}
+<meta name="robots" content="noindex">
+<meta name="description" content="{{ trade.h1 }}. 14-day free trial, no card needed.">
+<link rel="canonical" href="https://thetradescheduler.com/{{ trade.slug }}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="TradeScheduler">
+<meta property="og:title" content="{{ trade.title }}">
+<meta property="og:description" content="{{ trade.h1 }}. 14-day free trial, no card needed.">
+<meta property="og:url" content="https://thetradescheduler.com/{{ trade.slug }}">
+<meta property="og:image" content="{{ url_for('static', filename='og-image.png', _external=True) }}">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+    html, body { overflow-x: hidden; }
+    body { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; }
+</style>
+{% endblock %}
+
+{% block body_class %}bg-white{% endblock %}
+
+{% block content %}
+<!-- No navigation menu: single CTA only. -->
+<div class="max-w-3xl mx-auto px-4 py-10">
+    <div class="text-center mb-8">
+        <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+            For UK {{ trade.slug | capitalize }}
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            {{ trade.h1 }}
+        </h1>
+        <p class="text-gray-600 text-lg mt-6 leading-relaxed">
+            Book jobs, send quotes and invoices, get paid online and see what you've earned. All in one simple app, from your phone or laptop. 14-day free trial, no card needed.
+        </p>
+        <div class="mt-8">
+            <a href="{{ url_for('auth.register') }}"
+                class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-lg shadow-lg">
+                Start your 14-day free trial
+            </a>
+        </div>
+    </div>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Sound familiar?</h2>
+        <ul class="space-y-2">
+            {% for p in trade.pain_points %}
+            <li class="flex items-start gap-2 text-gray-700">
+                <span class="text-red-500 font-bold mt-0.5">✗</span>
+                <span>{{ p }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">How TradeScheduler helps</h2>
+        <p class="text-gray-700 leading-relaxed">{{ trade.solution }}</p>
+    </section>
+
+    <section class="mb-10">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">What you get</h2>
+        <ul class="space-y-2 text-gray-700">
+            <li class="flex items-start gap-2"><span class="text-green-600 font-bold">✓</span> Jobs, quotes, invoices and payments in one place</li>
+            <li class="flex items-start gap-2"><span class="text-green-600 font-bold">✓</span> VAT-ready invoices and reports for your accountant</li>
+            <li class="flex items-start gap-2"><span class="text-green-600 font-bold">✓</span> Online payments from the invoice link</li>
+            <li class="flex items-start gap-2"><span class="text-green-600 font-bold">✓</span> Automatic reminders for overdue invoices</li>
+            <li class="flex items-start gap-2"><span class="text-green-600 font-bold">✓</span> Export your data any time</li>
+        </ul>
+    </section>
+
+    <div class="text-center">
+        <a href="{{ url_for('auth.register') }}"
+            class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-lg shadow-lg">
+            Start your 14-day free trial
+        </a>
+        <p class="text-gray-500 text-sm mt-3">No card needed. Cancel anytime.</p>
+    </div>
+</div>
+{% endblock %}
