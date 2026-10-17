@@ -5,11 +5,11 @@ Prerequisites:
     playwright install chromium
 
 Usage:
-    1. Start the demo server in another terminal:
-       DEMO_DB=/tmp/tradescheduler-demo-video.db python tools/demo_server.py --port 8770
-       (or set DEMO_DB to the file seeded by tools/seed_demo.py)
-    2. Seed the demo database:
+    1. Seed the demo database:
        python tools/seed_demo.py --reset
+    2. Start the demo server in another terminal (same DEMO_DB):
+       set DEMO_DB=%TEMP%\\tradescheduler-demo-video.db
+       python tools/demo_server.py --port 8770
     3. Run this script:
        python tools/record_demo.py
 
@@ -23,7 +23,6 @@ Environment:
 """
 import os
 import sys
-import time
 
 try:
     from playwright.sync_api import sync_playwright
@@ -43,6 +42,10 @@ def pause(page, ms=1500):
     page.wait_for_timeout(ms)
 
 
+def wait_dashboard(page, timeout=15000):
+    page.wait_for_selector('text=My Jobs', timeout=timeout)
+
+
 def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
@@ -50,6 +53,10 @@ def main():
             viewport={'width': 390, 'height': 844},
             record_video_dir=OUT_DIR,
             record_video_size={'width': 390, 'height': 844},
+        )
+        # Grant cookie consent before any page loads so the banner never blocks.
+        context.add_init_script(
+            "localStorage.setItem('ts_cookie_consent', JSON.stringify({analytics:true,ads:true,clarity:true}));"
         )
         page = context.new_page()
 
@@ -59,7 +66,7 @@ def main():
         page.fill('input[name="email"]', DEMO_USER)
         page.fill('input[name="password"]', DEMO_PASS)
         page.click('button[type="submit"]')
-        page.wait_for_url('**/', timeout=10000)
+        wait_dashboard(page)
         pause(page, 2000)  # dashboard: "Know who owes you"
 
         # --- Create job ---
@@ -73,45 +80,52 @@ def main():
         page.fill('input[name="price"]', '665')
         page.select_option('select[name="activity_type"]', 'electric')
         page.click('button[type="submit"]')
-        page.wait_for_url('**/', timeout=10000)
+        wait_dashboard(page)
         pause(page, 1500)
 
-        # --- Generate quote (skip if no AI key) ---
-        # The demo server has no OpenAI key, so we skip AI generation.
-        # If a key is available, uncomment the block below.
+        # --- Generate quote (skipped: no AI key in demo) ---
+        # If a key is available, uncomment:
         # page.goto(BASE_URL + '/job/quote/1')
         # pause(page, 1000)  # "Quote in a minute"
-        # page.click('button:has-text("Generate with AI")')
-        # page.wait_for_timeout(5000)
 
         # --- Create and send invoice ---
-        # Download invoice for the first job (creates invoice + sends email, mocked by MAIL_SUPPRESS_SEND)
         page.goto(BASE_URL + '/job/invoice/1')
         pause(page, 2000)  # "Send the invoice"
 
         # --- Record payment of 300 by bank transfer ---
         page.goto(BASE_URL + '/invoices')
         pause(page, 1500)
-        # Find the first unpaid invoice and mark 300 paid
-        first_pay = page.locator('form[action*="mark-paid"] button, button:has-text("Record payment")').first
-        if first_pay.count() > 0:
-            first_pay.click()
-            page.wait_for_timeout(500)
-            page.fill('input[name="amount"]', '300')
-            page.select_option('select[name="payment_method"]', 'bank_transfer')
-            page.click('button[type="submit"]')
+        # The payment form is hidden until "Record Payment" is clicked.
+        record_btn = page.locator('button:has-text("Record Payment")').first
+        if record_btn.count() > 0:
+            record_btn.click()
+            page.wait_for_timeout(800)
+            form = page.locator('form[action*="mark-paid"]').first
+            amt = form.locator('input[name="amount"]')
+            if amt.count() > 0:
+                amt.fill('300')
+            meth = form.locator('select[name="payment_method"]')
+            if meth.count() > 0:
+                meth.select_option('bank_transfer')
+            form.locator('button[type="submit"]').first.click()
             page.wait_for_timeout(1500)
 
         # --- Back to dashboard ---
         page.goto(BASE_URL + '/')
+        wait_dashboard(page)
         pause(page, 2500)  # "Get paid" + "14-day free trial · No card needed"
 
+        video_path = page.video.path()
         context.close()
         browser.close()
 
-    print('Video saved to:', OUT_DIR)
+    print('Video saved to:', video_path)
+    print()
     print('Convert to MP4 with:')
-    print('  ffmpeg -i %s/demo.webm -vf "scale=1080:1920" -c:v libx264 -crf 23 -preset medium %s/demo.mp4' % (OUT_DIR, OUT_DIR))
+    print('  ffmpeg -i "%s" -vf "scale=1080:1920" -c:v libx264 -crf 23 -preset medium -movflags +faststart tools/demo_output/demo.mp4' % video_path)
+    print()
+    print('Poster image:')
+    print('  ffmpeg -i tools/demo_output/demo.mp4 -ss 00:00:01 -vframes 1 tools/demo_output/poster.jpg')
 
 
 if __name__ == '__main__':
