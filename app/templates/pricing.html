@@ -38,6 +38,9 @@
         <p class="text-gray-600 text-lg mt-6 leading-relaxed">
             Try everything free for 14 days — no card, no commitment. When the trial ends, pick Starter or Pro. Both are billed monthly in pounds, and you can cancel whenever you like.
         </p>
+        <div class="mt-4 inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-900 text-sm font-semibold px-4 py-2 rounded-full">
+            Founding price: £7.99 / £14.99 for the first 20 customers (locked for life). TODO(owner): wire up the counter and Stripe prices.
+        </div>
         <p class="text-gray-500 text-sm mt-3">Works with your accountant: export CSV and PDF reports any time.</p>
     </header>
 
@@ -46,7 +49,7 @@
 
         <div class="bg-white rounded-2xl shadow border-t-4 border-gray-300 p-8 flex flex-col h-full">
             <p class="text-gray-500 font-semibold mb-2">Starter</p>
-            <p class="text-4xl font-extrabold text-gray-900 mb-1">£12.99<span class="text-base font-semibold text-gray-500">/month</span></p>
+            <p class="text-4xl font-extrabold text-gray-900 mb-1"><span class="line-through text-gray-400 text-2xl mr-2">£12.99</span>£7.99<span class="text-base font-semibold text-gray-500">/month</span></p>
             <p class="text-gray-500 text-sm mb-6">Everything you need to run your jobs. Billed monthly in GBP.</p>
             <ul class="text-left space-y-2.5 mb-8 flex-1">
                 <li class="flex items-start gap-3">
@@ -84,7 +87,7 @@
         <div class="bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 p-8 flex flex-col h-full relative">
             <span class="absolute -top-3 right-8 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">Most popular</span>
             <p class="text-blue-600 font-semibold mb-2">Pro</p>
-            <p class="text-4xl font-extrabold text-gray-900 mb-1">{{ pro_price_text }}<span class="text-base font-semibold text-gray-500">/month</span></p>
+            <p class="text-4xl font-extrabold text-gray-900 mb-1"><span class="line-through text-gray-400 text-2xl mr-2">{{ pro_price_text }}</span>£14.99<span class="text-base font-semibold text-gray-500">/month</span></p>
             <p class="text-gray-500 text-sm mb-6">Fair-use AI and the extra invoicing options. Cancel anytime.</p>
             <ul class="text-left space-y-2.5 mb-8 flex-1">
                 <li class="flex items-start gap-3">

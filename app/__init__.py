@@ -113,6 +113,7 @@ def create_app():
             'ENABLED_LANGUAGES': ENABLED_LANGUAGES,
             'ENABLED_TAX_COUNTRIES': ENABLED_TAX_COUNTRIES,
             'TESTIMONIALS': TESTIMONIALS,
+            'FOUNDING_SPOTS_TOTAL': 20,
         }
 
     from app.routes import auth, main
