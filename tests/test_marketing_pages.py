@@ -39,10 +39,10 @@ def test_landing_links_to_the_new_pages(client):
 
 def test_pricing_page_keeps_the_published_numbers(client):
     body = client.get('/pricing').get_data(as_text=True)
-    check('Starter price is shown', '£12.99' in body, True)
+    check('Free pricing is shown', 'Free' in body, True)
     check('Starter AI quote allowance is shown', '25 / month' in body, True)
     check('Pro receipt allowance is shown', 'up to 300 / month' in body, True)
-    check('trial length is stated', '14 days' in body, True)
+    check('free pricing is stated', 'Free' in body, True)
 
 
 def test_faq_page_carries_the_retention_wording(client):
@@ -79,8 +79,8 @@ def test_trust_band_and_trial_reassurance_are_shown(client):
         body = client.get(path).get_data(as_text=True)
         check('%s shows the trust band' % path, 'Export your data' in body, True)
         check('%s shows the no-card marker' % path, 'No credit card' in body, True)
-        check('%s explains the post-trial state' % path,
-              'becomes read-only' in body, True)
+        check('%s explains it is free' % path,
+              'Free to use' in body, True)
 
 
 def test_mobile_cta_is_on_every_marketing_page(client):

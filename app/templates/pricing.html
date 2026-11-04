@@ -1,14 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Pricing – £12.99 Starter and £22.99 Pro a Month{% endblock %}
+{% block title %}Pricing - Free for UK Tradespeople{% endblock %}
 
 {% block head %}
-<meta name="description" content="Simple GBP pricing for UK tradespeople. Try every feature free for 14 days with no card, then Starter at £12.99 a month or Pro at £22.99 a month. Cancel anytime.">
+<meta name="description" content="Free pricing for UK tradespeople. TradeScheduler is free to use - no card, no subscription. Cancel anytime.">
 <link rel="canonical" href="https://thetradescheduler.com/pricing">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="TradeScheduler">
-<meta property="og:title" content="Pricing – £12.99 Starter and £22.99 Pro a Month">
-<meta property="og:description" content="14 days free, no card. Then Starter at £12.99 a month or Pro at £22.99 a month. Cancel anytime.">
+<meta property="og:title" content="Pricing - Free for UK Tradespeople">
+<meta property="og:description" content="Free for UK tradespeople. No card, no subscription. Cancel anytime.">
 <meta property="og:url" content="https://thetradescheduler.com/pricing">
 <meta property="og:image" content="{{ url_for('static', filename='og-image.png', _external=True) }}">
 <meta property="og:image:width" content="1200">
@@ -36,7 +36,7 @@
             Simple pricing, no surprises
         </h1>
         <p class="text-gray-600 text-lg mt-6 leading-relaxed">
-            Try everything free for 14 days — no card, no commitment. When the trial ends, pick Starter or Pro. Both are billed monthly in pounds, and you can cancel whenever you like.
+            Free for UK tradespeople. No card, no subscription, no trial expiry. Start now and use every feature.
         </p>
         <p class="text-gray-500 text-sm mt-3">Works with your accountant: export CSV and PDF reports any time.</p>
     </header>
@@ -46,7 +46,7 @@
 
         <div class="bg-white rounded-2xl shadow border-t-4 border-gray-300 p-8 flex flex-col h-full">
             <p class="text-gray-500 font-semibold mb-2">Starter</p>
-            <p class="text-4xl font-extrabold text-gray-900 mb-1">£12.99<span class="text-base font-semibold text-gray-500">/month</span></p>
+            <p class="text-4xl font-extrabold text-gray-900 mb-1">Free<span class="text-base font-semibold text-gray-500">/forever</span></p>
             <p class="text-gray-500 text-sm mb-6">Everything you need to run your jobs. Billed monthly in GBP.</p>
             <ul class="text-left space-y-2.5 mb-8 flex-1">
                 <li class="flex items-start gap-3">
@@ -76,7 +76,7 @@
             </ul>
             <a href="{{ url_for('auth.register', upgrade=1, plan='starter') }}"
                 class="block bg-gray-800 hover:bg-gray-900 text-white font-bold text-center px-6 py-3.5 rounded-xl">
-                Subscribe for £12.99/month
+                Get started for free
             </a>
             <p class="text-gray-500 text-xs mt-3 text-center">Cancel anytime.</p>
         </div>
@@ -84,7 +84,7 @@
         <div class="bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 p-8 flex flex-col h-full relative">
             <span class="absolute -top-3 right-8 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">Most popular</span>
             <p class="text-blue-600 font-semibold mb-2">Pro</p>
-            <p class="text-4xl font-extrabold text-gray-900 mb-1">{{ pro_price_text }}<span class="text-base font-semibold text-gray-500">/month</span></p>
+            <p class="text-4xl font-extrabold text-gray-900 mb-1">Free<span class="text-base font-semibold text-gray-500">/forever</span></p>
             <p class="text-gray-500 text-sm mb-6">Fair-use AI and the extra invoicing options. Cancel anytime.</p>
             <ul class="text-left space-y-2.5 mb-8 flex-1">
                 <li class="flex items-start gap-3">
@@ -230,14 +230,14 @@
                     How does the free trial work?
                     <span class="text-blue-600">▾</span>
                 </summary>
-                <p class="px-5 pb-5 text-gray-600 text-sm">You get 14 days with every feature unlocked and no card needed. When the trial ends, choose Starter at £12.99 a month or Pro at {{ pro_price_text }} a month — or do nothing and your account becomes read-only.</p>
+                <p class="px-5 pb-5 text-gray-600 text-sm">TradeScheduler is free. All features are included. No card needed, no subscription. Your data stays yours and you can export it any time.</p>
             </details>
             <details class="bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
                     Do I need a credit card to start?
                     <span class="text-blue-600">▾</span>
                 </summary>
-                <p class="px-5 pb-5 text-gray-600 text-sm">No. Create your account and use everything for 14 days. You only enter card details if and when you decide to subscribe.</p>
+                <p class="px-5 pb-5 text-gray-600 text-sm">No. TradeScheduler is free. No card needed, no subscription.</p>
             </details>
             <details class="bg-white rounded-xl shadow-sm">
                 <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
@@ -275,7 +275,7 @@
         <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white max-w-2xl mx-auto leading-tight">
             Start free, decide later
         </h2>
-        <p class="text-blue-100 mt-4 max-w-xl mx-auto">14 days with everything unlocked. No card, no commitment — just try it on real jobs.</p>
+        <p class="text-blue-100 mt-4 max-w-xl mx-auto">Free to use. No card, no commitment - just start on real jobs.</p>
         <a href="{{ url_for('auth.register') }}"
             class="inline-block mt-8 bg-yellow-400 hover:bg-yellow-300 text-gray-900 font-bold px-10 py-4 rounded-xl shadow-lg">
             Start your 14-day free trial

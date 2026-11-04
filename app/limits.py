@@ -13,6 +13,7 @@ from sqlalchemy import distinct, func
 
 from app import db
 from app.models import AIUsage, Job
+from app.payments import payments_enabled
 
 MONTH_PERIOD = '%Y-%m'
 
@@ -53,15 +54,21 @@ FEATURE_LABELS = {
 
 
 def is_pro(user):
+    if not payments_enabled():
+        return True
     return getattr(user, 'plan', 'free') == 'pro'
 
 
 def is_starter(user):
+    if not payments_enabled():
+        return False
     return getattr(user, 'plan', 'free') == 'starter'
 
 
 def trial_active(user):
     """True while the 14-day trial is still running."""
+    if not payments_enabled():
+        return False
     if is_pro(user) or is_starter(user):
         return False
     ends = getattr(user, 'trial_ends_at', None)
@@ -74,7 +81,10 @@ def is_unmetered(user):
     Paid plans are unmetered, and so is a live trial: the landing page sells the
     trial as full access, so letting the free caps touch it would contradict what
     was promised at signup. Only once the trial lapses do the caps start counting.
+    When payments are disabled, everyone is unmetered.
     """
+    if not payments_enabled():
+        return True
     return is_pro(user) or is_starter(user) or trial_active(user)
 
 
@@ -84,6 +94,8 @@ def is_read_only(user):
     Such an account keeps its data and can still view and export it, but cannot
     add or change anything until it subscribes.
     """
+    if not payments_enabled():
+        return False
     return not is_unmetered(user)
 
 
