@@ -1,62 +1,73 @@
-# TradeScheduler 🔧
+# TradeScheduler
 
-A job scheduling web app for tradespeople — electricians, plumbers, builders.
-Built as an alternative to Jobber (£39/mo) at a fraction of the cost.
+A job management and invoicing web app for UK tradespeople — electricians, plumbers, builders, roofers. Built as an affordable alternative to tools like Jobber, with AI-powered quoting and receipt scanning.
 
-🌐 **Live:** https://thetradescheduler.com
+**Live:** https://thetradescheduler.com
 
 ## Features
 
-- ✅ Job scheduling with activity type and price
-- ✅ Email reminder 40 minutes before each job
-- ✅ Quote system — send quotes, client accepts/declines via email
-- ✅ Invoice PDF generation + auto-send to client
-- ✅ Weekly and monthly earnings dashboard
-- ✅ Forgot password via email
+- **Job scheduling** — book jobs with activity type, price, duration, and address; see your day and week at a glance.
+- **Quotes** — turn a job into a professional quote, then a PDF invoice with VAT. Send it from your phone.
+- **Invoicing** — generate invoices with VAT, send them by email, track paid/unpaid/overdue.
+- **Online payments** — customers pay from the invoice link; record bank transfers, cash, or card.
+- **Expense tracking** — log costs by job, scan receipts with AI, categorise automatically.
+- **AI quote generation** — describe a job in one line and get a priced quote draft.
+- **AI receipt scanning** — photo a receipt, AI reads supplier, date, and amount.
+- **AI message reading** — paste a client message, get a structured job.
+- **Time tracking** — start/stop timers per job, manual entries, weekly/monthly totals.
+- **Accounting & VAT reports** — profit & loss, VAT reports, CSV/PDF export for your accountant.
+- **Calendar feed** — subscribe to your jobs in any calendar app (ICS).
+- **14-day free trial** — no credit card required. Starter £12.99/mo, Pro £22.99/mo.
+- **Mobile-friendly** — works in your browser, installable as a PWA.
 
 ## Tech Stack
 
-- **Backend:** Python, Flask, SQLAlchemy
-- **Database:** PostgreSQL
-- **Email:** Resend API
+- **Backend:** Python, Flask, SQLAlchemy, Alembic (migrations)
+- **Database:** PostgreSQL (production), SQLite (dev/tests)
+- **Auth:** Flask-Login, Flask-WTF (CSRF)
+- **Email:** Resend API (transactional), Flask-Mail/SMTP (reminders)
 - **PDF:** ReportLab
-- **Auth:** Flask-Login
-- **Deployment:** Docker, Railway
-- **CI/CD:** GitHub → Railway auto-deploy
+- **Payments:** Stripe (Checkout, Billing Portal, Webhooks)
+- **AI:** OpenAI API (GPT-4o-mini)
+- **Analytics:** Google Analytics 4, Google Ads, Microsoft Clarity
+- **i18n:** Flask-Babel (English, with Romanian on standby)
+- **Deployment:** Docker, Railway, GitHub Actions CI/CD
 
 ## Local Setup
 
 ```bash
 git clone https://github.com/stefcosmin09-glitch/scheduler-app
 cd scheduler-app
-python3 -m venv venv
+python -m venv venv
+# Windows:
+venv\Scripts\activate
+# macOS/Linux:
 source venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env  # add your keys
-python3 run.py
+cp .env.example .env   # fill in your keys
+python run.py
 ```
+
+The app runs at `http://127.0.0.1:5000`.
 
 ## Environment Variables
 
-```
-SECRET_KEY=
-DATABASE_URL=
-RESEND_API_KEY=
-MAIL_DEFAULT_SENDER=
-SUPPORT_EMAIL=
-LEGAL_ENTITY_NAME=
-COMPANY_NUMBER=
-LEGAL_LAST_UPDATED=
-LEGAL_DRAFT=
-```
+| Variable | Required | Description |
+|---|---|---|
+| `SECRET_KEY` | Yes | Flask session signing key. Generate: `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `DATABASE_URL` | Yes | PostgreSQL connection string (or SQLite for dev) |
+| `RESEND_API_KEY` | Yes | Resend API key for transactional email |
+| `MAIL_DEFAULT_SENDER` | Yes | Sender address for emails |
+| `STRIPE_API_KEY` | Yes | Stripe secret key |
+| `STRIPE_WEBHOOK_SECRET` | Yes | Stripe webhook signing secret |
+| `OPENAI_API_KEY` | No | OpenAI API key for AI features (optional) |
+| `SUPPORT_EMAIL` | Yes* | Contact email shown on legal pages |
+| `LEGAL_ENTITY_NAME` | Yes* | Your name or company name (sole trader OK) |
+| `COMPANY_NUMBER` | No | Company registration number (optional for sole traders) |
+| `LEGAL_LAST_UPDATED` | No | Date shown on legal pages |
+| `LEGAL_DRAFT` | No | Set to `0` to remove the DRAFT banner (default: `1`) |
 
-## Legal pages (fail-safe)
-
-`/privacy`, `/terms`, `/cookies`, `/about` and `/compare` return 404 unless
-`SUPPORT_EMAIL` and `LEGAL_ENTITY_NAME` are set. The footer legal links are
-hidden in that case, so an unconfigured deploy cannot leak raw placeholders.
-`COMPANY_NUMBER` is optional (sole traders have none). `LEGAL_DRAFT=0`
-removes the "DRAFT" banner once the text is reviewed.
+\* Required in production. If missing, legal pages return 404 and footer links are hidden.
 
 ## Tests
 
@@ -65,93 +76,65 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
-The suite builds its own SQLite database in a temporary directory and never
-touches `instance/`. It sets its own `SECRET_KEY` and `DATABASE_URL`, so it
-does not need a `.env` either, which is what lets it run in CI.
+The suite builds its own SQLite database in a temporary directory and never touches `instance/`. It sets its own `SECRET_KEY` and `DATABASE_URL`, so it does not need a `.env`.
 
-Tests also run on every push to `main` and on every pull request
-(`.github/workflows/tests.yml`), on Python 3.11 to match the Dockerfile. Beyond
-the suite, the workflow builds a database from nothing with `migrate.py` and
-checks that `requirements.txt` is still fully pinned. The build step is the one
-that matters most: the migration history was broken for a long time and only a
-fresh checkout could show it, because every developer already had a database.
-
-`SECRET_KEY` has no default. The app exits with an error rather than start
-without one, because a committed key would sign every session and CSRF token
-with a value published on GitHub. Generate one with:
-
-```bash
-python -c "import secrets; print(secrets.token_hex(32))"
-```
-
-The suite builds its own SQLite database in a temporary directory and never
-touches `instance/`, so it is safe to run against a real checkout.
-
-| File | Covers |
-| --- | --- |
-| `test_time_tracking.py` | End-to-end: manual entries, timers, plan limits, ownership, CSRF, calendar feed |
-| `test_calendar_ics.py` | The iCalendar generator against RFC 5545 |
-| `test_pages.py` | Every page touched by the feature still renders |
-| `test_dashboard_actions.py` | Job actions render as forms, not GET links |
-| `test_fk_cascade.py` | `ON DELETE CASCADE` behaves the way Postgres will |
-| `test_migrations.py` | A fresh database builds, matches the models, survives a downgrade, and the deploy entrypoint moves an old one over |
-| `test_encoding.py` | Sources stay valid UTF-8, no mojibake |
-| `test_no_secrets.py` | No credential-shaped literals are committed |
-| `test_secret_key.py` | The app refuses to start without `SECRET_KEY`, and no default is committed |
-| `test_login_throttle.py` | Sign-in stops answering after repeated failures, and cannot be used to list who has an account |
+Tests also run on every push to `main` and on every pull request (`.github/workflows/tests.yml`), on Python 3.11 to match the Dockerfile. The workflow also builds a database from nothing with `migrate.py` and checks that `requirements.txt` is fully pinned.
 
 ## Migrations
 
-The history is a single `0001_initial_schema`, generated from the models.
-Before that it was fifteen migrations that could not build a database from
-scratch, because the first one created a foreign key to a table nothing in the
-chain ever created.
+The history is a single initial migration generated from the models:
 
 ```bash
 python migrate.py     # what the container runs on every deploy
 ```
 
-`migrate.py` exists because `flask db upgrade` alone is not safe after a
-squash. A database created before the squash is stamped with a revision id the
-script directory no longer has, and plain `upgrade` answers that with
-`Can't locate revision identified by ...`, which would stop the container from
-starting. The entrypoint tells the three situations apart: an empty database
-gets the migrations, a database carrying a squashed revision gets re-stamped,
-and anything else gets a normal upgrade. An existing database is never altered,
-because its schema is already correct.
+`migrate.py` handles three situations: empty database (run migrations), database with a squashed revision (re-stamp then upgrade), and normal upgrade. It exists because `flask db upgrade` alone fails on databases created before a squash.
 
-A squashed database is stamped to the **root** of the history and then upgraded,
-not stamped to head. Stamping head would write the newest id onto a database
-that never ran the newer migrations, and the tables they create would be missing
-from then on. This is why `0002_login_throttle`, the first migration added after
-the squash, works on the production database.
+## Legal Pages (Fail-Safe)
 
-The Dockerfile runs it in place of `flask db upgrade` for that reason. Do not
-change it back.
+`/privacy`, `/terms`, `/cookies`, `/about` and `/compare` return 404 unless `SUPPORT_EMAIL` and `LEGAL_ENTITY_NAME` are set. Footer legal links are hidden in that case. `COMPANY_NUMBER` is optional. `LEGAL_DRAFT=0` removes the DRAFT banner after legal review.
 
-## Sign-in throttling
+## Sign-in Throttling
 
-Repeated failures are counted in the `login_attempt` table, on two separate
-counters, and both have to be under their limit:
+Repeated failures are counted in the `login_attempt` table on two separate counters:
 
-| counter | limit | catches |
-| --- | --- | --- |
-| per email | 5 in 15 minutes | one account sprayed from many addresses |
-| per address | 20 in 15 minutes | one address spraying many accounts |
+| Counter | Limit | Catches |
+|---|---|---|
+| Per email | 5 in 15 min | one account sprayed from many addresses |
+| Per IP address | 20 in 15 min | one address spraying many accounts |
 
-The per-address limit is much looser on purpose. Offices and mobile carriers put
-many unrelated people behind one address, and a tight limit there locks out
-honest users over somebody else's typos. The first lockout is one minute and
-doubles with every further failure up to four hours, so waiting is not a
-workaround.
+Counters are in the database (not in-process) because gunicorn can scale to multiple workers. `ProxyFix` is used so `request.remote_addr` is the real client IP.
 
-The counters are in the database, not in the worker, because gunicorn runs one
-worker today but Railway can scale the service out and `--workers` is one flag
-away. An in-process counter would hand every caller N times the allowance while
-still looking like protection.
+## Deployment
 
-Two things depend on `ProxyFix` in `create_app()`. Without it `request.remote_addr`
-is the address of the proxy in front of the app, every caller counts as one, and
-a single attacker locks out the entire user base. The same fix also stops
-externally generated links from saying `http`.
+- **Platform:** Railway (Docker)
+- **CI/CD:** GitHub Actions on push to `main` and on PRs
+- **Auto-deploy:** Railway deploys from `main` on push
 
+```bash
+# Dockerfile runs:
+python migrate.py && gunicorn run:app
+```
+
+## Project Structure
+
+```
+app/
+  __init__.py        # app factory, config, context processors
+  routes.py           # all routes (auth + main blueprints)
+  models.py           # SQLAlchemy models
+  markets.py          # enabled currencies/languages/tax countries
+  invoice.py          # PDF invoice generation (ReportLab)
+  ai_service.py       # OpenAI integration (quotes, receipts, messages)
+  email_service.py    # Resend transactional email
+  notifications.py    # email reminders
+  templates/          # Jinja2 templates
+  static/             # CSS, JS, images, icons
+tests/                # pytest suite (200+ tests)
+tools/                # demo server, screenshot capture, seed scripts
+migrations/           # Alembic migration history
+```
+
+## License
+
+Private project. All rights reserved.
