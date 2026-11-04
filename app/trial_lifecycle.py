@@ -20,6 +20,7 @@ from datetime import datetime, timedelta
 from app import db
 from app.email_service import send_email
 from app.models import LoginAttempt, User
+from app.payments import payments_enabled
 from app.markets import active_language
 
 # One run at a time. The dashboard fallback and the daily scheduler job can fire
@@ -113,6 +114,8 @@ def _email_for(user, stage, base_url):
 
 def run_trial_lifecycle(now=None):
     """Send each due lifecycle email once, then apply the retention rule."""
+    if not payments_enabled():
+        return 0, 0
     with _LOCK:
         base_url = os.getenv('APP_URL') or 'https://thetradescheduler.com'
         now = now or datetime.utcnow()

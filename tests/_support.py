@@ -28,6 +28,9 @@ os.environ['DATABASE_URL'] = 'sqlite:///' + _DB_PATH
 os.environ['SECRET_KEY'] = 'test-key-not-used-outside-this-scratch-directory'
 # The welcome email would otherwise block on a DNS timeout per registration.
 os.environ['MAIL_SUPPRESS_SEND'] = '1'
+# Payments are off by default (free app). Tests for the billing/trial system
+# need them on, so enable them here.
+os.environ['PAYMENTS_ENABLED'] = '1'
 os.environ['MAIL_DEFAULT_SENDER'] = 'tests@example.invalid'
 # Legal/contact config so the legal pages render in tests.
 os.environ['SUPPORT_EMAIL'] = 'tests@example.invalid'

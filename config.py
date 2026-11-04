@@ -41,6 +41,10 @@ class Config:
     # the "DRAFT" banner everywhere at once.
     LEGAL_DRAFT = os.environ.get('LEGAL_DRAFT', '1') != '0'
 
+    # Payments. Off by default: the app is free at launch. Set to 1 to re-enable
+    # Stripe billing, trials, plans and the read-only-after-trial behaviour.
+    PAYMENTS_ENABLED = os.environ.get('PAYMENTS_ENABLED', '0') == '1'
+
     # Contact and legal identity. Required in production: if SUPPORT_EMAIL or
     # LEGAL_ENTITY_NAME is missing, the legal pages 404 and the footer links
     # are hidden. COMPANY_NUMBER is optional (sole traders have none).

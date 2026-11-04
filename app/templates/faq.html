@@ -42,7 +42,7 @@
     {
       "@type": "Question",
       "name": "Do I need a credit card to start?",
-      "acceptedAnswer": { "@type": "Answer", "text": "No. You create your account and use every feature for 14 days with no card. You only enter card details if and when you decide to subscribe." }
+      "acceptedAnswer": { "@type": "Answer", "text": "No. TradeScheduler is free to use. There is no trial, no subscription and no card required." }
     },
     {
       "@type": "Question",
@@ -56,8 +56,8 @@
     },
     {
       "@type": "Question",
-      "name": "How does the free trial work?",
-      "acceptedAnswer": { "@type": "Answer", "text": "You get 14 days with every feature unlocked and no card needed. When the trial ends, choose Starter at £12.99 a month or Pro at £22.99 a month, or do nothing and the account becomes read-only." }
+      "name": "Is TradeScheduler free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. TradeScheduler is free to use. There is no trial, no subscription and no credit card required. All features are available to every account." }
     },
     {
       "@type": "Question",
@@ -67,7 +67,7 @@
     {
       "@type": "Question",
       "name": "What is the difference between Starter and Pro?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Both include unlimited jobs and customers, quotes, invoicing, online payments and expenses. Starter is £12.99 a month with 25 AI quotes, 10 receipt scans and 25 message reads. Pro is £22.99 a month with fair-use AI and adds VAT report export and invoices without the TradeScheduler footer." }
+      "acceptedAnswer": { "@type": "Answer", "text": "TradeScheduler is free. All features are included: unlimited jobs and customers, quotes, invoicing, online payments, expenses, AI quotes, receipt scanning and VAT reports." }
     },
     {
       "@type": "Question",
@@ -198,10 +198,10 @@
             <div class="space-y-3">
                 <details class="bg-white rounded-xl shadow-sm">
                     <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
-                        How does the free trial work?
+                        Is TradeScheduler free?
                         <span class="text-blue-600">▾</span>
                     </summary>
-                    <p class="px-5 pb-5 text-gray-600 text-sm">You get 14 days with every feature unlocked, with no card needed. When the trial ends, choose Starter at £12.99 a month or Pro at {{ pro_price_text }} a month — or do nothing and your account becomes read-only.</p>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">Yes. TradeScheduler is free to use. There is no trial, no subscription and no credit card required. All features are available to every account.</p>
                 </details>
                 <details class="bg-white rounded-xl shadow-sm">
                     <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">
@@ -215,7 +215,7 @@
                         What's the difference between Starter and Pro?
                         <span class="text-blue-600">▾</span>
                     </summary>
-                    <p class="px-5 pb-5 text-gray-600 text-sm">Both include unlimited jobs and customers, quotes, invoicing, online payments and expenses. Starter is £12.99 a month with 25 AI quotes, 10 receipt scans and 25 message reads. Pro is {{ pro_price_text }} a month with fair-use AI, and adds VAT report export and invoices without the TradeScheduler footer. See <a href="{{ url_for('main.pricing') }}" class="text-blue-700 font-semibold hover:underline">full pricing</a>.</p>
+                    <p class="px-5 pb-5 text-gray-600 text-sm">TradeScheduler is free. All features are included: unlimited jobs and customers, quotes, invoicing, online payments, expenses, AI quotes, receipt scanning and VAT reports. See <a href="{{ url_for('main.pricing') }}" class="text-blue-700 font-semibold hover:underline">full pricing</a>.</p>
                 </details>
                 <details class="bg-white rounded-xl shadow-sm">
                     <summary class="flex items-center justify-between gap-3 cursor-pointer px-5 py-4 font-semibold text-gray-900">

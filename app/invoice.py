@@ -13,7 +13,8 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 from app import format_money
-from app.markets import active_currency, active_language
+from app.markets import active_currency, active_language, active_tax_country
+from app.limits import is_pro
 
 _FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
 pdfmetrics.registerFont(TTFont('DejaVu', os.path.join(_FONT_DIR, 'DejaVuSans.ttf')))
@@ -286,7 +287,7 @@ def generate_invoice(job, user, invoice=None):
         canvas.drawString(doc.leftMargin, 1.0*cm, L['thank_you'])
         canvas.drawRightString(A4[0] - doc.rightMargin, 1.0*cm, f"Page {doc.page}")
         # Branded footer is a Pro perk; the free plan ships unbranded PDFs.
-        if user.plan == 'pro':
+        if is_pro(user):
             canvas.drawCentredString(A4[0]/2, 1.0*cm, 'TradeScheduler')
         canvas.restoreState()
 
