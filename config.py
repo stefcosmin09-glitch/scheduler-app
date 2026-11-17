@@ -35,7 +35,8 @@ class Config:
     MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or 'apikey'
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or 'stef.cosmin09@gmail.com'
+    # Generic default — no personal address baked into the code.
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or 'no-reply@example.com'
 
     # Legal pages are drafts until the owner reviews them. Flip to 0 to remove
     # the "DRAFT" banner everywhere at once.

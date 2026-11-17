@@ -1,0 +1,30 @@
+# Never copy local secrets or git history into an image layer.
+.git
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python / test artifacts
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+tests/
+
+# Runtime data that must not be baked into the image
+instance/
+backups/
+*.db
+*.log
+
+# Editor / OS junk
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp

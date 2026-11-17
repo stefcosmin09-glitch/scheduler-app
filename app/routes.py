@@ -22,6 +22,22 @@ from sqlalchemy import func
 import os
 import secrets
 
+
+def _safe_next_url(candidate, fallback):
+    """Accept only same-origin relative URLs for post-action redirects.
+
+    A plain `startswith('/')` check still allows `//evil.com`, which browsers
+    treat as a protocol-relative URL (an open redirect). Reject any candidate
+    with a scheme/host, and require exactly one leading slash.
+    """
+    if not candidate or not isinstance(candidate, str):
+        return fallback
+    parsed = urlparse(candidate)
+    if parsed.scheme or parsed.netloc or not candidate.startswith('/') or candidate.startswith('//'):
+        return fallback
+    return candidate
+
+
 # How many tracked entries the free plan can see. Tracking itself is open to
 # everyone; this only limits the history behind the report.
 FREE_TIME_ENTRIES = 5
@@ -1294,7 +1310,7 @@ def visitor_currency():
     currency = request.form.get('currency')
     if currency not in ENABLED_CURRENCIES:
         currency = 'GBP'
-    resp = make_response(redirect(request.form.get('next') or url_for('main.dashboard')))
+    resp = make_response(redirect(_safe_next_url(request.form.get('next'), url_for('main.dashboard'))))
     resp.set_cookie('ts_currency', currency, max_age=60 * 60 * 24 * 365, samesite='Lax')
     return resp
 
@@ -1429,7 +1445,7 @@ def mark_invoice_paid(invoice_id):
 
     db.session.commit()
     flash(_('Payment recorded!'))
-    return redirect(request.form.get('next') or url_for('main.invoices'))
+    return redirect(_safe_next_url(request.form.get('next'), url_for('main.invoices')))
 
 @main.route('/invoice/<int:invoice_id>/cancel', methods=['POST'])
 @login_required
@@ -1492,7 +1508,7 @@ Thank you!
         flash(_('Reminder sent to %(client)s.', client=job.client_name))
     else:
         flash(_('Could not send the reminder. Please try again.'))
-    return redirect(request.form.get('next') or url_for('main.dashboard'))
+    return redirect(_safe_next_url(request.form.get('next'), url_for('main.dashboard')))
 
 @main.route('/ai/job', methods=['GET', 'POST'])
 @login_required
@@ -1886,7 +1902,11 @@ def vat_report():
     import calendar
     from babel.dates import format_date
 
-    year = int(request.args.get('year', datetime.utcnow().year))
+    try:
+        year = int(request.args.get('year', datetime.utcnow().year))
+    except (TypeError, ValueError):
+        # ?year=abc must not turn an export into a 500.
+        year = datetime.utcnow().year
     first_day = datetime(year, 1, 1)
     last_day = datetime(year, 12, 31, 23, 59, 59)
 
@@ -1932,7 +1952,11 @@ def vat_report_export():
     import csv
     import io
 
-    year = int(request.args.get('year', datetime.utcnow().year))
+    try:
+        year = int(request.args.get('year', datetime.utcnow().year))
+    except (TypeError, ValueError):
+        # ?year=abc must not turn an export into a 500.
+        year = datetime.utcnow().year
     first_day = datetime(year, 1, 1)
     last_day = datetime(year, 12, 31, 23, 59, 59)
 
@@ -1991,10 +2015,8 @@ def set_language():
     if lang in ENABLED_LANGUAGES:
         current_user.language = lang
         db.session.commit()
-    next_url = request.args.get('next') or url_for('main.dashboard')
-    if next_url.startswith('/'):
-        return redirect(next_url)
-    return redirect(url_for('main.dashboard'))
+    next_url = _safe_next_url(request.args.get('next'), url_for('main.dashboard'))
+    return redirect(next_url)
 
 @main.route('/set-currency', methods=['POST'])
 @login_required
@@ -2003,7 +2025,5 @@ def set_currency():
     if currency in ENABLED_CURRENCIES:
         current_user.currency = currency
         db.session.commit()
-    next_url = request.args.get('next') or url_for('main.dashboard')
-    if next_url.startswith('/'):
-        return redirect(next_url)
-    return redirect(url_for('main.dashboard'))
+    next_url = _safe_next_url(request.args.get('next'), url_for('main.dashboard'))
+    return redirect(next_url)

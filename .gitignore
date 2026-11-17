@@ -7,3 +7,13 @@ backups/
 *.db
 .pytest_cache/
 messages.pot
+.venv/
+.env.*
+!.env.example
+*.log
+.coverage
+htmlcov/
+.vscode/
+.idea/
+.DS_Store
+*.swp

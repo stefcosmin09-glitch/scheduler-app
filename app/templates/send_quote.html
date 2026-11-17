@@ -90,12 +90,19 @@
             if (d.total) { document.getElementById('quote-price').value = d.total; }
             document.getElementById('ai-used').value = '1';
             pendingAi = true;
+            // AI output is untrusted text: escape it before inserting into innerHTML.
+            // Without this, a crafted label/note could inject HTML/JS (DOM XSS).
+            function esc(s) {
+                return String(s).replace(/[&<>"']/g, function (c) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                });
+            }
             var html = '<p class="font-semibold text-gray-800">' + '{{ _('Draft — review before sending') }}' + '</p>';
             var lines = [];
             if (d.labour !== null && d.labour !== undefined) lines.push('{{ _('Labour') }}: £' + d.labour.toFixed(2));
             if (d.materials !== null && d.materials !== undefined) lines.push('{{ _('Materials') }}: £' + d.materials.toFixed(2));
             (d.items || []).forEach(function (it) {
-                if (it.label && it.amount) lines.push('• ' + it.label + ' — £' + it.amount.toFixed(2));
+                if (it.label && it.amount) lines.push('• ' + esc(it.label) + ' — £' + it.amount.toFixed(2));
             });
             html += '<p class="text-gray-600">' + lines.join('<br>') + '</p>';
             if (d.total === null || d.total === undefined) {
@@ -103,7 +110,7 @@
             } else {
                 html += '<p class="font-bold text-gray-900 mt-1">' + '{{ _('Total') }}: £' + d.total.toFixed(2) + '</p>';
             }
-            if (d.notes) html += '<p class="text-gray-500 text-xs italic mt-1">' + d.notes + '</p>';
+            if (d.notes) html += '<p class="text-gray-500 text-xs italic mt-1">' + esc(d.notes) + '</p>';
             result.innerHTML = html;
             result.classList.remove('hidden');
             status.classList.add('hidden');

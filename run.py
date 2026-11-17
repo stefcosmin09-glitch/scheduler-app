@@ -105,4 +105,7 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()
 
-    app.run(debug=True, use_reloader=False)
+    # The interactive Werkzeug debugger allows remote code execution.
+    # Never enable it by default; opt in explicitly for local development only.
+    # Production uses gunicorn (see Dockerfile), which never reaches this block.
+    app.run(debug=os.environ.get('FLASK_DEBUG', '0') == '1', use_reloader=False)
